@@ -13,26 +13,40 @@ function onLoad(framework) {
   // LOOK: the line below is synyatic sugar for the code above. Optional, but I sort of recommend it.
   // var {scene, camera, renderer, gui, stats} = framework; 
 
-  // initialize a simple box and material
-  var box = new THREE.BoxGeometry(1, 1, 1);
+  // // initialize a simple box and material
+  // var box = new THREE.BoxGeometry(1, 1, 1);
 
-  var adamMaterial = new THREE.ShaderMaterial({
+  // var adamMaterial = new THREE.ShaderMaterial({
+  //   uniforms: {
+  //     image: { // Check the Three.JS documentation for the different allowed types and values
+  //       type: "t", 
+  //       value: THREE.ImageUtils.loadTexture('./adam.jpg')
+  //     }
+  //   },
+  //   vertexShader: require('./shaders/adam-vert.glsl'),
+  //   fragmentShader: require('./shaders/adam-frag.glsl')
+  // });
+  // var adamCube = new THREE.Mesh(box, adamMaterial);
+
+  // initialize an icosahedron and a new material
+  var cloud = new THREE.IcosahedronBufferGeometry(1, 4);
+
+  var cloudMaterial = new THREE.ShaderMaterial({
     uniforms: {
-      image: { // Check the Three.JS documentation for the different allowed types and values
-        type: "t", 
-        value: THREE.ImageUtils.loadTexture('./adam.jpg')
+      time: { // Check the Three.JS documentation for the different allowed types and values
+        value: 0.0
       }
     },
-    vertexShader: require('./shaders/adam-vert.glsl'),
-    fragmentShader: require('./shaders/adam-frag.glsl')
+    vertexShader: require('./shaders/cloud-vert.glsl'),
+    fragmentShader: require('./shaders/cloud-frag.glsl')
   });
-  var adamCube = new THREE.Mesh(box, adamMaterial);
+  var noiseCloud = new THREE.Mesh(cloud, cloudMaterial);
 
   // set camera position
   camera.position.set(1, 1, 2);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
-  scene.add(adamCube);
+  scene.add(noiseCloud);
 
   // edit params and listen to changes like this
   // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
@@ -43,7 +57,7 @@ function onLoad(framework) {
 
 // called on frame updates
 function onUpdate(framework) {
-  console.log(`the time is ${new Date()}`);
+ // console.log(`the time is ${new Date()}`);
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
