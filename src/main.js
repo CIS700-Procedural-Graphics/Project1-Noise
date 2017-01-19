@@ -1,6 +1,7 @@
 
 const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
 import Framework from './framework'
+// import Noise from './noise'
 
 // called after the scene loads
 function onLoad(framework) {
@@ -28,11 +29,29 @@ function onLoad(framework) {
   });
   var adamCube = new THREE.Mesh(box, adamMaterial);
 
+  // Create a new material 
+  var velvetMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      image: {
+       type: 't',
+        value: THREE.ImageUtils.loadTexture('./velvet.jpg')
+      }
+    },
+    vertexShader: require('./shaders/ico-vert.glsl'),
+    fragmentShader: require('./shaders/ico-frag.glsl')
+  });
+
+  // Create icosahedron
+  var icosahedron = new THREE.IcosahedronBufferGeometry(1, 0);
+  var myIco = new THREE.Mesh(icosahedron, velvetMaterial);
+
+
   // set camera position
   camera.position.set(1, 1, 2);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
-  scene.add(adamCube);
+  // scene.add(adamCube);
+  scene.add(myIco);
 
   // edit params and listen to changes like this
   // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
