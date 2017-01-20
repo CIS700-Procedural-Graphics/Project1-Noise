@@ -4,6 +4,31 @@ const OrbitControls = require('three-orbit-controls')(THREE)
 import Stats from 'stats-js'
 import DAT from 'dat-gui'
 
+//////////////
+// Sound:
+var analyser;
+var data;
+window.onload = function() {
+  var audcon = new AudioContext();
+  var aud = document.getElementById('myAudio');
+  var audsrc = audcon.createMediaElementSource(aud);
+  analyser = audcon.createAnalyser();
+  
+  audsrc.connect(analyser);
+  audsrc.connect(audcon.destination);
+  data = new Uint8Array(analyser.frequencyBinCount);
+/*   function audplay() {
+     requestAnimationFrame(audplay);
+     // update data in frequencyData
+     analyser.getByteFrequencyData(data);
+     // render frame based on values in frequencyData
+     // console.log(data);
+  } */
+  // aud.start();
+   aud.play();
+};
+//////////////
+
 // when the scene is done initializing, the function passed as `callback` will be executed
 // then, every frame, the function passed as `update` will be executed
 function init(callback, update) {
@@ -52,10 +77,15 @@ function init(callback, update) {
     framework.scene = scene;
     framework.camera = camera;
     framework.renderer = renderer;
+	
+
 
     // begin the animation loop
     (function tick() {
       stats.begin();
+	  analyser.getByteFrequencyData(data);
+	  framework.data=data;
+	  //console.log(data);
       update(framework); // perform any requested updates
       renderer.render(scene, camera); // render the scene
       stats.end();
