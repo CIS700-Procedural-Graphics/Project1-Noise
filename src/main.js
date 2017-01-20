@@ -42,7 +42,7 @@ function onLoad(framework) {
   });
 
   // Create icosahedron
-  var icosahedron = new THREE.IcosahedronBufferGeometry(1, 0);
+  var icosahedron = new THREE.IcosahedronBufferGeometry(1, 3);
   var myIco = new THREE.Mesh(icosahedron, velvetMaterial);
 
 
