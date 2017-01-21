@@ -3,6 +3,7 @@ const THREE = require('three'); // older modules are imported like this. You sho
 import Framework from './framework'
 // import Noise from './noise'
 
+var myIco;
 // called after the scene loads
 function onLoad(framework) {
   var scene = framework.scene;
@@ -35,6 +36,10 @@ function onLoad(framework) {
       image: {
        type: 't',
         value: THREE.ImageUtils.loadTexture('./velvet.jpg')
+      },
+      time: {
+        type: 'f',
+        value: 0.0
       }
     },
     vertexShader: require('./shaders/ico-vert.glsl'),
@@ -42,11 +47,11 @@ function onLoad(framework) {
   });
 
   // Create icosahedron
-  var icosahedron = new THREE.IcosahedronBufferGeometry(1, 3);
-  var myIco = new THREE.Mesh(icosahedron, velvetMaterial);
+  var icosahedron = new THREE.IcosahedronBufferGeometry(3, 5);
+  myIco = new THREE.Mesh(icosahedron, velvetMaterial);
 
 
-  // set camera position
+// set camera position
   camera.position.set(1, 1, 2);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
@@ -62,7 +67,9 @@ function onLoad(framework) {
 
 // called on frame updates
 function onUpdate(framework) {
-  console.log(`the time is ${new Date()}`);
+  if (myIco) {
+   myIco.material.uniforms.time.value += 0.033;
+  }
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate

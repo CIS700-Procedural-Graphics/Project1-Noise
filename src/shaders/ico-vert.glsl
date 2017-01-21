@@ -1,10 +1,40 @@
 varying vec2 vUv;
 varying vec3 color;
+uniform float time;
+float M_PI = 3.14159265359;
+
+float hash( float n )
+{
+    return fract(sin(n)*43758.5453);
+}
+
+
+float lerp(float a, float b, float t) {
+		float cos_t = (1.0 - cos(t * M_PI)) * 0.5;
+	return a * (1.0 - cos_t) + b * cos_t;
+
+}
+float noise( vec3 x )
+{
+    // The noise function returns a value in the range -1.0f -> 1.0f
+
+    vec3 p = floor(x);
+    vec3 f = fract(x);
+
+    f = f*f*(3.0-2.0*f);
+    float n = p.x + p.y*57.0 + 113.0*p.z;
+
+    return lerp(lerp(lerp( hash(n+0.0), hash(n+1.0),f.x),
+                   lerp( hash(n+57.0), hash(n+58.0),f.x),f.y),
+               lerp(lerp( hash(n+113.0), hash(n+114.0),f.x),
+                   lerp( hash(n+170.0), hash(n+171.0),f.x),f.y),f.z);
+}
 
 
 // From http://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl
 float noise_gen1(float x, float y, float z) {
-	return fract(sin(dot(vec3(x, y, z) ,vec3(12.9898,78.233, 1.0))) * 43758.5453);
+	return fract(sin(dot(vec2(x, y) ,vec2(12.9898,78.233))) * 43758.5453);
+	// return noise(vec3(x, y, z));
 }
 
 float noise_gen2(float x, float y) {
@@ -12,7 +42,7 @@ float noise_gen2(float x, float y) {
 	return x;
 }
 
-float M_PI = 3.14159265359;
+
 
 // From the noise lecture (slide 26)
 float cosine_interp(float a, float b, float t) {
@@ -53,7 +83,6 @@ float interp_noise(float x, float y, float z) {
 
 	// Interpolate along z
 	float c = cosine_interp(b1, b2, dz);
-
 	return c; 
 }
 
@@ -66,10 +95,10 @@ float multi_octave_noise () {
 
 void main() {
     vUv = uv;
-    vec3 noise_pos = position;
-
-    noise_pos *= interp_noise(position.x, position.y, position.z);//vec3(normal.x, normal.y, normal.z);
-
-    gl_Position = projectionMatrix * modelViewMatrix * vec4( noise_pos, 1.0 );
-    color = vec3(normal.x, normal.y, normal.z);
+    vec4 noise_pos = vec4(position.xyz + normal * interp_noise(position.x + time, position.y + time, position.z + time), 1.0);
+    if (noise_pos == vec4(0,0,0,1)) {
+    	noise_pos = vec4(position, 1.0);
+    }
+    gl_Position = projectionMatrix * modelViewMatrix * noise_pos;
+    // color = vec3(normal.x, normal.y, normal.z);
 }
