@@ -24,6 +24,7 @@ function init(callback, update) {
   // run this function after the window loads
   window.addEventListener('load', function() {
 
+    var time = new Date();
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
     var renderer = new THREE.WebGLRenderer( { antialias: true } );
