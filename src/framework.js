@@ -8,24 +8,18 @@ import DAT from 'dat-gui'
 // Sound:
 var analyser;
 var data;
+var aud;
 window.onload = function() {
   var audcon = new AudioContext();
-  var aud = document.getElementById('myAudio');
+  aud = document.getElementById('myAudio');
   var audsrc = audcon.createMediaElementSource(aud);
   analyser = audcon.createAnalyser();
   
   audsrc.connect(analyser);
   audsrc.connect(audcon.destination);
-  data = new Uint8Array(analyser.frequencyBinCount);
-/*   function audplay() {
-     requestAnimationFrame(audplay);
-     // update data in frequencyData
-     analyser.getByteFrequencyData(data);
-     // render frame based on values in frequencyData
-     // console.log(data);
-  } */
-  // aud.start();
-   aud.play();
+  data = new Uint8Array(analyser.frequencyBinCount); // read audio data.. 1024B by default..
+
+  aud.play();
 };
 //////////////
 
@@ -77,16 +71,18 @@ function init(callback, update) {
     framework.scene = scene;
     framework.camera = camera;
     framework.renderer = renderer;
-	
+	framework.aud=aud;
 
 
     // begin the animation loop
     (function tick() {
       stats.begin();
-	  analyser.getByteFrequencyData(data);
+	  
+	  analyser.getByteFrequencyData(data); // read audio data.. 1024B by default..
 	  framework.data=data;
 	  //console.log(data);
-      update(framework); // perform any requested updates
+      
+	  update(framework); // perform any requested updates
       renderer.render(scene, camera); // render the scene
       stats.end();
       requestAnimationFrame(tick); // register to call this again when the browser renders a new frame

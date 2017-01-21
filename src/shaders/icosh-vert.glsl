@@ -1,4 +1,8 @@
 uniform float time;
+uniform float Red;
+uniform float Green;
+uniform float Blue;
+
 varying vec2 vUv;
 varying vec3 col;
 uniform int data[1024];
@@ -115,13 +119,13 @@ void main() {
 	int ind = int(n*1024.0/75.0);
 	float d = float(data[ind])/255.0;
 	
-	vec3 pos = (n)*normal;
+	vec3 pos = (n+n*float(data[30])/255.0)*normal;
 	
 	//col=abs(normalize(vec3(pos)));
 	//col=abs(vec3(n,1-n,1-n));
 	//pos += vec3(d,d,d);
 	
-	col=abs(mix(vec3(1,1,1),vec3(1.0-d,d*0.2,0),n));
+	col=abs(mix(vec3(1,1,1),vec3(Red*(1.0-d),Green*(1.0-d),Blue*(1.0-d)),n));
     gl_Position= projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );
 }
 
