@@ -59,6 +59,40 @@
 	var THREE = __webpack_require__(6); // older modules are imported like this. You shouldn't have to worry about this much
 	
 	
+	// uniform variables for noisy shader
+	var noisyUniforms = {
+	  time: {
+	    type: "float",
+	    value: 0
+	  },
+	  octaves: {
+	    type: "int",
+	    value: 1
+	  },
+	  magnitude: {
+	    type: "float",
+	    value: 1.0
+	  },
+	  image: { // Check the Three.JS documentation for the different allowed types and values
+	    type: "t",
+	    value: THREE.ImageUtils.loadTexture('./gradient.jpg')
+	  }
+	};
+	
+	// gui variables
+	var shaderVariables = function shaderVariables() {
+	  this.octaves = 1;
+	  this.magnitude = 1;
+	};
+	
+	var noisyMaterial = new THREE.ShaderMaterial({
+	  uniforms: noisyUniforms,
+	  vertexShader: __webpack_require__(9),
+	  fragmentShader: __webpack_require__(10)
+	});
+	
+	var clock = new THREE.Clock();
+	
 	// called after the scene loads
 	function onLoad(framework) {
 	  var scene = framework.scene;
@@ -69,50 +103,40 @@
 	
 	  // LOOK: the line below is synyatic sugar for the code above. Optional, but I sort of recommend it.
 	  // var {scene, camera, renderer, gui, stats} = framework; 
-	
-	  // initialize a simple box and material
-	  var box = new THREE.BoxGeometry(1, 1, 1);
-	
-	  var adamMaterial = new THREE.ShaderMaterial({
-	    uniforms: {
-	      image: { // Check the Three.JS documentation for the different allowed types and values
-	        type: "t",
-	        value: THREE.ImageUtils.loadTexture('./adam.jpg')
-	      }
-	    },
-	    vertexShader: __webpack_require__(9),
-	    fragmentShader: __webpack_require__(10)
-	  });
-	  var adamCube = new THREE.Mesh(box, adamMaterial);
+	  var icosahedron = new THREE.IcosahedronBufferGeometry(1, 6);
+	  var noisyMesh = new THREE.Mesh(icosahedron, noisyMaterial);
 	
 	  // set camera position
 	  camera.position.set(1, 1, 2);
 	  camera.lookAt(new THREE.Vector3(0, 0, 0));
 	
-	  scene.add(adamCube);
+	  scene.add(noisyMesh);
+	
+	  var shadV = new shaderVariables();
 	
 	  // edit params and listen to changes like this
 	  // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
 	  gui.add(camera, 'fov', 0, 180).onChange(function (newVal) {
 	    camera.updateProjectionMatrix();
 	  });
+	
+	  gui.add(shadV, 'octaves', 1, 16).onChange(function (newVal) {
+	    noisyUniforms.octaves.value = newVal;
+	  });
+	  gui.add(shadV, 'magnitude', 1.0, 20.0).onChange(function (newVal) {
+	    noisyUniforms.magnitude.value = newVal;
+	  });
 	}
 	
 	// called on frame updates
-	function onUpdate(framework) {}
-	// console.log(`the time is ${new Date()}`);
-	
+	function onUpdate(framework) {
+	  var delta = clock.getDelta();
+	  noisyUniforms.time.value += delta;
+	  //console.log(uniforms.time.value);
+	}
 	
 	// when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
 	_framework2.default.init(onLoad, onUpdate);
-	
-	// console.log('hello world');
-	
-	// console.log(Noise.generateNoise());
-	
-	// Noise.whatever()
-	
-	// console.log(other())
 
 /***/ },
 /* 1 */
@@ -48013,13 +48037,13 @@
 /* 9 */
 /***/ function(module, exports) {
 
-	module.exports = "\nvarying vec2 vUv;\nvoid main() {\n    vUv = uv;\n    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n}"
+	module.exports = "varying vec2 vUv;\nvarying vec4 colorV;\nuniform float time;\nuniform int octaves;\nuniform float magnitude;\nvarying float noise;\n\nfloat random(float a, float b, float c) {\n    return fract(sin(dot(vec3(a, b, c), vec3(12.9898, 78.233, 78.233)))*43758.5453);\n}\n\nfloat lerp(float a, float b, float t) {\n    return a * (1.0 - t) + b * t;\n}\n\nvec4 lerp(vec4 a, vec4 b, float t) {\n    return a * (1.0 - t) + b * t;\n}\n\nfloat cerp(float a, float b, float t) {\n    float cos_t = (1.0 - cos(t*3.14159)) * 0.5;\n    return lerp(a, b, cos_t);\n}\n\nfloat interpolateNoise(float x, float y, float z) {\n    float x0, y0, z0, x1, y1, z1;\n    \n    // Find the grid voxel that this point falls in\n    x0 = floor(x);\n    y0 = floor(y);\n    z0 = floor(z);\n    \n    x1 = x0 + 1.0;\n    y1 = y0 + 1.0;\n    z1 = z0 + 1.0;\n    \n    // Generate noise at each of the 8 points\n    float FUL, FUR, FLL, FLR, BUL, BUR, BLL, BLR;\n    \n    // front upper left\n    FUL = random(x0, y1, z1);\n    \n    // front upper right\n    FUR = random(x1, y1, z1);\n    \n    // front lower left\n    FLL = random(x0, y0, z1);\n    \n    // front lower right\n    FLR = random(x1, y0, z1);\n    \n    // back upper left\n    BUL = random(x0, y1, z0);\n    \n    // back upper right\n    BUR = random(x1, y1, z0);\n    \n    // back lower left\n    BLL = random(x0, y0, z0);\n    \n    // back lower right\n    BLR = random(x1, y0, z0);\n    \n    // Find the interpolate t values\n    float n0, n1, m0, m1, v;\n    float tx = fract(x - x0);\n    float ty = fract(y - y0);\n    float tz = fract(z - z0);\n    tx = (x - x0);\n    ty = (y - y0);\n    tz = (z - z0);\n    \n    // interpolate along x and y for back\n    n0 = cerp(BLL, BLR, tx);\n    n1 = cerp(BUL, BUR, tx);\n    m0 = cerp(n0, n1, ty);\n    \n    // interpolate along x and y for front\n    n0 = cerp(FLL, FLR, tx);\n    n1 = cerp(FUL, FUR, tx);\n    m1 = cerp(n0, n1, ty);\n    \n    // interpolate along z\n    v = cerp(m0, m1, tz);\n    \n    return v;\n}\n\nfloat generateNoise(float x, float y, float z) {\n    float total = 0.0;\n    float persistence = 1.0 / 2.0;\n    int its = 0;\n    for (int i = 0; i < 32; i++) {\n        if (its >= octaves) {\n            break;\n        }\n        its++;\n        float freq = pow(2.0, float(i));\n        float ampl = pow(persistence, float(i));\n        total += interpolateNoise(freq*x, freq*y, freq*z)*ampl;\n    }\n    return total;\n}\n\nvoid main() {\n    vUv = uv;\n    float n = generateNoise(position.x, position.z, time);\n    float s = magnitude*n;\n\n    // use noise value to scale normal displacement\n    vec4 offset = vec4(s*normal.x, s*normal.y, s*normal.z, 1);\n    vec4 pos = vec4(position, 1) + offset;\n    gl_Position = projectionMatrix * modelViewMatrix * pos;\n    noise = n;\n}\n\n\n\n"
 
 /***/ },
 /* 10 */
 /***/ function(module, exports) {
 
-	module.exports = "varying vec2 vUv;\nvarying float noise;\nuniform sampler2D image;\n\n\nvoid main() {\n\n  vec2 uv = vec2(1,1) - vUv;\n  vec4 color = texture2D( image, uv );\n\n  gl_FragColor = vec4( color.rgb, 1.0 );\n\n}"
+	module.exports = "varying vec2 vUv;\nvarying float noise;\nvarying vec4 colorV;\nuniform sampler2D image;\nvoid main() {\n    vec2 uv = vec2(noise);\n    vec4 color = texture2D( image, uv );\n    gl_FragColor = vec4( color.rgb, 1.0 );\n}\n"
 
 /***/ }
 /******/ ]);
