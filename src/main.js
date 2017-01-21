@@ -1,8 +1,9 @@
 
-const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
+const THREE = require('three');
 import Framework from './framework'
 
-// called after the scene loads
+var App = {}
+
 function onLoad(framework) {
   var scene = framework.scene;
   var camera = framework.camera;
@@ -10,41 +11,61 @@ function onLoad(framework) {
   var gui = framework.gui;
   var stats = framework.stats;
 
-  // LOOK: the line below is synyatic sugar for the code above. Optional, but I sort of recommend it.
-  // var {scene, camera, renderer, gui, stats} = framework; 
+  var sphereGeo = new THREE.IcosahedronBufferGeometry(1, 4);
 
-  // initialize a simple box and material
-  var box = new THREE.BoxGeometry(1, 1, 1);
-
-  var adamMaterial = new THREE.ShaderMaterial({
+  var cloudMaterial = new THREE.ShaderMaterial({
     uniforms: {
-      image: { // Check the Three.JS documentation for the different allowed types and values
-        type: "t", 
-        value: THREE.ImageUtils.loadTexture('./adam.jpg')
-      }
+      time: { type: "f", value : 0.0 }
     },
-    vertexShader: require('./shaders/adam-vert.glsl'),
-    fragmentShader: require('./shaders/adam-frag.glsl')
-  });
-  var adamCube = new THREE.Mesh(box, adamMaterial);
+    vertexShader: require("./shaders/cloud.vert.glsl"),
+    fragmentShader: require("./shaders/cloud.frag.glsl"),
+  })
 
-  // set camera position
+  var debugMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      time: { type: "f", value : 0.0 }
+    },
+    vertexShader: require("./shaders/debug.vert.glsl"),
+    fragmentShader: require("./shaders/debug.frag.glsl"),
+    defines : {
+      FULLSCREEN: true
+    }
+  })
+
+  App.cloudMaterial = cloudMaterial;
+  App.debugMaterial = debugMaterial;
+
+  var cloudMesh = new THREE.Mesh(sphereGeo, cloudMaterial);
+
   camera.position.set(1, 1, 2);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
-  scene.add(adamCube);
+  // scene.add(cloudMesh);
+
+  var planeGeo = new THREE.PlaneGeometry( 1, 1, 1, 1);
+  var planeMesh = new THREE.Mesh( planeGeo, debugMaterial);
+
+  scene.add(planeMesh)
 
   // edit params and listen to changes like this
   // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
     camera.updateProjectionMatrix();
   });
+
+
+  App.initialized = true;
 }
 
 // called on frame updates
 function onUpdate(framework) {
-  console.log(`the time is ${new Date()}`);
+
+  if(App.initialized)
+  {
+  // console.log(`the time is ${new Date()}`);
+    App.cloudMaterial.uniforms.time.value += .01;
+    App.debugMaterial.uniforms.time.value += .01;
+  }
 }
 
-// when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
 Framework.init(onLoad, onUpdate);
