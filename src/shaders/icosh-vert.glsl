@@ -121,7 +121,7 @@ void main() {
 	//col=abs(vec3(n,1-n,1-n));
 	//pos += vec3(d,d,d);
 	
-	col=abs(mix(vec3(1,1,1),vec3(1.0-d,0,0.0),n));
+	col=abs(mix(vec3(1,1,1),vec3(1.0-d,d*0.2,0),n));
     gl_Position= projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );
 }
 
