@@ -2,7 +2,7 @@
 function generateNoise1(x, y, z) {
 	var n = x + y + z * 57;
     n = (n<<13) ^ n;
-    return ( 1.0 -  (n * (n * n * 15731 + 789221) + 1376312589) / 1073741824.0);
+    return ( 1.0 -  ((n * (n * n * 15731 + 789221) + 1376312589) & 0x7FFFFFFF) / 1073741824.0);
 }
 
 function linearInterpolate(a, b, t) {
@@ -10,7 +10,7 @@ function linearInterpolate(a, b, t) {
 }
 
 function cosineInterpolate(a, b, t) {
-	var cos_t = (1 - cos(t * Math.PI)) * 0.5;
+	var cos_t = (1 - Math.cos(t * Math.PI)) * 0.5;
 	return linearInterpolate(a, b, cos_t);
 }
 
@@ -22,7 +22,7 @@ function interpolateNoise(x, y, z) {
     var integerY = Math.floor(y);
     var weightY = y - integerY;
 
-    var integerZ = Math.floor(Z);
+    var integerZ = Math.floor(z);
     var weightZ = z - integerZ;
 
     var v1 = generateNoise1(integerX, integerY, integerZ);
@@ -64,7 +64,7 @@ function generateMultiOctaveNoise(x, y, z, numOctaves) {
 }
 
 export default {
-  generateNoise1: generateNoise1
+  generateMultiOctaveNoise: generateMultiOctaveNoise
 }
 
 export function other() {
