@@ -5,6 +5,12 @@ uniform float elapsedTime;
 uniform float noiseLayer1Intensity;
 uniform float noiseLayer2Intensity;
 
+//Equal to 0 or 1, used with the loaded audio file
+uniform int useAudio;
+
+//Scale the noise on the range (0, 1)
+uniform float audioLevel;
+
 //Necessary for Perlin Noise computations
 uniform int permArray[512];
 uniform vec3 gradArray[12];
@@ -136,7 +142,7 @@ void main() {
     vec3 offset = normal;
     
     //Apply the amount of elapsed time as an offset for the animation
-    vec3 posTimeOffset = position + vec3(3.0) + vec3(elapsedTime);
+    vec3 posTimeOffset = position + vec3(300.0) + vec3(mod(elapsedTime, 256.0));
     
     /*
       Scale the noise to achieve different effects:
@@ -154,6 +160,11 @@ void main() {
     float noiseLayer2 = PerlinNoiseMultiOctave(posTimeOffset * noiseLayer2Scale);
     float finalNoise = noiseLayer1 * noiseLayer1Intensity +
                        noiseLayer2 * noiseLayer2Intensity;
+    
+    //Incorporate Audio contribution to the noise
+    float audioScaledNoise = 2.0 * pow(audioLevel * float(useAudio) * finalNoise, 2.0);
+    finalNoise = finalNoise * float(1 - useAudio);
+    finalNoise += audioScaledNoise;
     
     offset *= finalNoise;
     
