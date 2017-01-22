@@ -4,10 +4,13 @@ import Framework from './framework'
 // A container of stuff to play around for the user
 // TODO: build a material inspector
 var UserInput = {
-  frequency : 1.0,
-  ratio : .707,
-  frequencyRatio: 2.0,
-  bias : .5,
+  timeScale : 2.0,
+  displacement : 1.4,
+  frequency : .75,
+  ratio : .607,
+  frequencyRatio: 2.25,
+  bias : .82,
+
   fullscreen : false,
   debugNoise : false
 };
@@ -26,17 +29,20 @@ function onLoad(framework)
 
   var rendererSize = new THREE.Vector2( renderer.getSize().width, renderer.getSize().height );
 
-  var sphereGeo = new THREE.IcosahedronBufferGeometry(1, 4);
-
   var cloudMaterial = new THREE.ShaderMaterial({
     uniforms: {
-      time: { type: "f", value : 0.0 }
+      time: { type: "f", value : 0.0 },
+      displacement: { type: "f", value : 1.0 },
+      bias: { type: "f", value : 0.0 },
+      amplitude: { type: "f", value : 1.0 },
+      frequency: { type: "f", value : 1.0 },
+      ratio: { type: "f", value : 0.707 },
+      frequencyRatio: { type: "f", value : 2.0 },
+      SCREEN_SIZE: { type: "2fv", value : rendererSize }
     },
     vertexShader: require("./shaders/cloud.vert.glsl"),
     fragmentShader: require("./shaders/cloud.frag.glsl"),
   })
-
-  console.log(renderer.getSize());
 
   var debugMaterial = new THREE.ShaderMaterial({
     uniforms: {
@@ -58,9 +64,11 @@ function onLoad(framework)
   Engine.materials.push(cloudMaterial);
   Engine.materials.push(debugMaterial);
 
+  var sphereGeo = new THREE.IcosahedronBufferGeometry(1, 7);
+
   var cloudMesh = new THREE.Mesh(sphereGeo, cloudMaterial);
 
-  camera.position.set(1, 1, 2);
+  camera.position.set(1, 1, 4);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
   scene.add(cloudMesh);
@@ -72,6 +80,10 @@ function onLoad(framework)
 
   var noiseParameters = gui.addFolder('Noise');
 
+  noiseParameters.add(UserInput, "timeScale", 0.0, 20.0).onChange(function(newVal) {
+  });
+  noiseParameters.add(UserInput, "displacement", 0.0, 4.0).onChange(function(newVal) {
+  });
   noiseParameters.add(UserInput, "frequency", 0.0, 10.0).onChange(function(newVal) {
   });
   noiseParameters.add(UserInput, "ratio", 0.0, 1.0).onChange(function(newVal) {
@@ -108,7 +120,7 @@ function onUpdate(framework)
     {
       var material = Engine.materials[i];
 
-      material.uniforms.time.value += .01;
+      material.uniforms.time.value += .01 * UserInput.timeScale;
 
       for ( var property in material.uniforms ) 
       {
