@@ -2,22 +2,18 @@ const THREE = require('three');
 import Framework from './framework'
 
 // A container of stuff to play around for the user
-var UserInput = { 
-  amplitude : 1.0,
+// TODO: build a material inspector
+var UserInput = {
   frequency : 1.0,
   ratio : .707,
   frequencyRatio: 2.0,
   bias : .5,
-  fullscreen : false
+  fullscreen : false,
+  debugNoise : false
 };
 
 var Engine = {
   materials : []
-}
-
-function updateMaterials() 
-{
-
 }
 
 function onLoad(framework) 
@@ -27,6 +23,8 @@ function onLoad(framework)
   var renderer = framework.renderer;
   var gui = framework.gui;
   var stats = framework.stats;
+
+  var rendererSize = new THREE.Vector2( renderer.getSize().width, renderer.getSize().height );
 
   var sphereGeo = new THREE.IcosahedronBufferGeometry(1, 4);
 
@@ -38,10 +36,17 @@ function onLoad(framework)
     fragmentShader: require("./shaders/cloud.frag.glsl"),
   })
 
+  console.log(renderer.getSize());
+
   var debugMaterial = new THREE.ShaderMaterial({
     uniforms: {
       time: { type: "f", value : 0.0 },
-      bias: { type: "f", value : 0.0 }
+      bias: { type: "f", value : 0.0 },
+      amplitude: { type: "f", value : 1.0 },
+      frequency: { type: "f", value : 1.0 },
+      ratio: { type: "f", value : 0.707 },
+      frequencyRatio: { type: "f", value : 2.0 },
+      SCREEN_SIZE: { type: "2fv", value : rendererSize }
     },
     vertexShader: require("./shaders/debug.vert.glsl"),
     fragmentShader: require("./shaders/debug.frag.glsl"),
@@ -58,7 +63,7 @@ function onLoad(framework)
   camera.position.set(1, 1, 2);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
-  // scene.add(cloudMesh);
+  scene.add(cloudMesh);
 
   var planeGeo = new THREE.PlaneGeometry( 1, 1, 1, 1);
   var planeMesh = new THREE.Mesh( planeGeo, debugMaterial);
@@ -66,27 +71,28 @@ function onLoad(framework)
   scene.add(planeMesh)
 
   var noiseParameters = gui.addFolder('Noise');
-  noiseParameters.add(UserInput, "amplitude", 0.0, 1.0).onChange(function(newVal) {
-  });
 
   noiseParameters.add(UserInput, "frequency", 0.0, 10.0).onChange(function(newVal) {
   });
-
   noiseParameters.add(UserInput, "ratio", 0.0, 1.0).onChange(function(newVal) {
   });
-
-  noiseParameters.add(UserInput, "frequencyRatio", 0.0, 100.0).onChange(function(newVal) {
+  noiseParameters.add(UserInput, "frequencyRatio", 0.0, 10.0).onChange(function(newVal) {
   });
-
   noiseParameters.add(UserInput, "bias", 0.0, 1.0).onChange(function(newVal) {
   });
 
+  noiseParameters.open();
 
   var debug = gui.addFolder('Debug');
 
   debug.add(UserInput, "fullscreen").onChange(function(newVal) {
   });
 
+  debug.add(UserInput, "debugNoise").onChange(function(newVal) {
+    planeMesh.visible = !planeMesh.visible;
+  });
+
+  planeMesh.visible = UserInput.debugNoise;
 
   Engine.initialized = true;
 }
@@ -96,11 +102,31 @@ function onUpdate(framework)
 {
   if(Engine.initialized)
   {
+    var screenSize = new THREE.Vector2( framework.renderer.getSize().width, framework.renderer.getSize().height );
+
     for (var i = 0; i < Engine.materials.length; i++)
     {
-      Engine.materials[i].uniforms.time.value += .01;
+      var material = Engine.materials[i];
 
+      material.uniforms.time.value += .01;
 
+      for ( var property in material.uniforms ) 
+      {
+        if(UserInput[property] != null)
+          material.uniforms[property].value = UserInput[property];
+      }
+
+      if(material.uniforms["SCREEN_SIZE"] != null)
+        material.uniforms.SCREEN_SIZE.value = screenSize;
+
+      if(material.defines["FULLSCREEN"] != null)
+      {
+        if(material.defines.FULLSCREEN != UserInput.fullscreen)
+        {
+          material.defines.FULLSCREEN = UserInput.fullscreen;
+          material.needsUpdate = true;
+        }
+      }
     }
   }
 }

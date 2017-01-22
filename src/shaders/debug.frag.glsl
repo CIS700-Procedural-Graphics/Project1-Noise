@@ -2,15 +2,18 @@
 #define TWO_PI 6.28318530718
 
 varying vec2 vUv;
-varying float noise;
 
 uniform float time;
+uniform float bias;
+uniform float frequency;
+uniform float ratio;
+uniform float frequencyRatio;
 
 // Note: there's not a lot of optimization here, because my goal is to explore stuff in a very clear manner.
 // For example, most of perlin noise implementation use precomputed gradients, etc.
 
 // Reference: https://www.shadertoy.com/view/llBSWc
-float bias(float x, float b) {
+float bias1(float x, float b) {
     b = -log2(1.0 - b);
     return 1.0 - pow(1.0 - pow(x, 1./b), b);
 }
@@ -339,94 +342,98 @@ float grid3D(vec3 x)
 }
 
 // Argument names are inspired on Maya's solidFractal node
-float fractal2D(vec2 x, float frequency, float amplitude, float ratio, float frequencyRatio, float b)
+float fractal2D(vec2 x, float b)
 {
 	float accum = 0.0;
+	float freq = frequency;
+	float ampl = 1.0; // Because we later remap stuff, initial amplitude is always 1
 
-	float result = bias3(perlin2D(x * frequency), b) * amplitude;
-	frequency *= frequencyRatio;
-	accum += amplitude;
-	amplitude *= ratio;
+	float result = bias3(perlin2D(x * freq), b) * ampl;
+	freq *= frequencyRatio;
+	accum += ampl;
+	ampl *= ratio;
 
-	result += bias3(perlin2D(x * frequency), b) * amplitude;
-	frequency *= frequencyRatio;
-	accum += amplitude;
-	amplitude *= ratio;
+	result += bias3(perlin2D(x * freq), b) * ampl;
+	freq *= frequencyRatio;
+	accum += ampl;
+	ampl *= ratio;
 
-	result += bias3(perlin2D(x * frequency), b) * amplitude;
-	frequency *= frequencyRatio;
-	accum += amplitude;
-	amplitude *= ratio;
+	result += bias3(perlin2D(x * freq), b) * ampl;
+	freq *= frequencyRatio;
+	accum += ampl;
+	ampl *= ratio;
 
-	result += bias3(perlin2D(x * frequency), b) * amplitude;
-	frequency *= frequencyRatio;
-	accum += amplitude;
-	amplitude *= ratio;
+	result += bias3(perlin2D(x * freq), b) * ampl;
+	freq *= frequencyRatio;
+	accum += ampl;
+	ampl *= ratio;
 
-	result += bias3(perlin2D(x * frequency), b) * amplitude;
-	frequency *= frequencyRatio;
-	accum += amplitude;
-	amplitude *= ratio;
+	result += bias3(perlin2D(x * freq), b) * ampl;
+	freq *= frequencyRatio;
+	accum += ampl;
+	ampl *= ratio;
 
-	result += bias3(perlin2D(x * frequency), b) * amplitude;
-	frequency *= frequencyRatio;
-	accum += amplitude;
-	amplitude *= ratio;
+	result += bias3(perlin2D(x * freq), b) * ampl;
+	freq *= frequencyRatio;
+	accum += ampl;
+	ampl *= ratio;
 
-	result += bias3(perlin2D(x * frequency), b) * amplitude;
-	frequency *= frequencyRatio;
-	accum += amplitude;
-	amplitude *= ratio;
+	result += bias3(perlin2D(x * freq), b) * ampl;
+	freq *= frequencyRatio;
+	accum += ampl;
+	ampl *= ratio;
 
-	result += bias3(perlin2D(x * frequency), b) * amplitude;
-	accum += amplitude;
+	result += bias3(perlin2D(x * freq), b) * ampl;
+	accum += ampl;
 
 	return result / accum;
 }
 
 
 // Argument names are inspired on Maya's solidFractal node
-float fractal3D(vec3 x, float frequency, float amplitude, float ratio, float frequencyRatio, float b)
+float fractal3D(vec3 x, float b)
 {
 	float accum = 0.0;
+	float freq = frequency;
+	float ampl = 1.0; // Because we later remap stuff, initial amplitude is always 1
 
-	float result = bias3(perlin3D(x * frequency), b) * amplitude;
-	frequency *= frequencyRatio;
-	accum += amplitude;
-	amplitude *= ratio;
+	float result = bias3(perlin3D(x * freq), b) * ampl;
+	freq *= frequencyRatio;
+	accum += ampl;
+	ampl *= ratio;
 
-	result += bias3(perlin3D(x * frequency), b) * amplitude;
-	frequency *= frequencyRatio;
-	accum += amplitude;
-	amplitude *= ratio;
+	result += bias3(perlin3D(x * freq), b) * ampl;
+	freq *= frequencyRatio;
+	accum += ampl;
+	ampl *= ratio;
 
-	result += bias3(perlin3D(x * frequency), b) * amplitude;
-	frequency *= frequencyRatio;
-	accum += amplitude;
-	amplitude *= ratio;
+	result += bias3(perlin3D(x * freq), b) * ampl;
+	freq *= frequencyRatio;
+	accum += ampl;
+	ampl *= ratio;
 
-	result += bias3(perlin3D(x * frequency), b) * amplitude;
-	frequency *= frequencyRatio;
-	accum += amplitude;
-	amplitude *= ratio;
+	result += bias3(perlin3D(x * freq), b) * ampl;
+	freq *= frequencyRatio;
+	accum += ampl;
+	ampl *= ratio;
 
-	result += bias3(perlin3D(x * frequency), b) * amplitude;
-	frequency *= frequencyRatio;
-	accum += amplitude;
-	amplitude *= ratio;
+	result += bias3(perlin3D(x * freq), b) * ampl;
+	freq *= frequencyRatio;
+	accum += ampl;
+	ampl *= ratio;
 
-	result += bias3(perlin3D(x * frequency), b) * amplitude;
-	frequency *= frequencyRatio;
-	accum += amplitude;
-	amplitude *= ratio;
+	result += bias3(perlin3D(x * freq), b) * ampl;
+	freq *= frequencyRatio;
+	accum += ampl;
+	ampl *= ratio;
 
-	result += bias3(perlin3D(x * frequency), b) * amplitude;
-	frequency *= frequencyRatio;
-	accum += amplitude;
-	amplitude *= ratio;
+	result += bias3(perlin3D(x * freq), b) * ampl;
+	freq *= frequencyRatio;
+	accum += ampl;
+	ampl *= ratio;
 
-	result += bias3(perlin3D(x * frequency), b) * amplitude;
-	accum += amplitude;
+	result += bias3(perlin3D(x * freq), b) * ampl;
+	accum += ampl;
 
 	return result / accum;
 }
@@ -439,5 +446,5 @@ void main()
 	// gl_FragColor = vec4(fractal2D(p, 10.0, 1.0, .8, 2.0, .8) + grid2D(p * 8.0));
 
 	// 3D projected into 2D
-	gl_FragColor = vec4(fractal3D(vec3(vUv, time * .1) * 1.0, 10.0, 1.0, .8, 2.0, .8));
+	gl_FragColor = vec4(fractal3D(vec3(vUv, time * .1) * 1.0, bias));
 }
