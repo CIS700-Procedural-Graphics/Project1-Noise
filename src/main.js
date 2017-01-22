@@ -16,25 +16,22 @@ function onLoad(framework) {
   // var {scene, camera, renderer, gui, stats} = framework; 
 
   // initialize a simple box and material
-  var box = new THREE.BoxGeometry(1, 1, 1);
+  var icosahedron = new THREE.IcosahedronGeometry(1, 0);
 
-  var adamMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-      image: { // Check the Three.JS documentation for the different allowed types and values
-        type: "t", 
-        value: THREE.ImageUtils.loadTexture('./adam.jpg')
-      }
-    },
-    vertexShader: require('./shaders/adam-vert.glsl'),
-    fragmentShader: require('./shaders/adam-frag.glsl')
+  var myMaterial = new THREE.ShaderMaterial({
+    vertexShader: require('./shaders/my-vert.glsl'),
+    fragmentShader: require('./shaders/my-frag.glsl')
   });
-  var adamCube = new THREE.Mesh(box, adamMaterial);
+
+  var meshMaterial = new THREE.MeshNormalMaterial();
+
+  var texturedIcosahedron = new THREE.Mesh(icosahedron, myMaterial);
 
   // set camera position
   camera.position.set(1, 1, 2);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
-  scene.add(adamCube);
+  scene.add(texturedIcosahedron);
 
   // edit params and listen to changes like this
   // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
