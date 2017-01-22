@@ -1,10 +1,27 @@
-
 const THREE = require('three');
 import Framework from './framework'
 
-var App = {}
+// A container of stuff to play around for the user
+var UserInput = { 
+  amplitude : 1.0,
+  frequency : 1.0,
+  ratio : .707,
+  frequencyRatio: 2.0,
+  bias : .5,
+  fullscreen : false
+};
 
-function onLoad(framework) {
+var Engine = {
+  materials : []
+}
+
+function updateMaterials() 
+{
+
+}
+
+function onLoad(framework) 
+{
   var scene = framework.scene;
   var camera = framework.camera;
   var renderer = framework.renderer;
@@ -23,17 +40,18 @@ function onLoad(framework) {
 
   var debugMaterial = new THREE.ShaderMaterial({
     uniforms: {
-      time: { type: "f", value : 0.0 }
+      time: { type: "f", value : 0.0 },
+      bias: { type: "f", value : 0.0 }
     },
     vertexShader: require("./shaders/debug.vert.glsl"),
     fragmentShader: require("./shaders/debug.frag.glsl"),
     defines : {
-      FULLSCREEN: true
+      FULLSCREEN: false
     }
   })
 
-  App.cloudMaterial = cloudMaterial;
-  App.debugMaterial = debugMaterial;
+  Engine.materials.push(cloudMaterial);
+  Engine.materials.push(debugMaterial);
 
   var cloudMesh = new THREE.Mesh(sphereGeo, cloudMaterial);
 
@@ -47,24 +65,43 @@ function onLoad(framework) {
 
   scene.add(planeMesh)
 
-  // edit params and listen to changes like this
-  // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
-  gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
-    camera.updateProjectionMatrix();
+  var noiseParameters = gui.addFolder('Noise');
+  noiseParameters.add(UserInput, "amplitude", 0.0, 1.0).onChange(function(newVal) {
+  });
+
+  noiseParameters.add(UserInput, "frequency", 0.0, 10.0).onChange(function(newVal) {
+  });
+
+  noiseParameters.add(UserInput, "ratio", 0.0, 1.0).onChange(function(newVal) {
+  });
+
+  noiseParameters.add(UserInput, "frequencyRatio", 0.0, 100.0).onChange(function(newVal) {
+  });
+
+  noiseParameters.add(UserInput, "bias", 0.0, 1.0).onChange(function(newVal) {
   });
 
 
-  App.initialized = true;
+  var debug = gui.addFolder('Debug');
+
+  debug.add(UserInput, "fullscreen").onChange(function(newVal) {
+  });
+
+
+  Engine.initialized = true;
 }
 
 // called on frame updates
-function onUpdate(framework) {
-
-  if(App.initialized)
+function onUpdate(framework) 
+{
+  if(Engine.initialized)
   {
-  // console.log(`the time is ${new Date()}`);
-    App.cloudMaterial.uniforms.time.value += .01;
-    App.debugMaterial.uniforms.time.value += .01;
+    for (var i = 0; i < Engine.materials.length; i++)
+    {
+      Engine.materials[i].uniforms.time.value += .01;
+
+
+    }
   }
 }
 
