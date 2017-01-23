@@ -32,7 +32,26 @@ function onLoad(framework) {
   camera.position.set(1, 1, 2);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
-  scene.add(adamCube);
+// commenting out the adamCube
+  // scene.add(adamCube);
+
+// NEW MATERIAL --------
+  var isodec = new THREE.IcosahedronBufferGeometry(1, 2);
+
+    var rgbMaterial = new THREE.ShaderMaterial({
+    // uniforms: {
+    //   image: { // Check the Three.JS documentation for the different allowed types and values
+    //     type: "t", 
+    //     value: THREE.ImageUtils.loadTexture('./adam.jpg')
+    //   }
+    // },
+    vertexShader: require('./shaders/noise-vert.glsl'),
+    fragmentShader: require('./shaders/noise-frag.glsl')
+  });
+ 
+  var isoShape = new THREE.Mesh(isodec, rgbMaterial);
+  scene.add(isoShape);
+// NEW MATERIAL --------
 
   // edit params and listen to changes like this
   // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
@@ -43,7 +62,7 @@ function onLoad(framework) {
 
 // called on frame updates
 function onUpdate(framework) {
-  console.log(`the time is ${new Date()}`);
+  // console.log(`the time is ${new Date()}`);
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
