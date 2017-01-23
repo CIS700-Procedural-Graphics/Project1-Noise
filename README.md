@@ -30,7 +30,7 @@ The second problem was because I was incorrectly applying frequency to the noise
 
 ![](./proj1 progress shots/incorrect interpolation.png)
 
-There was still a voxelized stratification occurring and now the noise seemed very jagged and not as smooth and gradual as I had hoped. Both of these problems were caused by bugs in my interpolation code. I was accidentally not providing a t value between 0 and 1, as well as switching the low and high values that were being interpolated between. Once I fixed these problems, I got the final product from above.
+There was still a voxelized stratification occurring and now the noise seemed very jagged and not as smooth and gradual as I had hoped. Both of these problems were caused by bugs in my interpolation code. I was accidentally not providing a t value between 0 and 1, as well as switching the low and high values that were being interpolated between. Once I fixed these problems and improved my noise function to multiply the sine decribed earlier by a large number and take the fractional component of that, I got the final product from above.
 
 ## GUI Sliders
 
@@ -38,7 +38,7 @@ I also created a few sliders using dat.GUI that affect the brightness of colors 
 
 These are lower and higher brightnesses than the final product above:
 
-![](./proj1 progress shots/low brightness.png)
+![](./proj1\ progress\ shots/low\ brightness.png)
 ![](./proj1 progress shots/high brightness.png)
 
 And these are lower and higher persitences than the final product above:
