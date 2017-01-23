@@ -3,6 +3,8 @@ varying vec3 color;
 uniform float time;
 float M_PI = 3.14159265359;
 
+
+//http://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl
 float hash( float n )
 {
     return fract(sin(n)*43758.5453);
@@ -33,7 +35,7 @@ float noise( vec3 x )
 
 // From http://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl
 float noise_gen1(float x, float y, float z) {
-	return fract(sin(dot(vec2(x, y) ,vec2(12.9898,78.233))) * 43758.5453);
+	return fract(sin(dot(vec3(x, y, z) ,vec3(12.9898,78.233, 34.2838))) * 43758.5453);
 	// return noise(vec3(x, y, z));
 }
 
@@ -50,13 +52,13 @@ float cosine_interp(float a, float b, float t) {
 	return a * (1.0 - cos_t) + b * cos_t;
 }
 
-float interp_noise(float x, float y, float z) { 
-	float x0 = floor(x),
-		y0 = floor(y),
-		z0 = floor(z),
-	 	x1 = ceil(x),
-	 	y1 = ceil(y),
-	 	z1 = ceil(z);
+float interp_noise(float x, float y, float z, float freq) { 
+	float x0 = floor(x * freq) / freq,
+		y0 = floor(y * freq) / freq,
+		z0 = floor(z * freq) / freq,
+	 	x1 = ceil(x * freq) / freq,
+	 	y1 = ceil(y * freq) / freq,
+	 	z1 = ceil(z * freq) / freq;
 
 	float p1 = noise_gen1(x0, y0, z0),
 		p2 = noise_gen1(x1, y0, z0),
@@ -87,18 +89,36 @@ float interp_noise(float x, float y, float z) {
 }
 
 
-
-float multi_octave_noise () {
+const float NUM_OCTAVES = 50.0;
+float multi_octave_noise (float x, float y, float z) {
 	// TODO
-	return 1.0;
+	float total = 0.0;
+	float persistence = 0.5;
+
+	for (float i = 0.0; i < NUM_OCTAVES; i += 1.0) {
+		float freq = pow(2.0, 1.0);
+		float amp = pow(persistence, 1.0);
+
+		total += interp_noise(x, y, z, freq) * amp;
+	}
+
+	return total;
 }
 
 void main() {
     vUv = uv;
-    vec4 noise_pos = vec4(position.xyz + normal * interp_noise(position.x + time, position.y + time, position.z + time), 1.0);
-    if (noise_pos == vec4(0,0,0,1)) {
-    	noise_pos = vec4(position, 1.0);
-    }
+    float noise_offset = multi_octave_noise(position.x + time, position.y + time, position.z + time);
+    vec4 noise_pos = vec4(position.xyz + normal * 2.0 * noise_offset, 1.0);
+    // if (noise_pos == vec4(0,0,0,1)) {
+    // 	noise_pos = vec4(position, 1.0);
+    // }
+
+    // if (noise_offset > 0.5) {
+    // 	vUv = vec2(noise_offset, 0.0);
+    // }
+
+    // vUv = vec2(noise_offset, 0.0);
+
     gl_Position = projectionMatrix * modelViewMatrix * noise_pos;
     // color = vec3(normal.x, normal.y, normal.z);
 }

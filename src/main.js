@@ -47,12 +47,12 @@ function onLoad(framework) {
   });
 
   // Create icosahedron
-  var icosahedron = new THREE.IcosahedronBufferGeometry(3, 5);
+  var icosahedron = new THREE.IcosahedronBufferGeometry(0.8, 5);
   myIco = new THREE.Mesh(icosahedron, velvetMaterial);
 
 
 // set camera position
-  camera.position.set(1, 1, 2);
+  camera.position.set(1, 1, -50);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
   // scene.add(adamCube);
@@ -68,7 +68,7 @@ function onLoad(framework) {
 // called on frame updates
 function onUpdate(framework) {
   if (myIco) {
-   myIco.material.uniforms.time.value += 0.033;
+   myIco.material.uniforms.time.value += 0.01365262;
   }
 }
 
