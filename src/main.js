@@ -36,7 +36,6 @@ function onLoad(framework) {
     //     value: THREE.ImageUtils.loadTexture('./cloud_texture.jpg')
     //   }
      },
-    // color: 0xff0000,
     vertexShader: require('./shaders/ellen-vert.glsl'),
     fragmentShader: require('./shaders/ellen-frag.glsl')
   });
