@@ -52,7 +52,7 @@ function onLoad(framework) {
 
 
 // set camera position
-  camera.position.set(1, 1, -50);
+  camera.position.set(1, 1, -100);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
   // scene.add(adamCube);
