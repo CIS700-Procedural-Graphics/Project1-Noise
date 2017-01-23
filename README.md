@@ -18,7 +18,7 @@ I then worked on generating 3D noise. I started with a simple, highly patterned 
 
 After implementing the noise generation, I applied it to my geometry by adding the noise value to each vertex's position along the surface normal. The result from this, was the following.
 
-![](./proj1 progress shots/02- added bad noise function for vertex.PNG)
+![](./proj1 progress shots/02- added bad noise function for vertex displacement.PNG)
 
 I also decided to apply the noise values to the coloring of vertices. I created a gradient of colors such that depending on the magnitude of the noise value, the color would range from yellow to white to blue, interpolating smoothly in between.
 
