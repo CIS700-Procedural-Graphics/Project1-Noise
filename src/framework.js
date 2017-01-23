@@ -1,4 +1,3 @@
-
 const THREE = require('three');
 const OrbitControls = require('three-orbit-controls')(THREE)
 import Stats from 'stats-js'
@@ -19,7 +18,7 @@ window.onload = function() {
   audsrc.connect(audcon.destination);
   data = new Uint8Array(analyser.frequencyBinCount); // read audio data.. 1024B by default..
 
-  aud.play();
+  //aud.play();
 };
 //////////////
 

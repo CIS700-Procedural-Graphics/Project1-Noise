@@ -2,20 +2,12 @@ uniform float time;
 uniform float Red;
 uniform float Green;
 uniform float Blue;
-
-varying vec2 vUv;
 varying vec3 col;
-uniform int data[1024];
+uniform int data[1024]; // audio data.. all 0s when music is not playing
 
 float Noise(in int x, in int y, in int z)
 {
     float a;
-	//int b;
-    //b = x + y*13 + z*53 + 104543;
-   // b = (b<<13) ^ b;
-    //a = 1.0 - ((b*(b*b*15731+789221)+1376312589) & 0x7fffffff) / 1073741824.0;
-    //a=(a+1)/2;
-	
 	a=fract(sin(dot(vec3(x,y,z),vec3(12.9898,78.233,138.531))) * 43758.5453);
     return a;
 }
@@ -93,31 +85,18 @@ float noise3D(float x, float y, float z)
         float amp = pow(0.5,i); // persistence = 0.25
         total += intnoise(x * freq*4.0, y* freq*4.0, z * freq*4.0) * amp;
     }
-//	float minval=0.0, maxval=0.99;
-//	if(total<minval)
-//		total = minval;
-//	if(total>maxval)
-//		total = maxval;
-//	total=(total-minval)/(maxval-minval);
     return total;
 }
 
 
 void main() {
-    vUv = uv;
-	
-	//col=abs(normal);
-	
 	float tx,ty,tz;
-	//tx=fract(sin(time)); //1D noise based on time..
-	//ty=fract(sin(time*13.0+789221.0)); //1D noise based on time..
-	//tz=fract(sin(time*29.0+15731.0)); //1D noise based on time..
-	
 	tx=time; ty=time; tz=time;
+	
 	float n = noise3D((tx+position.x),(ty+position.y),(tz+position.z));
 	
 	int ind = int(n*1024.0/75.0);
-	float d = float(data[ind])/255.0;
+	float d = float(data[ind])/255.0; //using the sound data.. this is 0 when music is not playing.
 	
 	vec3 pos = (n+n*float(data[30])/255.0)*normal;
 	

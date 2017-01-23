@@ -1,20 +1,20 @@
 const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
 import Framework from './framework'
-// import Noise from './noise'
-// import {other} from './noise'
 
 // r,g,b to pass to shaders
-var r=1.0;
+var r=0.6;
 var g=0.0; 
 var b=0.0;
 
 // function to manipulate stuff from gui
 var GUIoptions = function()
 {
-	this.Red=1.0;
+	this.Red=0.6;
 	this.Green=0.0;
 	this.Blue=0.0;
-	this.Music=true;	
+	this.Music=false;	
+	this.MusicSource=function(){
+		window.location = "http://freemusicarchive.org/music/The_Kyoto_Connection/Wake_Up_1957/09_Hachiko_The_Faithtful_Dog";};
 }
 
 // for time calculations
@@ -30,7 +30,7 @@ var icoshMaterial = new THREE.ShaderMaterial({
         value: THREE.ImageUtils.loadTexture('./adam.jpg') 
       },
 	  time: {value : 0.0},
-	  Red: {value : 1.0},
+	  Red: {value : 0.6},
 	  Green: {value : 0.0},
 	  Blue: {value : 0.0},
 	  data: {
@@ -69,19 +69,20 @@ function onLoad(framework) {
     camera.updateProjectionMatrix();
   });
   var update= new GUIoptions();
-  gui.add(update,'Red', 0.0, 1.0).onChange(function(newVal) {
+  gui.add(update,'Red', 0.0, 1.0,0.05).onChange(function(newVal) {
     r=newVal;
   });
-  gui.add(update,'Green', 0.0, 1.0).onChange(function(newVal) {
+  gui.add(update,'Green', 0.0, 1.0,0.05).onChange(function(newVal) {
     g=newVal;
   });
-  gui.add(update,'Blue', 0.0, 1.0).onChange(function(newVal) {
+  gui.add(update,'Blue', 0.0, 1.0,0.05).onChange(function(newVal) {
     b=newVal;
   });
   gui.add(update,'Music').onChange(function(newVal) {
     if(newVal===false) aud.pause();
 	else aud.play();
-  });	
+  });
+  gui.add(update,'MusicSource').onclick;  
 }
 
 // called on frame updates
@@ -101,11 +102,3 @@ function onUpdate(framework) {
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
 Framework.init(onLoad, onUpdate);
-
-// console.log('hello world');
-
-// console.log(Noise.generateNoise());
-
-// Noise.whatever()
-
-// console.log(other())
