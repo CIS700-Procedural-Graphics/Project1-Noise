@@ -4,13 +4,13 @@
 
 I created a pseudo-noise based animated cloud.
 
-![](./proj1 progress shots/final product.png)
+![](./proj1 progress shots/final product.PNG)
 
 ## Basic Geometry
 
 The cloud started off as an icosahedron geometry with high detail so that I had a lrage amount of vertices to work with. Here it appears with each vertex's RGB value set as the surface normal.
 
-![](./proj1 progress shots/01- icosahedron, normal colors.png)
+![](./proj1 progress shots/01- icosahedron, normal colors.PNG)
 
 ## Generating 3D Noise
 
@@ -18,17 +18,17 @@ I then worked on generating 3D noise. I started with a simple, highly patterned 
 
 After implementing the noise generation, I applied it to my geometry by adding the noise value to each vertex's position along the surface normal. The result from this, was the following.
 
-![](./proj1 progress shots/02- added bad noise function for vertex.png)
+![](./proj1 progress shots/02- added bad noise function for vertex.PNG)
 
 I also decided to apply the noise values to the coloring of vertices. I created a gradient of colors such that depending on the magnitude of the noise value, the color would range from yellow to white to blue, interpolating smoothly in between.
 
-![](./proj1 progress shots/03- color gradient based on noise.png)
+![](./proj1 progress shots/03- color gradient based on noise.PNG)
 
 This product appeared to have two major problems: There seemed to be stratification in the geometry around the axes, creating sharp cliffs in a voxelized form rather than smooth bumps that flowed into one another. Also, despite my multi-octave noise generation, the peaks were broad and flat rather than varied and multiple. 
 
 The second problem was because I was incorrectly applying frequency to the noise generation. I was implementing it such that higher frequency caused the noise to sample from a narrower range, whereas it should've been a wider range. Fixing the frequency provided the result below:
 
-![](./proj1 progress shots/incorrect interpolation.png)
+![](./proj1 progress shots/incorrect interpolation.PNG)
 
 There was still a voxelized stratification occurring and now the noise seemed very jagged and not as smooth and gradual as I had hoped. Both of these problems were caused by bugs in my interpolation code. I was accidentally not providing a t value between 0 and 1, as well as switching the low and high values that were being interpolated between. Once I fixed these problems and improved my noise function to multiply the sine decribed earlier by a large number and take the fractional component of that, I got the final product from above.
 
@@ -38,13 +38,13 @@ I also created a few sliders using dat.GUI that affect the brightness of colors 
 
 These are lower and higher brightnesses than the final product above:
 
-![](proj1 progress shots/low brightness.png)
-![](./proj1 progress shots/high brightness.png)
+![](./proj1 progress shots/low brightness.PNG)
+![](./proj1 progress shots/high brightness.PNG)
 
 And these are lower and higher persitences than the final product above:
 
-![](./proj1 progress shots/low persistence.png)
-![](./proj1 progress shots/high persistence.png)
+![](./proj1 progress shots/low persistence.PNG)
+![](./proj1 progress shots/high persistence.PNG)
 
 ## Time-based Animation
 
