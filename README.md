@@ -38,7 +38,7 @@ I also created a few sliders using dat.GUI that affect the brightness of colors 
 
 These are lower and higher brightnesses than the final product above:
 
-![](./proj1\ progress\ shots/low\ brightness.png)
+![](proj1 progress shots/low brightness.png)
 ![](./proj1 progress shots/high brightness.png)
 
 And these are lower and higher persitences than the final product above:
