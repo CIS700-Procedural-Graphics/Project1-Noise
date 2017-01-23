@@ -1,5 +1,6 @@
 varying vec2 vUv;
 varying float noise;
+varying vec3 originalPos;
 
 uniform float displacement;
 uniform float time;
@@ -239,6 +240,7 @@ float fractal4D(vec4 x)
 
 void main() {
     vec3 pos = position;
+    originalPos = pos;
 
     float displ = sqrt(fractal4D(vec4(pos + vec3(time), time * .25)));
     vUv = uv;

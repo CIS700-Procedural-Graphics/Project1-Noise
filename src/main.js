@@ -4,19 +4,25 @@ import Framework from './framework'
 // A container of stuff to play around for the user
 // TODO: build a material inspector
 var UserInput = {
-  timeScale : 2.0,
+  timeScale : .5,
   displacement : 1.4,
   frequency : .75,
   ratio : .607,
-  frequencyRatio: 2.25,
+  frequencyRatio: 1.25,
   bias : .82,
 
+  enableSound : false,
   fullscreen : false,
   debugNoise : false
 };
 
+// No time to design something more scalable, 
+// so all demo stuff is going to be packed here
 var Engine = {
-  materials : []
+  materials : [],
+  music : null,
+  audioAnalyser : null,
+  initialized : false
 }
 
 function onLoad(framework) 
@@ -26,6 +32,24 @@ function onLoad(framework)
   var renderer = framework.renderer;
   var gui = framework.gui;
   var stats = framework.stats;
+
+  var listener = new THREE.AudioListener();
+  camera.add(listener);
+  var sound = new THREE.Audio(listener);
+  var audioLoader = new THREE.AudioLoader();
+
+  //Load a sound and set it as the Audio object's buffer
+  audioLoader.load('./src/misc/music.mp3', function( buffer ) {
+    sound.setBuffer( buffer );
+    sound.setLoop(true);
+    sound.setVolume(1.0);
+
+    if(UserInput.enableSound)
+      sound.play();
+    // TODO: Start demo here
+  });
+
+  Engine.audioAnalyser = new THREE.AudioAnalyser( sound, 1024 );
 
   var rendererSize = new THREE.Vector2( renderer.getSize().width, renderer.getSize().height );
 
@@ -38,7 +62,8 @@ function onLoad(framework)
       frequency: { type: "f", value : 1.0 },
       ratio: { type: "f", value : 0.707 },
       frequencyRatio: { type: "f", value : 2.0 },
-      SCREEN_SIZE: { type: "2fv", value : rendererSize }
+      SCREEN_SIZE: { type: "2fv", value : rendererSize },
+      soundFrequency: { type: "f", value : 0.0 }
     },
     vertexShader: require("./shaders/cloud.vert.glsl"),
     fragmentShader: require("./shaders/cloud.frag.glsl"),
@@ -84,11 +109,13 @@ function onLoad(framework)
   });
   noiseParameters.add(UserInput, "displacement", 0.0, 4.0).onChange(function(newVal) {
   });
-  noiseParameters.add(UserInput, "frequency", 0.0, 10.0).onChange(function(newVal) {
+  noiseParameters.add(UserInput, "frequency", 0.0, 4.0).onChange(function(newVal) {
   });
   noiseParameters.add(UserInput, "ratio", 0.0, 1.0).onChange(function(newVal) {
   });
-  noiseParameters.add(UserInput, "frequencyRatio", 0.0, 10.0).onChange(function(newVal) {
+
+  // More than 3 is too much really
+  noiseParameters.add(UserInput, "frequencyRatio", 0.0, 4.0).onChange(function(newVal) {
   });
   noiseParameters.add(UserInput, "bias", 0.0, 1.0).onChange(function(newVal) {
   });
@@ -96,6 +123,13 @@ function onLoad(framework)
   noiseParameters.open();
 
   var debug = gui.addFolder('Debug');
+
+  debug.add(UserInput, "enableSound").onChange(function(newVal) {
+    if(newVal)
+      sound.play();
+    else
+      sound.stop();
+  });
 
   debug.add(UserInput, "fullscreen").onChange(function(newVal) {
   });
@@ -116,6 +150,10 @@ function onUpdate(framework)
   {
     var screenSize = new THREE.Vector2( framework.renderer.getSize().width, framework.renderer.getSize().height );
 
+    var freq = Engine.audioAnalyser.getAverageFrequency();
+
+    var dataArray = Engine.audioAnalyser.getFrequencyData();
+
     for (var i = 0; i < Engine.materials.length; i++)
     {
       var material = Engine.materials[i];
@@ -127,6 +165,13 @@ function onUpdate(framework)
         if(UserInput[property] != null)
           material.uniforms[property].value = UserInput[property];
       }
+
+      // 10: Mid freq
+      // 12: details of intro
+      // 13: No freq found
+
+      if(material.uniforms["soundFrequency"] != null)
+        material.uniforms.soundFrequency.value = dataArray[128] / 256;
 
       if(material.uniforms["SCREEN_SIZE"] != null)
         material.uniforms.SCREEN_SIZE.value = screenSize;
