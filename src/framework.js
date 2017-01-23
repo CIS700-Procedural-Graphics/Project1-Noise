@@ -1,6 +1,8 @@
 
 const THREE = require('three');
 const OrbitControls = require('three-orbit-controls')(THREE)
+const OBJLoader = require('three-obj-loader')(THREE);
+
 import Stats from 'stats-js'
 import DAT from 'dat-gui'
 

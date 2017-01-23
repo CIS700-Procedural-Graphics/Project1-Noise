@@ -16,3 +16,4 @@ https://www.shadertoy.com/view/llBSWc
 
 http://download.autodesk.com/us/maya/2011help/api/contrast_shader_8cpp-example.html
 
+https://github.com/BrianSharpe/GPU-Noise-Lib/blob/master/gpu_noise_lib.glsl

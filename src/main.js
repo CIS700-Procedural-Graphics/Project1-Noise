@@ -49,7 +49,7 @@ function onLoad(framework)
     // TODO: Start demo here
   });
 
-  Engine.audioAnalyser = new THREE.AudioAnalyser( sound, 1024 );
+  Engine.audioAnalyser = new THREE.AudioAnalyser( sound, 256 );
 
   var rendererSize = new THREE.Vector2( renderer.getSize().width, renderer.getSize().height );
 
@@ -63,10 +63,19 @@ function onLoad(framework)
       ratio: { type: "f", value : 0.707 },
       frequencyRatio: { type: "f", value : 2.0 },
       SCREEN_SIZE: { type: "2fv", value : rendererSize },
-      soundFrequency: { type: "f", value : 0.0 }
+      soundFrequency: { type: "f", value : 0.0 },
+      sphereLit: { type: "t", value: THREE.ImageUtils.loadTexture("./src/misc/MetalMap.png")}
     },
     vertexShader: require("./shaders/cloud.vert.glsl"),
     fragmentShader: require("./shaders/cloud.frag.glsl"),
+  })
+
+  var particleMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      time: { type: "f", value : 0.0 }
+    },
+    vertexShader: require("./shaders/particle.vert.glsl"),
+    fragmentShader: require("./shaders/particle.frag.glsl"),
   })
 
   var debugMaterial = new THREE.ShaderMaterial({
@@ -89,7 +98,8 @@ function onLoad(framework)
   Engine.materials.push(cloudMaterial);
   Engine.materials.push(debugMaterial);
 
-  var sphereGeo = new THREE.IcosahedronBufferGeometry(1, 7);
+  var sphereGeo = new THREE.IcosahedronBufferGeometry(1, 6);
+  var particle = new THREE.TetrahedronBufferGeometry(.01, 1);
 
   var cloudMesh = new THREE.Mesh(sphereGeo, cloudMaterial);
 
@@ -100,6 +110,32 @@ function onLoad(framework)
 
   var planeGeo = new THREE.PlaneGeometry( 1, 1, 1, 1);
   var planeMesh = new THREE.Mesh( planeGeo, debugMaterial);
+
+  var loader = new THREE.OBJLoader( );
+
+  loader.load( './misc/particles.obj', function ( object ) {
+    object.traverse( function ( child ) {
+      if ( child instanceof THREE.Mesh ) {
+
+      }
+    } );    
+      scene.add( object );
+  } );
+
+
+  for(var theta = 0; theta < 3.1415 * 2; theta += 0.1)
+  {
+    var c = Math.cos(theta);
+    var s = Math.sin(theta);
+
+    for(var i = 0; i < 32; i++)
+    {
+      // var t = (i / 32.0) * 5;
+      // var particleMesh = new THREE.Mesh( particle, particleMaterial);
+      // particleMesh.position.set(c * t, 0, s * t );
+      // scene.add(particleMesh);
+    }
+  }
 
   scene.add(planeMesh)
 
@@ -171,7 +207,7 @@ function onUpdate(framework)
       // 13: No freq found
 
       if(material.uniforms["soundFrequency"] != null)
-        material.uniforms.soundFrequency.value = dataArray[128] / 256;
+        material.uniforms.soundFrequency.value = dataArray[64] / 256;
 
       if(material.uniforms["SCREEN_SIZE"] != null)
         material.uniforms.SCREEN_SIZE.value = screenSize;
