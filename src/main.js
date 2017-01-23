@@ -30,11 +30,23 @@ function onLoad(framework) {
   });
   var adamCube = new THREE.Mesh(box, adamMaterial);
 
+  var sphereMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      uTime: {value: 1.0}
+    },
+    vertexShader: require('./shaders/sphere-vert.glsl'),
+    fragmentShader: require('./shaders/sphere-frag.glsl')
+  });
+
+  var sphere = new THREE.IcosahedronBufferGeometry(1, 1);
+  var mySphere =new THREE.Mesh(sphere, sphereMaterial);
+
   // set camera position
   camera.position.set(1, 1, 2);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
-  scene.add(adamCube);
+  //scene.add(adamCube);
+  scene.add(mySphere);
 
   // edit params and listen to changes like this
   // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
