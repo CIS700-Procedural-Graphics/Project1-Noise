@@ -9,6 +9,10 @@ The project goes about creating a sphere, and then applying a pseudo-4D noise (3
 GUI controls let you:
 1. Change the texture applied onto the sphere (from a fixed set of images)
 2. Change the strength of the Noise
+3. Change the persistence of the octaves of Noise
+4. Change the number of octaves of Noise
+5. Change the field of view of the camera
+6. Change the aspect ratio of the camera
 
 The UVs are updated constantly to make the surface of the sphere seem animated.
 
@@ -18,7 +22,7 @@ The UVs are updated constantly to make the surface of the sphere seem animated.
 
 1. Created a Icosahedron geometry, which when sub-dived approximates a sphere really well.
 
-2. Using this approsimated sphere and a custom material 'color_Material', I created a sphere mesh, that was added to the scene.
+2. Using this approximated sphere and a custom material 'color_Material', I created a sphere mesh, that was added to the scene.
 
 3. The color_Material contains multiple uniforms (including multiple textures that will be used with different image samplers), that will be passed too the shader to control various aspects. Some of these uniforms were also added to the GUI to increase interactivity.
    'color_Material' also holds the creates its own fragment and vertex shaders (all Materials in nodejs do).
