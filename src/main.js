@@ -5,18 +5,23 @@ import Framework from './framework'
 // create new noise material 
     var noiseMaterial = new THREE.ShaderMaterial({
     uniforms: {
-      time: { // Check the Three.JS documentation for the different allowed types and values
-        value: 0.0
-      }
+      time: { value: 0.0 },
+      u_persistance: { value : 0.7 },
+      u_color: {value : 0.0 }
     },
     vertexShader: require('./shaders/noise-vert.glsl'),
     fragmentShader: require('./shaders/noise-frag.glsl')
   });
 
-var FizzyText = function() {
-  this.message = 'dat.gui';
-  this.noiseHeight = 0.0; 
+// add to the GUI 
+var persistObj = function() {
+  this.message = 'persistance';
+  this.persistance = 0.7; 
+  this.colors = 0.0;
 };
+
+// Uniform time to be sent to shader
+var totalTime = 0.0; 
 
 
 // called after the scene loads
@@ -53,7 +58,7 @@ function onLoad(framework) {
   // scene.add(adamCube);
 
 // Create an Isodecahedron, and assign it a new material
-  var isodec = new THREE.IcosahedronBufferGeometry(1, 2);
+  var isodec = new THREE.IcosahedronBufferGeometry(1, 5);
   var isoShape = new THREE.Mesh(isodec, noiseMaterial);
   scene.add(isoShape);
 
@@ -62,18 +67,24 @@ function onLoad(framework) {
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
     camera.updateProjectionMatrix();
   });
-  gui.add(camera, 'nononono', 0, 180).onChange(function(newVal) {
-    console.log("hi");
-  });
 
+  // Add functionality to change the persistance of noise function
+  var perturb = new persistObj(); 
+  gui.add(perturb, 'persistance', 0.0, 1.0).onChange(function(newVal) {
+      noiseMaterial.uniforms.u_persistance.value = newVal;
+    });
+  gui.add(perturb, 'colors', 0.0, 1.0).onChange(function(newVal) {
+      noiseMaterial.uniforms.u_color.value = newVal;
+  }); 
 }
 
 // called on frame updates
 function onUpdate(framework) {
-  // console.log(`the time is ${new Date()}`);
-  var date = new Date()
-  noiseMaterial.uniforms.time.value = date.getMilliseconds();
 
+  // send time to shader
+  var date = new Date()
+  totalTime += 1; 
+  noiseMaterial.uniforms.time.value = totalTime;
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
