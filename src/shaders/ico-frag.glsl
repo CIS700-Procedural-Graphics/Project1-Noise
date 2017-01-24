@@ -10,6 +10,9 @@ uniform vec3 innerColor;
 uniform bool stripes;
 uniform float stripeDensity;
 uniform bool pattern;
+uniform vec3 patternColor;
+uniform vec3 stripeColor;
+uniform float patternDensity;
 
 void main() {
   vec4 color =  texture2D( image, vUv );
@@ -23,19 +26,17 @@ void main() {
   color -= (vec4(1,1,1,1) - outer) / 1.5;
   color += inner *  5.0 / noise;
 
-  // const float n = noise;
   if (pattern) {
-	  if (mod(floor(noise * 5.0), floor(noise2 * 50.0)) < 5.0){
-	  	color -= 0.5;
+	  if (mod(floor(noise * patternDensity * 8.0), floor(noise2 * 50.0)) < 4.0){
+	  	color = vec4(patternColor, 1.0);
 	  }
 	}
 
 	if (stripes) {
-	  if(mod(floor(noise * stripeDensity * 10.0), 8.0) == 0.0 ) {
-	  	color = vec4(1,1,1,1);
+	  if(mod(floor(noise * stripeDensity * 30.0), 8.0) == 0.0 ) {
+	  	color = vec4(stripeColor, 1.0);
 	  }
 	}
-
 
   gl_FragColor = vec4( color.rgb, 1.0 );
 
