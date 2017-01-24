@@ -15,26 +15,36 @@ function onLoad(framework) {
   // LOOK: the line below is synyatic sugar for the code above. Optional, but I sort of recommend it.
   // var {scene, camera, renderer, gui, stats} = framework; 
 
-  // initialize icosahedron 
-  var icosahedron = new THREE.IcosahedronGeometry(1, 0);
+  // initialize icosahedron object
+  var icosahedron = {
+    radius: 1,
+    detail: 0
+  }
+  var icosahedronGeometry = new THREE.IcosahedronGeometry(icosahedron.radius, icosahedron.detail);
 
   var myMaterial = new THREE.ShaderMaterial({
     vertexShader: require('./shaders/my-vert.glsl'),
     fragmentShader: require('./shaders/my-frag.glsl')
   });
 
-  var texturedIcosahedron = new THREE.Mesh(icosahedron, myMaterial);
+  var texturedIcosahedron = new THREE.Mesh(icosahedronGeometry, myMaterial);
+  scene.add(texturedIcosahedron);
   
   // set camera position
   camera.position.set(1, 1, 2);
   camera.lookAt(new THREE.Vector3(0,0,0));
-
-  scene.add(texturedIcosahedron);
   
   // edit params and listen to changes like this
   // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
     camera.updateProjectionMatrix();
+  });
+
+  gui.add(icosahedron, 'detail', 0, 5).step(1).onFinishChange(function(newVal) {
+    scene.remove(texturedIcosahedron);
+    icosahedronGeometry = new THREE.IcosahedronGeometry(1, newVal);
+    texturedIcosahedron = new THREE.Mesh(icosahedronGeometry, myMaterial);
+    scene.add(texturedIcosahedron);
   });
 }
 
