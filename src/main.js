@@ -2,6 +2,24 @@
 const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
 import Framework from './framework'
 
+var ellenMaterial = new THREE.ShaderMaterial({
+     uniforms: {
+      image: { // Check the Three.JS documentation for the different allows types and values
+        type: "t",
+        value: THREE.ImageUtils.loadTexture('./explosion.png')
+      },
+      time: {
+        type: "f",
+        value: 1.0
+      }
+     },
+    vertexShader: require('./shaders/ellen-vert.glsl'),
+    fragmentShader: require('./shaders/ellen-frag.glsl')
+  });
+
+var startTime = new Date();
+var currentTime = new Date();
+
 // called after the scene loads
 function onLoad(framework) {
   var scene = framework.scene;
@@ -28,21 +46,11 @@ function onLoad(framework) {
   // });
   // var adamCube = new THREE.Mesh(box, adamMaterial);
 
-  var icosahedron = new THREE.IcosahedronGeometry(1, 0);
-  var ellenMaterial = new THREE.ShaderMaterial({
-     uniforms: {
-    //   image: { // Check the Three.JS documentation for the different allows types and values
-    //     type: "t",
-    //     value: THREE.ImageUtils.loadTexture('./cloud_texture.jpg')
-    //   }
-     },
-    vertexShader: require('./shaders/ellen-vert.glsl'),
-    fragmentShader: require('./shaders/ellen-frag.glsl')
-  });
+  var icosahedron = new THREE.IcosahedronGeometry(1, 6);
   var ellenIcosahedron = new THREE.Mesh(icosahedron, ellenMaterial);
 
   // set camera position
-  camera.position.set(1, 1, 2);
+  camera.position.set(1, 1, 30);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
   // scene.add(adamCube);
@@ -58,7 +66,16 @@ function onLoad(framework) {
 // called on frame updates
 function onUpdate(framework) {
   // console.log(`the time is ${new Date()}`);
+  currentTime = new Date();
+  currentTime = currentTime - startTime;
+  ellenMaterial.uniforms['time'].value = (Math.sin(currentTime) + 1.0) / 2.0;
+
+  console.log(`the time is ${ellenMaterial.uniforms["time"].value}`);
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
 Framework.init(onLoad, onUpdate);
+
+
+// WEBPACK FOOTER //
+// ./src/main.js
