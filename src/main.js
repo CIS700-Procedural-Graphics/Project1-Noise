@@ -10,9 +10,9 @@ var mat = {
     amplitude: {value: 0.8},
     frequency: {value: 2.0},
     num_octaves: {value: 5},
-    bcolor: {value: [16/255,17/255, 134/255]},
-    rcolor: {value: [0, 0.4,0.2]},
-    tcolor: {value: [1,1,1]},
+    bcolor: {value: [0,128/255, 0]},
+    rcolor: {value: [25/255, 25/255,112/255]},
+    tcolor: {value: [205/255,133/255,63/255]},
     grads: {type: 'vec3', value: [new THREE.Vector3(1,1,0), new THREE.Vector3(-1,1,0), new THREE.Vector3(1,-1,0),        new THREE.Vector3(-1,-1,0), new THREE.Vector3(1,0,1), new THREE.Vector3(-1,0,1), new THREE.Vector3(1,0,-1), 
       new THREE.Vector3(-1,0,-1), new THREE.Vector3(0,1,1), new THREE.Vector3(0,-1,1), new THREE.Vector3(0,1,-1), 
       new THREE.Vector3(0,-1,-1)]}
@@ -36,17 +36,18 @@ function onLoad(framework) {
   // initialize a simple box and material
 
   var loader = new THREE.OBJLoader();
-  loader.load('koffie.obj', function(object) {
+  loader.load('banana.obj', function(object) {
     for (var i = 0; i < object.children.length; ++i) {
       var geo = object.children[i].geometry;
-      var mat = new THREE.MeshLambertMaterial({color: 0xffffff});
-      var mesh = new THREE.Mesh(geo, mat);
+      //var mat = new THREE.MeshLambertMaterial({color: 0xffffff});
+      var material = new THREE.ShaderMaterial(mat);
+      var mesh = new THREE.Mesh(geo, material);
       //scene.add(mesh);
 
       geo.computeBoundingSphere();
       var center = geo.boundingSphere.center;
       geo.translate(-center.x, -center.y, -center.z);
-      geo.scale(0.1, 0.1, 0.1);
+      geo.scale(1,1, 1);
       geo.computeVertexNormals();
     }
   });
@@ -65,7 +66,7 @@ function onLoad(framework) {
   var ball = new THREE.Mesh(ico, material);
 
   // set camera position
-  camera.position.set(1, 1, 20);
+  camera.position.set(1, 1, 10);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
    scene.add(ball);
