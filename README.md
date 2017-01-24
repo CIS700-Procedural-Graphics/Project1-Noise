@@ -10,13 +10,21 @@ My code implements:
 1. Two independently controlled multi-octave noise (MON) generators.
 2. Each uses the same underlying noise generator, unfortunately, although this may give some good continuity effects.
 3. Each can have its parameters controlled from the GUI:
+
 	a. N1 is for generator one, N2 is for generator two
+
 	b. Time Scale - scales down the time value to control 'speed' of animation
+
 	c. fundamental - set the fundamental frequency of sampling
+
 	d. harmScale - set the scaling factor between harmonics of the MON. Harmonic N = fundamental * harmScale ^ (N-1).
+
 	e. components - the number of harmonics in the MON.
+
 	f. persistence - scales the amplitude of each component in the MON. Values > 1 are interesting!
+
 	g. symmetry[XYZ] - controls symmetry of noise across each axis. Only looks good if 0 or 1. Intermediate values look good in static renders but I had trouble making it smooth with how I was using time to vary vertex position.
+
 4. Time is used simply to offset vertex position, and vertex position is used to generate noise. This has awkward effect of making noise look to be moving in a direction in some cases. Better would be to create true 4D noise with time as 4th dim.
 5. The default settings combine symmetry in X for a slow movig, high spatial-frequency noise, with symmetry in Y for a faster-moving, low spatial-frequency noise. I think this makes it look alive, like a tiny plankton creature, undulating with water pressure and life processes.
 
