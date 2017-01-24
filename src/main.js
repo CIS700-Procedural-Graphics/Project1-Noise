@@ -10,10 +10,9 @@ var mat = {
     amplitude: {value: 0.8},
     frequency: {value: 2.0},
     num_octaves: {value: 5},
-    cell: {value: false},
     bcolor: {value: [16/255,17/255, 134/255]},
-    rcolor: {value: [0,0,0.1]},
-    tcolor: {value: [12/255,84/255, 49/255]},
+    rcolor: {value: [0, 0.4,0.2]},
+    tcolor: {value: [1,1,1]},
     grads: {type: 'vec3', value: [new THREE.Vector3(1,1,0), new THREE.Vector3(-1,1,0), new THREE.Vector3(1,-1,0),        new THREE.Vector3(-1,-1,0), new THREE.Vector3(1,0,1), new THREE.Vector3(-1,0,1), new THREE.Vector3(1,0,-1), 
       new THREE.Vector3(-1,0,-1), new THREE.Vector3(0,1,1), new THREE.Vector3(0,-1,1), new THREE.Vector3(0,1,-1), 
       new THREE.Vector3(0,-1,-1)]}
@@ -76,9 +75,6 @@ function onLoad(framework) {
 
   // edit params and listen to changes like this
   // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
-  //gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
-    //camera.updateProjectionMatrix();
-  //});
   gui.addColor(ico, 'base_color').onChange(function(newVal) {
     mat.uniforms['bcolor'].value = [newVal[0]/255, newVal[1]/255, newVal[2]/255];
   });

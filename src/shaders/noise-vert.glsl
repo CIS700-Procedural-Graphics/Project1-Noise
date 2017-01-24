@@ -1,6 +1,5 @@
 uniform vec3 grads[12];
 uniform float time;
-uniform bool cell;
 uniform int num_octaves;
 uniform float amplitude;
 uniform float frequency;
@@ -83,7 +82,7 @@ void main() {
     		if (i < num_octaves) {
     			float freq = pow(frequency, float(i));
     			float amp = pow(amplitude, float(i));
-    			noise += perlin_noise(position, freq, amp, time);
+    			noise += p_noise(position, freq, amp, time);
     		}	
     	}
 
