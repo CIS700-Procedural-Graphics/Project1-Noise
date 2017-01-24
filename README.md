@@ -1,12 +1,14 @@
 # [Project 1: Noise](https://github.com/CIS700-Procedural-Graphics/Project1-Noise)
 
+Project Demo [Here](http://andreahlin.github.io/Project1-Noise).
 ## Description
 
 Implementation of 3D multioctave noise algorithm using three.js and its shader support.
 
-## Features Implemented
 ![Alt text](no-persistance-example.png?raw=true)
 ![Alt text](persistance-example.png?raw=true)
+
+## Features Implemented
 
 a. Original isodecahedron mesh deformed using multioctave noise values as an offset to the surface. 
 
