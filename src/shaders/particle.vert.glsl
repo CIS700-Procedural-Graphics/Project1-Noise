@@ -254,6 +254,7 @@ void main()
     vNormal = normalMatrix * normal;
 
     vec3 pos = position;
+    
     vec4 tPos = vec4(pos * .05+ vec3(time), time * .25);
 
     float noise = perlin4D(tPos) * 10.0;
