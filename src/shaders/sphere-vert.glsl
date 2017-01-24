@@ -35,9 +35,9 @@ float cosine_interpolate(float a, float b, float t){
 }
 
 
-float trilinearInterpolation(float frequency, float amplitude){
+float trilinearInterpolation(vec3 pos, float frequency, float amplitude){
 
-	vec3 pd = position;
+	vec3 pd = pos * frequency;
 
 	//8 adjacent vec3 positions on lattice
 	vec3 v000 = vec3(floor(pd.x),floor(pd.y),floor(pd.z));
@@ -76,15 +76,15 @@ float trilinearInterpolation(float frequency, float amplitude){
 }
 
 
-float PerlinNoise3D(){
+float PerlinNoise3D(vec3 pos){
 	float total = 0.0;
 	float persistance = 1.0 / 2.0;
 
-	for (int i = 0 ; i < 1; i++){
+	for (int i = 0 ; i < N_OCTAVES; i++){
 
 		float frequency = pow(2.0, float(i));
 		float amplitude = pow(persistance, float(i));
-		total += trilinearInterpolation(frequency, amplitude);
+		total += trilinearInterpolation(pos, frequency, amplitude);
 
 	}
 
@@ -95,7 +95,8 @@ float PerlinNoise3D(){
 }
 
 float animatedNoise(){
-	return (sin(uTime) + 1.0)/2.0*(PerlinNoise3D());
+	//return (sin(uTime) + 1.0)/2.0*(PerlinNoise3D());
+	return PerlinNoise3D(position + uTime / 5.0);
 }
 
 void main() {

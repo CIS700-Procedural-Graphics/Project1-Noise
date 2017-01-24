@@ -14,7 +14,8 @@ void main() {
   vec3 start_col = vec3(255.0,255.0,0.0);
   vec3 end_col = vec3(255.0,0.0,0.0);
 
-  noise_col = lerp(start_col, end_col, vNoise*3.0);
+  //noise_col = lerp(start_col, end_col, vNoise);
+
   
   gl_FragColor = vec4( noise_col.rgb, 1.0 );
 }
