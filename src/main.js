@@ -2,6 +2,39 @@
 const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
 import Framework from './framework'
 
+var time_update = 0;
+var total_octaves = 8;
+
+var start = Date.now();
+
+var p = {
+  explode : 20.0,
+  octaves : 0.0
+}
+
+var icosahedron_geo = new THREE.IcosahedronGeometry(0.25, 5);//5); //making the second var 1 adds more verts and makes it more spherical
+icosahedron_geo.translate(2, 0, -1);
+
+var icosahedronMaterial = new THREE.ShaderMaterial({
+  uniforms: {
+    time: {
+      type: "float",
+      value : time_update
+    },
+    num_octaves: {
+      type: "float",
+      value : total_octaves
+    }
+  },
+
+  vertexShader: require('./shaders/icosahedron-vert.glsl'),
+  fragmentShader: require('./shaders/icosahedron-frag.glsl')
+});
+var icosahedronMesh = new THREE.Mesh(icosahedron_geo, icosahedronMaterial);
+
+
+
+
 // called after the scene loads
 function onLoad(framework) {
   var scene = framework.scene;
@@ -11,7 +44,7 @@ function onLoad(framework) {
   var stats = framework.stats;
 
   // LOOK: the line below is synyatic sugar for the code above. Optional, but I sort of recommend it.
-  // var {scene, camera, renderer, gui, stats} = framework; 
+  // var {scene, camera, renderer, gui, stats} = framework;
 
   // initialize a simple box and material
   var box = new THREE.BoxGeometry(1, 1, 1);
@@ -19,14 +52,29 @@ function onLoad(framework) {
   var adamMaterial = new THREE.ShaderMaterial({
     uniforms: {
       image: { // Check the Three.JS documentation for the different allowed types and values
-        type: "t", 
+        type: "t",
         value: THREE.ImageUtils.loadTexture('./adam.jpg')
       }
     },
     vertexShader: require('./shaders/adam-vert.glsl'),
     fragmentShader: require('./shaders/adam-frag.glsl')
-  });
+  }); //end adam material
+
   var adamCube = new THREE.Mesh(box, adamMaterial);
+
+
+  //PROJ 1: NOISE
+  //Using the provided framework code, create a new three.js material which references a vertex and fragment shader.
+  //Look at the adamMaterial for reference. It should reference at least one uniform variable (you'll need a time variable to animate your mesh later on).
+
+  //Create an icosahedron, instead of the default cube geometry provided in the scene.
+  //Test your shader setup by applying the material to the icosahedron and color the mesh in the fragment shader using the normals' XYZ components as RGB.
+
+  //Note that three.js automatically injects several uniform and attribute variables into your shaders by default;
+  //they are listed in the documentation for three.js's WebGLProgram class.
+
+
+
 
   // set camera position
   camera.position.set(1, 1, 2);
@@ -34,16 +82,44 @@ function onLoad(framework) {
 
   scene.add(adamCube);
 
+  //PROJ 1: NOISE
+  scene.add(icosahedronMesh);
+
+
   // edit params and listen to changes like this
   // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
     camera.updateProjectionMatrix();
   });
+
+
+
+
+  gui.add(p, 'explode', 0, 100).onChange(function(newVal) {
+    p.explode = newVal;
+  });
+
+
+
+  gui.add(p, 'octaves', 1, total_octaves).onChange(function(newVal) {
+    p.octaves = newVal;
+});
+
+  //CLASS NOTES: get the camera object and bind to its fov attribute
+
+  //CLASS NOTES: for homework, we'd want to update shader uniform variables
 }
+
+//
 
 // called on frame updates
 function onUpdate(framework) {
   console.log(`the time is ${new Date()}`);
+
+  time_update = (Date.now() - start) * 0.00025;
+
+  icosahedronMaterial.uniforms.time.value = time_update;
+  icosahedronMaterial.uniforms.num_octaves.value = p.octaves;
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate

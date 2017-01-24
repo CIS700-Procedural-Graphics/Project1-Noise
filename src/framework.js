@@ -62,8 +62,12 @@ function init(callback, update) {
       requestAnimationFrame(tick); // register to call this again when the browser renders a new frame
     })();
 
+    //CLASS NOTES: (); after the function calls it immediately
+
     // we will pass the scene, gui, renderer, camera, etc... to the callback function
     return callback(framework);
+
+    //CLASS NOTES: by passing in framework, you can change what gui and stats reference to
   });
 }
 
