@@ -86,33 +86,33 @@ float smooth4(float x, float y, float z, float w) {
                 random4(x - 1.0, y, z + 1.0, w) +
                 random4(x, y - 1.0, z, w + 1.0) +
                 random4(x - 1.0, y, z, w + 1.0);
-  // float corners = random4(x + 1.0, y + 1.0, z + 1.0, w) +
-  //                 random4(x, y + 1.0, z + 1.0, w + 1.0) +
-  //                 random4(x + 1.0, y + 1.0, z, w + 1.0) +
-  //                 random4(x + 1.0, y, z + 1.0, w + 1.0) +
-  //                 random4(x - 1.0, y - 1.0, z - 1.0, w) +
-  //                 random4(x, y - 1.0, z - 1.0, w - 1.0) +
-  //                 random4(x - 1.0, y - 1.0, z, w - 1.0) +
-  //                 random4(x - 1.0, y, z - 1.0, w - 1.0) +
-  //                 random4(x - 1.0, y + 1.0, z + 1.0, w) +
-  //                 random4(x, y - 1.0, z + 1.0, w + 1.0) +
-  //                 random4(x - 1.0, y + 1.0, z, w + 1.0) +
-  //                 random4(x - 1.0, y, z + 1.0, w + 1.0) +
-  //                 random4(x + 1.0, y - 1.0, z - 1.0, w) +
-  //                 random4(x, y + 1.0, z - 1.0, w - 1.0) +
-  //                 random4(x + 1.0, y - 1.0, z, w - 1.0) +
-  //                 random4(x + 1.0, y, z - 1.0, w - 1.0) +
-  //                 random4(x - 1.0, y - 1.0, z + 1.0, w) +
-  //                 random4(x, y - 1.0, z - 1.0, w + 1.0) +
-  //                 random4(x - 1.0, y - 1.0, z, w + 1.0) +
-  //                 random4(x - 1.0, y, z - 1.0, w + 1.0) +
-  //                 random4(x + 1.0, y + 1.0, z - 1.0, w) +
-  //                 random4(x, y + 1.0, z + 1.0, w - 1.0) +
-  //                 random4(x + 1.0, y + 1.0, z, w - 1.0) +
-  //                 random4(x + 1.0, y, z + 1.0, w - 1.0);
+  float corners = random4(x + 1.0, y + 1.0, z + 1.0, w) +
+                  random4(x, y + 1.0, z + 1.0, w + 1.0) +
+                  random4(x + 1.0, y + 1.0, z, w + 1.0) +
+                  random4(x + 1.0, y, z + 1.0, w + 1.0) +
+                  random4(x - 1.0, y - 1.0, z - 1.0, w) +
+                  random4(x, y - 1.0, z - 1.0, w - 1.0) +
+                  random4(x - 1.0, y - 1.0, z, w - 1.0) +
+                  random4(x - 1.0, y, z - 1.0, w - 1.0) +
+                  random4(x - 1.0, y + 1.0, z + 1.0, w) +
+                  random4(x, y - 1.0, z + 1.0, w + 1.0) +
+                  random4(x - 1.0, y + 1.0, z, w + 1.0) +
+                  random4(x - 1.0, y, z + 1.0, w + 1.0) +
+                  random4(x + 1.0, y - 1.0, z - 1.0, w) +
+                  random4(x, y + 1.0, z - 1.0, w - 1.0) +
+                  random4(x + 1.0, y - 1.0, z, w - 1.0) +
+                  random4(x + 1.0, y, z - 1.0, w - 1.0) +
+                  random4(x - 1.0, y - 1.0, z + 1.0, w) +
+                  random4(x, y - 1.0, z - 1.0, w + 1.0) +
+                  random4(x - 1.0, y - 1.0, z, w + 1.0) +
+                  random4(x - 1.0, y, z - 1.0, w + 1.0) +
+                  random4(x + 1.0, y + 1.0, z - 1.0, w) +
+                  random4(x, y + 1.0, z + 1.0, w - 1.0) +
+                  random4(x + 1.0, y + 1.0, z, w - 1.0) +
+                  random4(x + 1.0, y, z + 1.0, w - 1.0);
   float center = random4(x,y,z,w);
 
-  return (faces + edges + center) / 32.0;//57.0;
+  return (faces + edges + corners + center) / 57.0;
 }
 
 float interpolate1(float v1, float v2, float xmu) {
@@ -254,8 +254,8 @@ float noise4(float x, float y, float z, float w) {
 }
 
 float noise(float x, float y, float z, float w) {
-  // return noise4(x, y, z, w);
-  return noise3(x, y - time, z);
+  return noise4(x, y, z, w);
+  // return noise3(x, y - time, z);
 }
 
 void main() {
