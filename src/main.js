@@ -41,7 +41,7 @@ function onLoad(framework) {
   scene.add(texturedIcosahedron);
   
   // set camera position
-  camera.position.set(1, 1, 2);
+  camera.position.set(1, 1, 5);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
   // edit params and listen to changes like this

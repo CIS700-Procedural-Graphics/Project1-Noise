@@ -1,6 +1,7 @@
 
 varying vec2 vUv;
 varying vec3 vNormal;
+varying float vNoise;
 const int numOctaves = 3;
 uniform float time;
 
@@ -73,11 +74,11 @@ float generateMultiOctaveNoise(float x, float y, float z) {
 }
 
 void main() {
-    vUv = uv;
-    vNormal = normal;
-
     float offset = generateMultiOctaveNoise(position[0] + time/999.0, position[1] + time/999.0, position[2] + time/999.0);
     vec3 newPosition = position + offset * normal;
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
+    vUv = uv;
+    vNormal = normal;
+    vNoise = offset;
 }
