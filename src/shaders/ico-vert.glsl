@@ -2,6 +2,7 @@ varying vec2 vUv;
 varying vec3 color;
 uniform float time;
 varying float noise;
+varying float noise2;
 float M_PI = 3.14159265359;
 
 
@@ -44,7 +45,6 @@ float noise_gen2(float x, float y) {
 	//TODO
 	return x;
 }
-
 
 
 // From the noise lecture (slide 26)
@@ -108,18 +108,11 @@ float multi_octave_noise (float x, float y, float z) {
 void main() {
     vUv = uv;
     float noise_offset = multi_octave_noise(position.x + time, position.y + time, position.z + time);
+    noise2 = noise_gen1(position.x + 0.00012321, position.y+ 0.23423, position.z+ 0.1232);
+
     vec4 noise_pos = vec4(position.xyz + normal * 2.0 * noise_offset, 1.0);
-    // if (noise_pos == vec4(0,0,0,1)) {
-    // 	noise_pos = vec4(position, 1.0);
-    // }
 
-    // if (noise_offset > 0.5) {
-    // 	vUv = vec2(noise_offset, 0.0);
-    // }
-
-    // vUv = vec2(0.0, noise_offset / 2.0 + 0.5);
     noise = noise_offset;
 
     gl_Position = projectionMatrix * modelViewMatrix * noise_pos;
-    // color = vec3(normal.x, normal.y, normal.z);
 }

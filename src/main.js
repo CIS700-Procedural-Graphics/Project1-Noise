@@ -4,9 +4,12 @@ import Framework from './framework'
 
 var myIco;
 var noiseBlob = {
-  'Base Color': [100, 0, 0],
-  'Outer Color': [255, 0, 0],
-  'Inner Color': [255, 255, 0]
+  'Base Color': [200, 200, 200],
+  'Outer Color': [100, 0, 0],
+  'Inner Color': [255, 255, 100],
+  'stripes': true,
+  'stripeDensity': 0.4,
+  'pattern': false
 };
 
 // called after the scene loads
@@ -66,6 +69,18 @@ function onLoad(framework) {
             noiseBlob['Inner Color'][0] / 255, 
             noiseBlob['Inner Color'][1] / 255, 
             noiseBlob['Inner Color'][2] / 255)
+      },
+      stripes: {
+        type: 'uInt',
+        value: noiseBlob['stripes']
+      },
+      pattern: {
+        type: 'uInt',
+        value: noiseBlob['pattern']
+      },
+      stripeDensity: {
+        type: 'f',
+        value: noiseBlob['stripeDensity']
       }
 
 
@@ -92,10 +107,26 @@ function onLoad(framework) {
     camera.updateProjectionMatrix();
   });
 
-  gui.addColor(noiseBlob, 'Base Color');
-  gui.addColor(noiseBlob, 'Outer Color');
-  gui.addColor(noiseBlob, 'Inner Color');
+  gui.addColor(noiseBlob, 'Base Color').onChange(function (value) {
+    myIco.material.uniforms.baseColor.value = new THREE.Vector3(value[0] / 255, value[1] / 255, value[2] / 255);
+  });
+  gui.addColor(noiseBlob, 'Outer Color').onChange(function (value) {
+    myIco.material.uniforms.outerColor.value = new THREE.Vector3(value[0] / 255, value[1] / 255, value[2] / 255);
+  });
+  gui.addColor(noiseBlob, 'Inner Color').onChange(function (value) {
+    myIco.material.uniforms.innerColor.value = new THREE.Vector3(value[0] / 255, value[1] / 255, value[2] / 255);
+  });
 
+  gui.add(noiseBlob, 'stripes').onChange(function (value) {
+    myIco.material.uniforms.stripes.value = value;
+  });
+  gui.add(noiseBlob, 'pattern').onChange(function (value) {
+    myIco.material.uniforms.pattern.value = value;
+  });
+
+  gui.add(noiseBlob, 'stripeDensity', 0, 1).onChange(function (value) {
+    myIco.material.uniforms.stripeDensity.value = value;
+  });
 
 }
 
@@ -103,21 +134,6 @@ function onLoad(framework) {
 function onUpdate(framework) {
   if (myIco) {
     myIco.material.uniforms.time.value += 0.01365262;
-    myIco.material.uniforms.baseColor.value = new THREE.Vector3(
-      noiseBlob['Base Color'][0] / 255, 
-      noiseBlob['Base Color'][1] / 255, 
-      noiseBlob['Base Color'][2] / 255);
-
-    myIco.material.uniforms.outerColor.value = new THREE.Vector3(
-      noiseBlob['Outer Color'][0] / 255, 
-      noiseBlob['Outer Color'][1] / 255, 
-      noiseBlob['Outer Color'][2] / 255);
-
-    myIco.material.uniforms.innerColor.value = new THREE.Vector3(
-      noiseBlob['Inner Color'][0] / 255, 
-      noiseBlob['Inner Color'][1] / 255, 
-      noiseBlob['Inner Color'][2] / 255);
-
 
   }
 }
