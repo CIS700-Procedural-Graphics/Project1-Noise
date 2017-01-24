@@ -23,8 +23,6 @@ var shake = 0.0;
 var sound = {};
 var analyser = {};
 
-var last10 = [200, 200, 200, 200, 200, 200, 200, 200, 200, 200];
-
 function loadPlanet(framework) {
   var scene = framework.scene;
 
@@ -133,7 +131,7 @@ function onLoad(framework) {
   });
 
   //Create an AudioAnalyser, passing in the sound and desired fftSize
-  analyser = new THREE.AudioAnalyser( sound, 2048 );
+  analyser = new THREE.AudioAnalyser( sound, 32 );
 }
 
 function mean(arr) {
@@ -163,17 +161,15 @@ function onUpdate(framework) {
     analyser.fftSize = 32;
     var bufferLength = analyser.fftSize;
     var dataArray = new Uint8Array(bufferLength);
-    analyser.analyser.getByteTimeDomainData(dataArray);
+    analyser.analyser.getByteFrequencyData(dataArray);
 
-    if (mean(dataArray.slice(0,4)) < 100.0 || shake > 1.5) {
-      shake += 1.0;
-      camera.lookAt(new THREE.Vector3(10.0 * Math.random(), 10.0 * Math.random(), 10.0 * Math.random()));
+    console.log(dataArray);
+    if (dataArray[15] > 100.0) {
+      var amount = dataArray[15] - 100.0;
+      camera.lookAt(new THREE.Vector3(amount * Math.random(), amount * Math.random(), amount * Math.random()));
       console.log("shake");
     }
   }
-
-  shake -= 0.2;
-  shake = Math.max(shake, 0.0);
 
   planet.parameters.time = (new Date()).getTime();
   planet.uniforms.time = {
