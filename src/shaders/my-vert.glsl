@@ -4,6 +4,7 @@ varying vec3 vNormal;
 varying float vNoise;
 const int numOctaves = 3;
 uniform float time;
+uniform float noiseStrength;
 
 float generateNoise(int x, int y, int z, int numOctave) {
 	if (numOctave == 0) {
@@ -60,7 +61,7 @@ float interpolateNoise(float x, float y, float z, int numOctave) {
 // with each subsequent noise function increasing in frequency and decreasing in amplitude
 float generateMultiOctaveNoise(float x, float y, float z) {
     float total = 0.0;
-    float persistence = 1.0/2.0;
+    float persistence = 1.0/noiseStrength;
 
     //loop for some number of octaves
     for (int i = 0; i < numOctaves; i++) {

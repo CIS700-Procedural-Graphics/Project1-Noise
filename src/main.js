@@ -9,6 +9,10 @@ var myMaterial = new THREE.ShaderMaterial({
     time: { // Check the Three.JS documentation for the different allowed types and values
       type: "f", 
       value: Date.now()
+    },
+    noiseStrength: {
+      type: "f",
+      value: 2.0
     }
   },
   vertexShader: require('./shaders/my-vert.glsl'),
@@ -55,6 +59,11 @@ function onLoad(framework) {
     icosahedronGeometry = new THREE.IcosahedronGeometry(1, newVal);
     texturedIcosahedron = new THREE.Mesh(icosahedronGeometry, myMaterial);
     scene.add(texturedIcosahedron);
+  });
+
+  gui.add(myMaterial.uniforms.noiseStrength, 'value', 1.0, 8.0).onFinishChange(function(newVal) {
+    myMaterial.uniforms.noiseStrength.value = newVal;
+    myMaterial.needsUpdate = true;
   });
 }
 
