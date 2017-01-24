@@ -4,6 +4,18 @@ import Framework from './framework'
 import Noise from './noise'
 import {other} from './noise'
 
+var d = new Date();
+var myMaterial = new THREE.ShaderMaterial({
+  uniforms: {
+    time: { // Check the Three.JS documentation for the different allowed types and values
+      type: "f", 
+      value: d.getMilliseconds()
+    }
+  },
+  vertexShader: require('./shaders/my-vert.glsl'),
+  fragmentShader: require('./shaders/my-frag.glsl')
+});
+
 // called after the scene loads
 function onLoad(framework) {
   var scene = framework.scene;
@@ -18,14 +30,9 @@ function onLoad(framework) {
   // initialize icosahedron object
   var icosahedron = {
     radius: 1,
-    detail: 0
+    detail: 2
   }
   var icosahedronGeometry = new THREE.IcosahedronGeometry(icosahedron.radius, icosahedron.detail);
-
-  var myMaterial = new THREE.ShaderMaterial({
-    vertexShader: require('./shaders/my-vert.glsl'),
-    fragmentShader: require('./shaders/my-frag.glsl')
-  });
 
   var texturedIcosahedron = new THREE.Mesh(icosahedronGeometry, myMaterial);
   scene.add(texturedIcosahedron);
@@ -50,7 +57,9 @@ function onLoad(framework) {
 
 // called on frame updates
 function onUpdate(framework) {
-  // console.log(`the time is ${new Date()}`);
+  d = new Date();
+  myMaterial.uniforms.time.value = d.getMilliseconds();
+  myMaterial.needsUpdate = true;
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate

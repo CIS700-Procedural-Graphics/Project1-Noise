@@ -2,6 +2,7 @@
 varying vec2 vUv;
 varying vec3 vNormal;
 const int numOctaves = 1;
+uniform float time;
 
 float generateNoise1(int x, int y, int z) {
 	return fract(sin(dot(vec3(x,y,z), vec3(12.9898, 78.23, 107.0))) * 43758.5453);
@@ -69,7 +70,7 @@ void main() {
     vUv = uv;
     vNormal = normal;
 
-    float offset = generateMultiOctaveNoise(position[0], position[1], position[2]);
+    float offset = generateMultiOctaveNoise(position[0] + time/999.0, position[1] + time/999.0, position[2] + time/999.0);
     vec3 newPosition = position + offset * normal;
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
