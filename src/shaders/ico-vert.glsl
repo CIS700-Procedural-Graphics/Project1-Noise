@@ -5,17 +5,27 @@ varying float noise;
 varying float noise2;
 float M_PI = 3.14159265358979323;
 
-// From http://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl
+/*
+ * Generates pseudo-random noise from (x, y, z)
+ * From http://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl
+ */
 float noise_gen1(float x, float y, float z) {
 	return fract(sin(dot(vec3(x, y, z) ,vec3(12.9898,78.233, 34.2838))) * 43758.5453);
 }
 
-// From the noise lecture (slide 26)
+/**
+ * Cosine interpolates t between a and b
+ * From the noise lecture (slide 26)
+ */
 float cosine_interp(float a, float b, float t) {
 	float cos_t = (1.0 - cos(t * M_PI)) * 0.5;
 	return a * (1.0 - cos_t) + b * cos_t;
 }
 
+/**
+ * Interpolates the noise at (x, y, z) based on the 8 surrounding lattice 
+ * values (determined by the frequency)
+ */
 float interp_noise(float x, float y, float z, float freq) { 
 	float x0 = floor(x * freq) / freq,
 		y0 = floor(y * freq) / freq,
@@ -54,6 +64,11 @@ float interp_noise(float x, float y, float z, float freq) {
 
 
 const float NUM_OCTAVES = 50.0;
+
+/**
+ * Sums NUM_OCTAVES octaves of increasingly smaller noise offsets
+ * From the noise lecture (slide 29)
+ */
 float multi_octave_noise (float x, float y, float z) {
 	float total = 0.0;
 	float persistence = 0.5;

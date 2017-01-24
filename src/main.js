@@ -17,29 +17,10 @@ var noiseBlob = {
 
 // called after the scene loads
 function onLoad(framework) {
-  var scene = framework.scene;
-  var camera = framework.camera;
-  var renderer = framework.renderer;
-  var gui = framework.gui;
-  var stats = framework.stats;
-
-  // LOOK: the line below is synyatic sugar for the code above. Optional, but I sort of recommend it.
-  // var {scene, camera, renderer, gui, stats} = framework; 
+  var {scene, camera, renderer, gui, stats} = framework; 
 
   // initialize a simple box and material
   var box = new THREE.BoxGeometry(1, 1, 1);
-
-  var adamMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-      image: { // Check the Three.JS documentation for the different allowed types and values
-        type: "t", 
-        value: THREE.ImageUtils.loadTexture('./adam.jpg')
-      }
-    },
-    vertexShader: require('./shaders/adam-vert.glsl'),
-    fragmentShader: require('./shaders/adam-frag.glsl')
-  });
-  var adamCube = new THREE.Mesh(box, adamMaterial);
  
   // Create a new material 
   var velvetMaterial = new THREE.ShaderMaterial({
@@ -113,11 +94,9 @@ function onLoad(framework) {
   myIco = new THREE.Mesh(icosahedron, velvetMaterial);
 
 
-// set camera position
+  // set camera position
   camera.position.set(1, 1, -100);
   camera.lookAt(new THREE.Vector3(0,0,0));
-
-  // scene.add(adamCube);
   scene.add(myIco);
 
   // edit params and listen to changes like this
@@ -157,16 +136,14 @@ function onLoad(framework) {
 
   gui.add(noiseBlob, 'Pattern Density', 0, 1).onChange(function (value) {
     myIco.material.uniforms.patternDensity.value = value;
-  }); 
+  });  
 }
 
-var incr = 0.011721523423;
+var incr = 0.01279;
 // called on frame updates
 function onUpdate(framework) {
   if (myIco) {
     myIco.material.uniforms.time.value += incr;
-    // console.log(myIco.material.uniforms.time.value);
-
   }
 }
 
