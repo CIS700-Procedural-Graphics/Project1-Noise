@@ -2,12 +2,13 @@
 const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
 import Framework from './framework'
 
+// shader uniforms are here so the time can be changed / accessed globally
 var sUniforms = {
-      image: { // Check the Three.JS documentation for the different allowed types and values
+      image: { // used for height color
         type: "t", 
         value: THREE.ImageUtils.loadTexture('./gradient2.jpg')
       },
-      blinnimage: { // Check the Three.JS documentation for the different allowed types and values
+      blinnimage: { // used for specular highlight
         type: "t", 
         value: THREE.ImageUtils.loadTexture('./gradspec.jpg')
       },
@@ -57,9 +58,20 @@ var sUniforms = {
       maxOctave: {
         type: "i",
         value: 7
+      },
+
+      light: {
+        type: "v3",
+        value: new THREE.Vector3(1, 1, 1)
       }
     }
 var baseTime = Date.now();
+var settings = {
+  time: true,
+  yaw: Math.PI / 4.0,
+  pitch: Math.PI / 4.0
+};
+
 
 // called after the scene loads
 function onLoad(framework) {
@@ -93,12 +105,20 @@ function onLoad(framework) {
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
     camera.updateProjectionMatrix();
   });
+  gui.add(settings, "time");
+  gui.add(settings, 'yaw', -Math.PI, Math.PI);
+  gui.add(settings, 'pitch', -Math.PI / 2.0, Math.PI / 2.0);
+
 }
 
 // called on frame updates
 function onUpdate(framework) {
   console.log(`the time is ${new Date()}`);
-  sUniforms.time.value = Date.now() - baseTime;
+  if (settings.time) {
+    sUniforms.time.value = (Date.now() - baseTime);
+  }
+  sUniforms.light.value = new THREE.Vector3(Math.sin(settings.yaw) * Math.cos(settings.pitch)
+    , Math.sin(settings.pitch), Math.cos(settings.yaw)  * Math.cos(settings.pitch));
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate

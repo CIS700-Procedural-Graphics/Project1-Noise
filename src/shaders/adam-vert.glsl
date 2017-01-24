@@ -10,6 +10,8 @@ uniform int seed;
 uniform int minOctave;
 uniform int maxOctave;
 
+uniform vec3 light;
+
 varying vec3 newNormal;
 varying float shininess;
 varying float lighting;
@@ -38,7 +40,7 @@ vec3 pickGradient(in int x, in int y, in int z)
 float getnoise3d(in float x, in float y, in float z, in int numSamples)
 {
 	float tOffset = 4.0 * float(time) / 1000.0 / float(numSamples);
-
+	//tOffset = 3.0;
 	// position within gradient grid
 	float xs = mod(x * float(numSamples) + tOffset, 255.0);
 	float ys = mod(y * float(numSamples) + tOffset, 255.0);
@@ -133,6 +135,7 @@ float getnoise(in float u, in float v, in int numSamples)
 	return lerp(d12, d34, ty);
 }
 
+// wanted to have octaves controlled by UI, unfortunately for loop must have const var
 float multiOctave3d(in float x, in float y, in float z)
 {
 	int numSamples = int(pow(2.0, float(minOctave)));
@@ -168,10 +171,7 @@ void main() {
     vUv.x = noise2 * 0.5 + 0.5;
 
     // apply shininess to water
-    vec3 lightDir = normalize(vec3(1, 1, 1));
-
-
-   
+    vec3 lightDir = normalize(light);
     vec3 halfVec = normalize(cameraPosition.xyz - position.xyz);
     halfVec = normalize(halfVec + lightDir);
     float blinn = max(0.0, dot(normal.xyz, halfVec));
