@@ -4,8 +4,8 @@ import Framework from './framework'
 // A container of stuff to play around for the user
 // TODO: build a material inspector
 var UserInput = {
-  timeScale : .5,
-  displacement : 1.4,
+  timeScale : 3.5,
+  displacement : .4,
   frequency : .75,
   ratio : .607,
   frequencyRatio: 1.25,
@@ -22,7 +22,9 @@ var Engine = {
   materials : [],
   music : null,
   audioAnalyser : null,
-  initialized : false
+  initialized : false,
+  particles : null,
+  particleMaterial: null,
 }
 
 function onLoad(framework) 
@@ -32,6 +34,12 @@ function onLoad(framework)
   var renderer = framework.renderer;
   var gui = framework.gui;
   var stats = framework.stats;
+
+  camera.position.set(1, 1, 6);
+  camera.lookAt(new THREE.Vector3(0,0,0));
+  camera.rotateZ(-.4);
+  camera.position.set(0, 1, 6);
+
 
   var listener = new THREE.AudioListener();
   camera.add(listener);
@@ -72,11 +80,15 @@ function onLoad(framework)
 
   var particleMaterial = new THREE.ShaderMaterial({
     uniforms: {
-      time: { type: "f", value : 0.0 }
+      time: { type: "f", value : 0.0 },
+      sphereLit: { type: "t", value: THREE.ImageUtils.loadTexture("./src/misc/CrystalMap.png")},
+      frequencyBands: { type: "uIntArray", value: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32] }
     },
     vertexShader: require("./shaders/particle.vert.glsl"),
     fragmentShader: require("./shaders/particle.frag.glsl"),
   })
+
+  Engine.particleMaterial = particleMaterial;
 
   var debugMaterial = new THREE.ShaderMaterial({
     uniforms: {
@@ -103,39 +115,23 @@ function onLoad(framework)
 
   var cloudMesh = new THREE.Mesh(sphereGeo, cloudMaterial);
 
-  camera.position.set(1, 1, 4);
-  camera.lookAt(new THREE.Vector3(0,0,0));
-
   scene.add(cloudMesh);
 
   var planeGeo = new THREE.PlaneGeometry( 1, 1, 1, 1);
   var planeMesh = new THREE.Mesh( planeGeo, debugMaterial);
 
   var loader = new THREE.OBJLoader( );
-
-  loader.load( './misc/particles.obj', function ( object ) {
+  loader.load( './src/misc/particles.obj', function ( object ) {
     object.traverse( function ( child ) {
       if ( child instanceof THREE.Mesh ) {
-
+        child.material = particleMaterial;
+        child.position.set(0, -2, 0);
+        child.scale.set(.15, .15, .15);
+        Engine.particles = child;
       }
     } );    
       scene.add( object );
   } );
-
-
-  for(var theta = 0; theta < 3.1415 * 2; theta += 0.1)
-  {
-    var c = Math.cos(theta);
-    var s = Math.sin(theta);
-
-    for(var i = 0; i < 32; i++)
-    {
-      // var t = (i / 32.0) * 5;
-      // var particleMesh = new THREE.Mesh( particle, particleMaterial);
-      // particleMesh.position.set(c * t, 0, s * t );
-      // scene.add(particleMesh);
-    }
-  }
 
   scene.add(planeMesh)
 
@@ -189,6 +185,18 @@ function onUpdate(framework)
     var freq = Engine.audioAnalyser.getAverageFrequency();
 
     var dataArray = Engine.audioAnalyser.getFrequencyData();
+
+    var freqBands = [];
+
+    for(var i = 0; i < 32; i++)
+      freqBands[i] = dataArray[i];
+
+    Engine.particleMaterial.uniforms.frequencyBands.value = freqBands;
+
+    if(Engine.particles != null)
+    {
+      Engine.particles.rotateY(.01);
+    }
 
     for (var i = 0; i < Engine.materials.length; i++)
     {
