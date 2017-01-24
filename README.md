@@ -1,22 +1,22 @@
 Hannah Bollar
 CIS 700: Procedural Graphics Hw1
 
-![](./still1.jpg)
+![](still1.jpg)
 
 Using WebGL and Javascript created spheres with procedurally rendered animation based on 
 noise functions.
 
 Outcome image 1 (that the project was looking for)
 
-![](./still1.jpg)
+![](still1.jpg)
 
 Outcome image 2 (noise for shape splatterings of color)
 
-![](./still2.jpg)
+![](still2.jpg)
 
 Outcome image 3 (symmetrical position based noise)
 
-![](./still3.jpg)
+![](still3.jpg)
 
 I came up with one main noise animation that worked as expected; however, it broke when i was
 testing different features. While I was fixing it I came across two additional configurations that
@@ -39,7 +39,7 @@ the user to switch between the three different noise configurations depicted in 
 other (extra credit) loading up different materials into the shader in real time. The different materials
 are depicted below (on different figures to further illustrate the effect of noise on the surfaces).
 
-![](./still4.jpg)
-![](./still5.jpg)
-![](./still6.jpg)
+![](still4.jpg)
+![](still5.jpg)
+![](still6.jpg)
 	
