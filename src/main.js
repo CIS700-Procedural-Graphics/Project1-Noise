@@ -42,6 +42,7 @@ var Engine = {
   camera : null,
   cameraTime : 0,
   overlay : null,
+  overlayMaterial : null,
   time : 0.0,
   clock : null,
   materials : [],
@@ -71,6 +72,10 @@ function startMain(time)
   
   Engine.currentCameraShot = CameraShot.MAIN;
   Engine.cameraTime = 0;
+
+  Engine.overlayMaterial.uniforms.intensityMultiplier.value = .1;
+  Engine.overlayMaterial.uniforms.size.value = .1;
+  Engine.overlayMaterial.uniforms.fullscreenFlash.value = 0.0;
 }
 
 function updateMain(time)
@@ -100,6 +105,8 @@ function updateDrop(time)
 {
   var d1 = 2.5;
 
+  Engine.overlayMaterial.uniforms.intensityMultiplier.value = THREE.Math.clamp(1.0 - time, 0, 1.0) * .8;
+
   if(Engine.currentSubState == SubState.NONE)
   {
     var diskScale = Math.pow(time * 30.0, .15) * 30.0;
@@ -116,11 +123,14 @@ function updateDrop(time)
   else if(Engine.currentSubState == SubState.D1)
   {
     var v = Math.sin(time * 32.0) > 0 ? true : false;
-    var t = THREE.Math.clamp((time - d1) * .45, 0, 1.0);
+    var t = THREE.Math.clamp((time - d1) * .4, 0, 1.0);
     var sphereScale = Math.sqrt(1.0 - t * t) * 2.5 + .0001;
     
     Engine.mainSphere.scale.set(sphereScale, sphereScale, sphereScale);
     Engine.mainSphere.visible = v;
+
+    var flash = Math.sin(time * 64.0 + .05) > .75 ? t * t * t : 0.0;
+    Engine.overlayMaterial.uniforms.fullscreenFlash.value = flash;
   }
 }
 
@@ -144,11 +154,9 @@ function updateIntro(time)
   }
   else if(Engine.currentSubState == SubState.D1)
   {
-    if(time > 44)
+    if(time > 43.5)
     {
       Engine.currentSubState = SubState.D2;
-
-
       Engine.radialLines.visible = true;
     }
   }
@@ -270,6 +278,9 @@ function onLoad(framework)
     uniforms: {
       time: { type: "f", value : 0.0 },
       SCREEN_SIZE: { type: "2fv", value : rendererSize },
+      intensityMultiplier: { type: "f", value : .8 },
+      fullscreenFlash: { type: "f", value : 0.0 },
+      size: { type: "f", value : 1.0 },
       gradientTexture: { type: "t", value: THREE.ImageUtils.loadTexture("./src/misc/gradient_1.png")}
     },
     vertexShader: require("./shaders/overlay.vert.glsl"),
@@ -368,6 +379,7 @@ function onLoad(framework)
   scene.add(overlayMesh);
   
   Engine.overlay = overlayMesh;
+  Engine.overlayMaterial = overlayMaterial;
 
   var noiseParameters = gui.addFolder('Noise');
 

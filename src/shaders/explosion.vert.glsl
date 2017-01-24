@@ -1,7 +1,19 @@
 varying vec2 vUv;
-varying float vColor;
+varying vec3 vNormal;
 
+varying float noise;
+varying vec3 originalPos;
+
+uniform float displacement;
 uniform float time;
+uniform float bias;
+uniform float frequency;
+uniform float ratio;
+uniform float frequencyRatio;
+
+// For more perlin noises, check debug.frag
+// Note: there's not a lot of optimization here, because my goal is to explore stuff in a very clear manner.
+// For example, most perlin implementations use precomputed gradients, etc.
 
 // Reference: https://www.shadertoy.com/view/llBSWc
 float bias1(float x, float b) {
@@ -69,64 +81,6 @@ vec4 gradient4D(vec4 x)
 
 	// Faking it
 	return vec4(h, r1, r2, r3) * 2.0 - vec4(1.0);
-}
-
-vec4 perlin4D_Deriv(vec4 p)
-{
-	// W = 0
-	vec4 p1 = floor(p);
-	vec4 p2 = p1 + vec4(1.0, 0.0, 0.0, 0.0);
-	vec4 p3 = p1 + vec4(0.0, 1.0, 0.0, 0.0);
-	vec4 p4 = p1 + vec4(1.0, 1.0, 0.0, 0.0);
-
-	vec4 p5 = p1 + vec4(0.0, 0.0, 1.0, 0.0);
-	vec4 p6 = p1 + vec4(1.0, 0.0, 1.0, 0.0);
-	vec4 p7 = p1 + vec4(0.0, 1.0, 1.0, 0.0);
-	vec4 p8 = p1 + vec4(1.0, 1.0, 1.0, 0.0);
-
-	// W = 1
-	vec4 p9 = p1 + vec4(0.0, 0.0, 0.0, 1.0);
-	vec4 p10 = p1 + vec4(1.0, 0.0, 0.0, 1.0);
-	vec4 p11 = p1 + vec4(0.0, 1.0, 0.0, 1.0);
-	vec4 p12 = p1 + vec4(1.0, 1.0, 0.0, 1.0);
-
-	vec4 p13 = p1 + vec4(0.0, 0.0, 1.0, 1.0);
-	vec4 p14 = p1 + vec4(1.0, 0.0, 1.0, 1.0);
-	vec4 p15 = p1 + vec4(0.0, 1.0, 1.0, 1.0);
-	vec4 p16 = p1 + vec4(1.0, 1.0, 1.0, 1.0);
-
-	// Gradients
-	vec4 gd1 = gradient4D(p1);
-	vec4 gd2 = gradient4D(p2);
-	vec4 gd3 = gradient4D(p3);
-	vec4 gd4 = gradient4D(p4);
-
-	vec4 gd5 = gradient4D(p5);
-	vec4 gd6 = gradient4D(p6);
-	vec4 gd7 = gradient4D(p7);
-	vec4 gd8 = gradient4D(p8);
-
-	vec4 gd9 = gradient4D(p9);
-	vec4 gd10 = gradient4D(p10);
-	vec4 gd11 = gradient4D(p11);
-	vec4 gd12 = gradient4D(p12);
-
-	vec4 gd13 = gradient4D(p13);
-	vec4 gd14 = gradient4D(p14);
-	vec4 gd15 = gradient4D(p15);
-	vec4 gd16 = gradient4D(p16);
-
-	vec4 factors = fade1_4D(fract(p));
-
-	vec4 m1 = mix(mix(gd1, gd2, factors.x), mix(gd3, gd4, factors.x), factors.y);
-	vec4 m2 = mix(mix(gd5, gd6, factors.x), mix(gd7, gd8, factors.x), factors.y);
-	vec4 w1 = mix(m1, m2, factors.z);
-
-	vec4 m3 = mix(mix(gd9, gd10, factors.x), mix(gd11, gd12, factors.x), factors.y);
-	vec4 m4 = mix(mix(gd13, gd14, factors.x), mix(gd15, gd16, factors.x), factors.y);
-	vec4 w2 = mix(m3, m4, factors.z);
-
-	return normalize(mix(w1, w2, factors.w));
 }
 
 float perlin4D(vec4 p)
@@ -248,7 +202,7 @@ float perlin4D(vec4 p)
 }
 
 // Argument names are inspired on Maya's solidFractal node
-float fractal4D(vec4 x, float frequency, float ratio, float frequencyRatio, float bias)
+float fractal4D(vec4 x)
 {
 	float accum = 0.0;
 	float freq = frequency;
@@ -295,33 +249,19 @@ float fractal4D(vec4 x, float frequency, float ratio, float frequencyRatio, floa
 	return result / accum;
 }
 
-void main() 
-{
+
+void main() {
+    originalPos = position;
     vUv = uv;
 
-    vec3 pos = position;    
-    // vec4 tPos = vec4(pos + vec3(time), time * .25);
+    vec3 pos = position;
+    vec4 tPos = vec4(pos + vec3(time), time * .25);
 
-    // float noise = fractal4D(tPos, .8, .707, 2.15, .8);
-    // float displ = (1.0 - uv.y) * noise;
-    // float spikyness = 5.0;
+    float displ = sqrt(fractal4D(tPos));
 
-    // The sound doesnt drive the noise, but the random appearence fools the eye
-    // pos.xz += normalize(pos.xz) * abs(pow(displ, spikyness)) * .125;
+    vNormal = normalMatrix * (normal + dF * .5);
+    pos = pos + displ * displacement * normal;
 
-    // vec4 tPos = vec4(pos + vec3(time), time * .25);
-
-    // float noise = fractal4D(tPos, .8, .707, 2.15, .8);
-    // float displ = (1.0 - uv.y) * noise;
-    // float spikyness = 5.0;
-
-    // // The sound doesnt drive the noise, but the random appearence fools the eye
-    // pos.xz *= normalize(pos.xz) * abs(pow(displ, spikyness)) * .125;
-
-    vec2 dir = vec2(cos(time * 2.0), sin(time * 2.0));
-    float c = acos(dot(dir, normalize(pos.xz)));
-    float a = acos(fract(pos.x));
-
-    vColor = step(abs(a - .5 + c), .5) * 10.0;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0 );
+    noise = displ;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
 }
