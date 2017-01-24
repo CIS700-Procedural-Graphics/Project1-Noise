@@ -15,6 +15,7 @@ var myMaterial = new THREE.ShaderMaterial({
   fragmentShader: require('./shaders/my-frag.glsl')
 });
 
+// used to animate the icosahedron
 var programStartTime;
 
 // called after the scene loads
@@ -42,7 +43,7 @@ function onLoad(framework) {
   // set camera position
   camera.position.set(1, 1, 2);
   camera.lookAt(new THREE.Vector3(0,0,0));
-  
+
   // edit params and listen to changes like this
   // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
