@@ -4,6 +4,9 @@ import Framework from './framework'
 import Noise from './noise'
 import {other} from './noise'
 
+var time = 0.0;
+var sphereMaterial;
+
 // called after the scene loads
 function onLoad(framework) {
   var scene = framework.scene;
@@ -31,13 +34,13 @@ function onLoad(framework) {
   });
   var adamCube = new THREE.Mesh(box, adamMaterial);
 
-  var sphereMaterial = new THREE.ShaderMaterial({
+  sphereMaterial = new THREE.ShaderMaterial({
     uniforms: {
       image: {
         type: "t", 
         value: THREE.ImageUtils.loadTexture('./explosion.png')
       },
-      uTime: {value: 1.0}
+      uTime: {value: time}
     },
     vertexShader: require('./shaders/sphere-vert.glsl'),
     fragmentShader: require('./shaders/sphere-frag.glsl')
@@ -63,9 +66,11 @@ function onLoad(framework) {
 
 // called on frame updates
 function onUpdate(framework) {
-  // console.log(`the time is ${new Date()}`);
-  //var time = new Date().getMilliseconds();
-  //console.log(time);
+  time += 0.025;
+  if (sphereMaterial){
+      sphereMaterial.uniforms.uTime.value = time;
+  }
+
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate

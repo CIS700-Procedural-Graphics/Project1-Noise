@@ -2,6 +2,7 @@
 #define N_OCTAVES 5
 varying vec2 vUv;
 varying vec3 vNormal;
+varying float vNoise;
 uniform float uTime;
 
 
@@ -19,8 +20,8 @@ float noise3(vec3 seed){
 
 float TotalNoise(vec3 seed, float frequency, float amplitude){ //inside frequency outside amplit
 	float n1 = noise1(seed * frequency) * amplitude;
-	float n2 = noise2(seed * frequency*2.0) * amplitude/2.0;
-	float n3 = noise3(seed * frequency*3.0) * amplitude/3.0;
+	//float n2 = noise2(seed * frequency*2.0) * amplitude/2.0;
+	//float n3 = noise3(seed * frequency*3.0) * amplitude/3.0;
 	return n1;
 }
 
@@ -87,14 +88,20 @@ float PerlinNoise3D(){
 
 	}
 
+	vNoise = total/float(N_OCTAVES);
+
 	return total;
 
+}
+
+float animatedNoise(){
+	return (1.0 + sin(uTime)*PerlinNoise3D());
 }
 
 void main() {
     vUv = uv;
     vNormal = normal;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position + normal*PerlinNoise3D(), 1.0 );
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position + normal*animatedNoise(), 1.0 );
 }
 
 
