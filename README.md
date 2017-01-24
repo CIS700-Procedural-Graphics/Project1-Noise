@@ -1,6 +1,6 @@
 # [Theraputty Visualization](https://anvidalal.github.io/Project1-Noise/)
 
-<img src="demo.gif" width="100">
+<img src="demo.gif" width="500">
 
 ## Objective
 
@@ -18,8 +18,8 @@ I started off with adding an icosahedron geometry to my THREE.js scene. I then w
 
 Using dat.GUI, I added sliders to affect the geometry of my icosahedron, by changing its radius and detail. I also added a value slider to change how much each vertex should be translated along the noise * normal vector.
 
-<img src="sliders.gif" width="100">
+<img src="sliders.gif" width="500">
 
 I also added mouse interactivity that deforms the cloud away from the cursor when turned on from the dat.gui.
 
-<img src="mouse.gif" width="100">
+<img src="mouse.gif" width="500">
