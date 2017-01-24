@@ -1,9 +1,14 @@
 
 const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
 import Framework from './framework'
-// import Noise from './noise'
 
 var myIco;
+var noiseBlob = {
+  'Base Color': [100, 0, 0],
+  'Outer Color': [255, 0, 0],
+  'Inner Color': [255, 255, 0]
+};
+
 // called after the scene loads
 function onLoad(framework) {
   var scene = framework.scene;
@@ -29,18 +34,41 @@ function onLoad(framework) {
     fragmentShader: require('./shaders/adam-frag.glsl')
   });
   var adamCube = new THREE.Mesh(box, adamMaterial);
-
+ 
   // Create a new material 
   var velvetMaterial = new THREE.ShaderMaterial({
     uniforms: {
       image: {
        type: 't',
-        value: THREE.ImageUtils.loadTexture('./velvet.jpg')
+        value: THREE.ImageUtils.loadTexture('./bh_velvet.jpg')
       },
       time: {
         type: 'f',
         value: 0.0
+      },
+      baseColor: {
+        type: 'v3',
+        value: new THREE.Vector3(
+            noiseBlob['Base Color'][0] / 255, 
+            noiseBlob['Base Color'][1] / 255, 
+            noiseBlob['Base Color'][2] / 255)
+      },
+      outerColor: {
+        type: 'v3',
+        value: new THREE.Vector3(
+            noiseBlob['Outer Color'][0] / 255, 
+            noiseBlob['Outer Color'][1] / 255, 
+            noiseBlob['Outer Color'][2] / 255)
+      },
+      innerColor: {
+        type: 'v3',
+        value: new THREE.Vector3(
+            noiseBlob['Inner Color'][0] / 255, 
+            noiseBlob['Inner Color'][1] / 255, 
+            noiseBlob['Inner Color'][2] / 255)
       }
+
+
     },
     vertexShader: require('./shaders/ico-vert.glsl'),
     fragmentShader: require('./shaders/ico-frag.glsl')
@@ -63,12 +91,34 @@ function onLoad(framework) {
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
     camera.updateProjectionMatrix();
   });
+
+  gui.addColor(noiseBlob, 'Base Color');
+  gui.addColor(noiseBlob, 'Outer Color');
+  gui.addColor(noiseBlob, 'Inner Color');
+
+
 }
 
 // called on frame updates
 function onUpdate(framework) {
   if (myIco) {
-   myIco.material.uniforms.time.value += 0.01365262;
+    myIco.material.uniforms.time.value += 0.01365262;
+    myIco.material.uniforms.baseColor.value = new THREE.Vector3(
+      noiseBlob['Base Color'][0] / 255, 
+      noiseBlob['Base Color'][1] / 255, 
+      noiseBlob['Base Color'][2] / 255);
+
+    myIco.material.uniforms.outerColor.value = new THREE.Vector3(
+      noiseBlob['Outer Color'][0] / 255, 
+      noiseBlob['Outer Color'][1] / 255, 
+      noiseBlob['Outer Color'][2] / 255);
+
+    myIco.material.uniforms.innerColor.value = new THREE.Vector3(
+      noiseBlob['Inner Color'][0] / 255, 
+      noiseBlob['Inner Color'][1] / 255, 
+      noiseBlob['Inner Color'][2] / 255);
+
+
   }
 }
 

@@ -1,36 +1,37 @@
 varying vec2 vUv;
 varying vec3 color;
 uniform float time;
+varying float noise;
 float M_PI = 3.14159265359;
 
 
 //http://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl
-float hash( float n )
-{
-    return fract(sin(n)*43758.5453);
-}
+// float hash( float n )
+// {
+//     return fract(sin(n)*43758.5453);
+// }
 
 
-float lerp(float a, float b, float t) {
-		float cos_t = (1.0 - cos(t * M_PI)) * 0.5;
-	return a * (1.0 - cos_t) + b * cos_t;
+// float lerp(float a, float b, float t) {
+// 		float cos_t = (1.0 - cos(t * M_PI)) * 0.5;
+// 	return a * (1.0 - cos_t) + b * cos_t;
 
-}
-float noise( vec3 x )
-{
-    // The noise function returns a value in the range -1.0f -> 1.0f
+// }
+// float noise( vec3 x )
+// {
+//     // The noise function returns a value in the range -1.0f -> 1.0f
 
-    vec3 p = floor(x);
-    vec3 f = fract(x);
+//     vec3 p = floor(x);
+//     vec3 f = fract(x);
 
-    f = f*f*(3.0-2.0*f);
-    float n = p.x + p.y*57.0 + 113.0*p.z;
+//     f = f*f*(3.0-2.0*f);
+//     float n = p.x + p.y*57.0 + 113.0*p.z;
 
-    return lerp(lerp(lerp( hash(n+0.0), hash(n+1.0),f.x),
-                   lerp( hash(n+57.0), hash(n+58.0),f.x),f.y),
-               lerp(lerp( hash(n+113.0), hash(n+114.0),f.x),
-                   lerp( hash(n+170.0), hash(n+171.0),f.x),f.y),f.z);
-}
+//     return lerp(lerp(lerp( hash(n+0.0), hash(n+1.0),f.x),
+//                    lerp( hash(n+57.0), hash(n+58.0),f.x),f.y),
+//                lerp(lerp( hash(n+113.0), hash(n+114.0),f.x),
+//                    lerp( hash(n+170.0), hash(n+171.0),f.x),f.y),f.z);
+// }
 
 
 // From http://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl
@@ -91,7 +92,6 @@ float interp_noise(float x, float y, float z, float freq) {
 
 const float NUM_OCTAVES = 50.0;
 float multi_octave_noise (float x, float y, float z) {
-	// TODO
 	float total = 0.0;
 	float persistence = 0.5;
 
@@ -117,7 +117,8 @@ void main() {
     // 	vUv = vec2(noise_offset, 0.0);
     // }
 
-    // vUv = vec2(noise_offset, 0.0);
+    // vUv = vec2(0.0, noise_offset / 2.0 + 0.5);
+    noise = noise_offset;
 
     gl_Position = projectionMatrix * modelViewMatrix * noise_pos;
     // color = vec3(normal.x, normal.y, normal.z);
