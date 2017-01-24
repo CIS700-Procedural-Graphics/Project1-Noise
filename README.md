@@ -8,10 +8,15 @@ The project goes about creating a sphere, and then applying a pseudo-4D noise (3
 
 GUI controls let you:
 1. Change the texture applied onto the sphere (from a fixed set of images)
+
 2. Change the strength of the Noise
+
 3. Change the persistence of the octaves of Noise
+
 4. Change the number of octaves of Noise
+
 5. Change the field of view of the camera
+
 6. Change the aspect ratio of the camera
 
 The UVs are updated constantly to make the surface of the sphere seem animated.
