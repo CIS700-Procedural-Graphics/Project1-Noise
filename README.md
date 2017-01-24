@@ -1,5 +1,30 @@
 # [Project 1: Noise](https://github.com/CIS700-Procedural-Graphics/Project1-Noise)
 
+## Description
+
+#### Visual output
+
+I tried to make my circle look more like a smoothly distorting blob, rather than a rapidly-spiking explosion, because I thought it looked cooler and was more relaxing to work with as I was debugging my code.  The blob is colored with its surface normals interpolated with a constant color, so that they slowly morph over time.
+
+#### Perlin noise
+
+I implemented this project in the following manner.  First, my noise function takes as input a 3D coordinate, vec3(x, y, z).  I then determine the 8 boundary lattice points encompassing the input coordinate, and sample random values for them.  Instead of using a pseudo-random hash function, I hard-coded in a permutation of numbers between [0, 255] (as Perlin did in his implementation), mainly for performance reasons as my computer can barely run WebGL stuff without its fan kicking in overtime.
+
+Then, I interpolate between the 8 lattice points to determine a final random noise value for the original input coordinate.  When interpolating, I use the "fade" function mentioned from the slide deck in class to obtain smoother interpolation.
+
+In addition to returning simple noise, I also implemented a function to return noise of multiple octaves combined together.  This function, octaveNoise, uses persistence, frequency, and amplitude to create an improved noise function.
+
+#### GUI
+
+All aspects of the octave noise function can be changed via the dat.gui module.
+
+#### Music (unimplemented, but almost implemented!)
+
+I used Web Audio API to set up a mini-pipeline to play a song from "La La Land" (great movie!).  I used a component in the pipeline called an Analyser to spit out song-waveform data every animation frame, which I then passed to the shader.  However, I ran into a couple of problems / creative-roadblocks:
+
+ - Every frame passed a waveform data array of length 1024, which was too large to send to my vertex shader via a uniform variable (the compiler spit out some "too many uniforms error").  This meant that I was unable to work with the waveform data unless I (1) found a way to compress it or (2) tried attaching the data onto vertices via vertex attributes outside of the shader.
+  - Additionally, I struggled to find a good way to incorporate the data into the animation.  Perhaps the song I chose was too loud / had too many simultaneous instruments, because whenever I attempted to add in song data to my shader, the animation became very jittery, which was no good.
+
 ## Objective
 
 Get comfortable with using three.js and its shader support and generate an interesting 3D, continuous surface using a multi-octave noise algorithm.
@@ -37,7 +62,7 @@ You can skip this part if you really want, but I highly suggest you read it.
 
 This is the important file that `npm` looks at. In it, you can see the commands it's using for the `start`, `build`, and `deploy` scripts mentioned above. You can also see all of the dependencies the project requires. I will briefly go through what each of these is.
  - dat-gui: Gives us a nice and simple GUI for modifying variables in our program
- 
+
  - gl-matrix: Useful library for linear algebra, much like glm
 
  - stats-js: Gives us a nice graph for timing things. We use it to report how long it takes to render each frame
@@ -72,7 +97,7 @@ Note that three.js automatically injects several uniform and attribute variables
 
 ## Noise Generation
 
-In the shader, write a 3D multi-octave lattice-value noise function that takes three input parameters and generates output in a controlled range, say [0,1] or [-1, 1]. This will require the following steps. 
+In the shader, write a 3D multi-octave lattice-value noise function that takes three input parameters and generates output in a controlled range, say [0,1] or [-1, 1]. This will require the following steps.
 
 1. Write several (for however many octaves of noise you want) basic pseudo-random 3D noise functions (the hash-like functions we discussed in class). It's fine to reference one from the slides or elsewhere on the Internet. Again, this should just be a set of math operations, often using large prime numbers to random-looking output from three input parameters.
 
@@ -106,13 +131,3 @@ Using dat.GUI and the examples provided in the reference code, make some aspect 
 - Mouse interactivity (medium): Find out how to get the current mouse position in your scene and use it to deform your cloud, such that users can deform the cloud with their cursor.
 
 - Music (hard): Figure out a way to use music to drive your noise animation in some way, such that your noise cloud appears to dance.
-
-## Submission
-
-- Update README.md to contain a solid description of your project
-
-- Publish your project to gh-pages. `npm run deploy`. It should now be visible at http://username.github.io/repo-name
-
-- Create a [pull request](https://help.github.com/articles/creating-a-pull-request/) to this repository, and in the comment, include a link to your published project.
-
-- Submit the link to your pull request on Canvas.
