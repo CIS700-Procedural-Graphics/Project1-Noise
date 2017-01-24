@@ -4,6 +4,9 @@ varying vec3 nor;
 
 uniform float time;
 uniform float radius;
+uniform float persistence;
+uniform float freqMultiplier;
+uniform float displacement;
 
 float interpolate1(float v1, float v2, float xmu) {
   float mu2 = (1.0 - cos(xmu * 3.141592653589)) / 2.0;
@@ -47,7 +50,7 @@ float smooth3(float x, float y, float z) {
     for (float j = -1.0; j <= 1.0; j++) {
       for (float k = -1.0; k <= 1.0; k++) {
         total += random3(x + i, y + j, z + k);
-      }   
+      }
     }
   }
 
@@ -59,10 +62,9 @@ float noise3(float x, float y, float z) {
   const float NUM_OCTAVES = 4.0;
   float total = 0.0;
   float totalAmplitude = 0.0;
-  float persistence = 0.5;
 
   for (float i = 0.0; i < NUM_OCTAVES; i++) {
-    float frequency = pow(2.0, i + 1.0);
+    float frequency = freqMultiplier * pow(2.0, i);
     float amplitude = pow(persistence, i);
     float d = 5.0;
 
@@ -113,8 +115,8 @@ float smooth4(float x, float y, float z, float w) {
       for (float k = -1.0; k <= 1.0; k++) {
         for (float l = -1.0; l <= 1.0; l++) {
           total += random4(x + i, y + j, z + k, w + l);
-        }   
-      }   
+        }
+      }
     }
   }
 
@@ -143,10 +145,9 @@ float noise4(float x, float y, float z, float w) {
   const float NUM_OCTAVES = 4.0;
   float total = 0.0;
   float totalAmplitude = 0.0;
-  float persistence = 0.5;
 
   for (float i = 0.0; i < NUM_OCTAVES; i++) {
-    float frequency = pow(2.0, i);
+    float frequency = freqMultiplier * pow(2.0, i);
     float amplitude = pow(persistence, i);
     float d = 5.0;
 
@@ -213,9 +214,8 @@ float noise(float x, float y, float z, float w) {
 
 void main() {
     float r = noise(position.x, position.y, position.z, time);
-    vUv = vec2(0.0, r * 1.1);
+    vUv = vec2(0.0, 1.3 * r - (time / 1000.0) + 0.2); // 0.2 = fire, -0.1=ice, -0.5=earth
     nor = normal.xyz;
-    vec3 pos = position + 100.0 * r * nor;
+    vec3 pos = position + displacement * r * nor;
     gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );
 }
-

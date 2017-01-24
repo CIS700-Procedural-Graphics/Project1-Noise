@@ -10,18 +10,23 @@ var planet = {
   material:   {},
   uniforms:   {},
   parameters: {
+    music: true,
     radius: 30.0,
-    detail: 6.0,
+    detail: 5.0,
     startTime: 0.0,
-    time: 0.0,
-    timeMultiplier: 0.01,
-    spin: true
+    time: -0.0,
+    timeStep: 1.0,
+    spin: true,
+    persistence: 0.5,
+    frequency: 2.0,
+    displacement: 100.0
   }
 };
 
 var shake = 0.0;
 var sound = {};
 var analyser = {};
+var timeState = 1;
 
 function loadPlanet(framework) {
   var scene = framework.scene;
@@ -29,7 +34,7 @@ function loadPlanet(framework) {
   planet.uniforms = {
     image: {
       type: "t",
-      value: THREE.ImageUtils.loadTexture('./resources/fire.png')
+      value: THREE.ImageUtils.loadTexture('./resources/fire3.png')
     },
     time: {
       type: "f",
@@ -38,6 +43,18 @@ function loadPlanet(framework) {
     radius: {
       type: "f",
       value: 40.0
+    },
+    persistence: {
+      type: "f",
+      value: planet.parameters.persistence
+    },
+    freqMultiplier: {
+      type: "f",
+      value: planet.parameters.frequency
+    },
+    displacement: {
+      type: "f",
+      value: planet.parameters.displacement
     }
   };
   planet.material = new THREE.ShaderMaterial({
@@ -92,9 +109,37 @@ function loadGUI(framework) {
     planet.mesh.geometry.verticesNeedUpdate = true;
   });
 
-  gui.add(planet.parameters, 'timeMultiplier', 0.0, 0.1);
+  gui.add(planet.parameters, 'persistence', 0.0, 5.0).onChange(function(newVal) {
+    planet.uniforms.persistence = {
+      type: "f",
+      value: planet.parameters.persistence
+    };
+  });
+
+  gui.add(planet.parameters, 'frequency', 0.0, 5.0).onChange(function(newVal) {
+    planet.uniforms.freqMultiplier = {
+      type: "f",
+      value: planet.parameters.frequency
+    };
+  });
+
+  gui.add(planet.parameters, 'displacement', 0.0, 500.0).onChange(function(newVal) {
+    planet.uniforms.displacement = {
+      type: "f",
+      value: planet.parameters.displacement
+    };
+  });
+
+  gui.add(planet.parameters, 'time', 0.0, 800.0);
+
+  gui.add(planet.parameters, 'timeStep', 0.0, 2.0);
 
   gui.add(planet.parameters, 'spin');
+
+  gui.add(planet.parameters, 'music').onChange(function(newVal) {
+    var oldVolume = sound.getVolume();
+    sound.setVolume(0.5 - oldVolume);
+  });
 }
 
 function loadCamera(framework) {
@@ -150,9 +195,9 @@ function onUpdate(framework) {
 
   if (planet.parameters.spin) {
     camera.position.set(
-      300 * Math.sin(planet.parameters.time * 0.0005),
+      300 * Math.sin((new Date()).getTime() * 0.0005),
       0.0,
-      300 * Math.cos(planet.parameters.time * 0.0005)
+      300 * Math.cos((new Date()).getTime() * 0.0005)
     );
     camera.lookAt(new THREE.Vector3(0,0,0));
   }
@@ -171,11 +216,21 @@ function onUpdate(framework) {
     }
   }
 
-  planet.parameters.time = (new Date()).getTime();
+  // planet.parameters.time = (new Date()).getTime();
+  var elapsedTime = (planet.parameters.startTime - (new Date()).getTime());
+  if (planet.parameters.time >= 800.0 && timeState > 0) {
+    timeState = -2;
+  } else if (planet.parameters.time <= 0.0 && timeState < 0) {
+    timeState = 1;
+  }
+  planet.parameters.time += planet.parameters.timeStep * timeState;
+
   planet.uniforms.time = {
     type: "f",
-    value: (planet.parameters.time - planet.parameters.startTime) * planet.parameters.timeMultiplier
+    value: planet.parameters.time + planet.parameters.timeStep
   };
+
+  planet.parameters.startTime = (new Date()).getTime();
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
