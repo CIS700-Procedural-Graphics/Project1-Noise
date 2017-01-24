@@ -2,11 +2,11 @@
 
 ## Description
 
-#### Visual output
+### Visual output
 
 I tried to make my circle look more like a smoothly distorting blob, rather than a rapidly-spiking explosion, because I thought it looked cooler and was more relaxing to work with as I was debugging my code.  The blob is colored with its surface normals interpolated with a constant color, so that they slowly morph over time.
 
-#### Perlin noise
+### Perlin noise
 
 I implemented this project in the following manner.  First, my noise function takes as input a 3D coordinate, vec3(x, y, z).  I then determine the 8 boundary lattice points encompassing the input coordinate, and sample random values for them.  Instead of using a pseudo-random hash function, I hard-coded in a permutation of numbers between [0, 255] (as Perlin did in his implementation), mainly for performance reasons as my computer can barely run WebGL stuff without its fan kicking in overtime.
 
@@ -14,16 +14,17 @@ Then, I interpolate between the 8 lattice points to determine a final random noi
 
 In addition to returning simple noise, I also implemented a function to return noise of multiple octaves combined together.  This function, octaveNoise, uses persistence, frequency, and amplitude to create an improved noise function.
 
-#### GUI
+### GUI
 
 All aspects of the octave noise function can be changed via the dat.gui module.
 
-#### Music (unimplemented, but almost implemented!)
+### Music (unimplemented, but almost implemented!)
 
 I used Web Audio API to set up a mini-pipeline to play a song from "La La Land" (great movie!).  I used a component in the pipeline called an Analyser to spit out song-waveform data every animation frame, which I then passed to the shader.  However, I ran into a couple of problems / creative-roadblocks:
 
  - Every frame passed a waveform data array of length 1024, which was too large to send to my vertex shader via a uniform variable (the compiler spit out some "too many uniforms error").  This meant that I was unable to work with the waveform data unless I (1) found a way to compress it or (2) tried attaching the data onto vertices via vertex attributes outside of the shader.
-  - Additionally, I struggled to find a good way to incorporate the data into the animation.  Perhaps the song I chose was too loud / had too many simultaneous instruments, because whenever I attempted to add in song data to my shader, the animation became very jittery, which was no good.
+
+- Additionally, I struggled to find a good way to incorporate the data into the animation.  Perhaps the song I chose was too loud / had too many simultaneous instruments, because whenever I attempted to add in song data to my shader, the animation became very jittery, which was no good.
 
 ## Objective
 
