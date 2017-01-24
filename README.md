@@ -6,7 +6,7 @@ Get comfortable with using three.js and its shader support and generate an inter
 
 ## Getting Started
 
-1. [Install Node.js](https://nodejs.org/en/download/). Node.js is a JavaScript runtime. It basically allows you to run JavaScript when not in a browser. For our purposes, this is not necessary. The important part is that with it comes `npm`, the Node Package Manager. This allows us to easily declare and install external dependencies such as [three.js](https://threejs.org/), [dat.GUI](https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage), and [glMatrix](http://glmatrix.net/). Some other packages we'll be using make it significantly easier to develop your code and create modules for better code reuse and clarity. These tools make it _signficantly_ easier to write code in multiple `.js` files without globally defining everything.
+1. Install [Node.js](https://nodejs.org/en/download/). [three.js](https://threejs.org/), [dat.GUI](https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage), and [glMatrix](http://glmatrix.net/). 
 
 2. Fork and clone [this repository](https://github.com/CIS700-Procedural-Graphics/Project1-Noise).
 
@@ -35,4 +35,7 @@ Demo: https://iambrian.github.io/Project1-Noise/
 4.  Camera Shake -- used a threshold on fft data
 5.  Adjustable Parameters: time, timeStep, frequency, persistence, displacement, spin, music
 
+## Resources
+Gradient: http://www.colorzilla.com/gradient-editor/
+Skybox images: Spacescape (http://alexcpeterson.com/spacescape/)
 Music: OVERWERK Canon (http://www.overwerk.com)
