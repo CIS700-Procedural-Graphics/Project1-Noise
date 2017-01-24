@@ -10,12 +10,12 @@ var planet = {
   material:   {},
   uniforms:   {},
   parameters: {
-    radius: 40.0,
-    detail: 5.0,
+    radius: 30.0,
+    detail: 6.0,
     startTime: 0.0,
     time: 0.0,
     timeMultiplier: 0.01,
-    spin: false
+    spin: true
   }
 };
 
@@ -63,7 +63,7 @@ function loadSkybox(framework) {
   var imagePrefix = "./resources/";
   var directions  = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"];
   var imageSuffix = ".png";
-  var skyGeometry = new THREE.CubeGeometry( 1000, 1000, 1000 );
+  var skyGeometry = new THREE.CubeGeometry( 2000, 2000, 2000 );
   var materialArray = [];
   for (var i = 0; i < 6; i++)
       materialArray.push( new THREE.MeshBasicMaterial({
@@ -163,11 +163,11 @@ function onUpdate(framework) {
     var dataArray = new Uint8Array(bufferLength);
     analyser.analyser.getByteFrequencyData(dataArray);
 
-    console.log(dataArray);
+    // console.log(dataArray);
     if (dataArray[12] > 120.0) {
       var amount = (dataArray[12] - 100.0) / 2.0;
       camera.lookAt(new THREE.Vector3(amount * Math.random(), amount * Math.random(), amount * Math.random()));
-      console.log("shake");
+      // console.log("shake");
     }
   }
 
