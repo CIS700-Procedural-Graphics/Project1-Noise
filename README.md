@@ -4,7 +4,14 @@
 
 ### Visual output
 
-I tried to make my circle look more like a smoothly distorting blob, rather than a rapidly-spiking explosion, because I thought it looked cooler and was more relaxing to work with as I was debugging my code.  The blob is colored with its surface normals interpolated with a constant color, so that they slowly morph over time.
+#### Song mode:
+
+The circle jitters to the frequency wave of the song playing.  It's not perfect, but at least it's somewhat functional.
+
+
+#### Normal mode:
+
+I tried to make my circle look more like a smoothly distorting blob, rather than a rapidly-spiking explosion, because I thought it looked cooler and was more relaxing to work with as I was debugging my code.  The blob is colored with its surface normals interpolated with a constant, so that they slowly morph over time.
 
 ### Perlin noise
 
@@ -16,15 +23,15 @@ In addition to returning simple noise, I also implemented a function to return n
 
 ### GUI
 
-All aspects of the octave noise function can be changed via the dat.gui module.
+All aspects of the octave noise function can be changed via the dat.gui module.  The song can also be turned on and off.
 
-### Music (unimplemented, but almost implemented!)
+### Music (implemented, but not perfect...)
 
 I used Web Audio API to set up a mini-pipeline to play a song from "La La Land" (great movie!).  I used a component in the pipeline called an Analyser to spit out song-waveform data every animation frame, which I then passed to the shader.  However, I ran into a couple of problems / creative-roadblocks:
 
- - Every frame passed a waveform data array of length 1024, which was too large to send to my vertex shader via a uniform variable (the compiler spit out some "too many uniforms error").  This meant that I was unable to work with the waveform data unless I (1) found a way to compress it or (2) tried attaching the data onto vertices via vertex attributes outside of the shader.
+ - Every frame passed a waveform data array of length 1024, which was too large to send to my vertex shader via a uniform variable (the compiler spit out some "too many uniforms error").  This meant that I was unable to work with the waveform data unless I (1) found a way to compress it or (2) tried attaching the data onto vertices via vertex attributes outside of the shader.  I ended up smoothing the original waveform via a moving average, and then passing it to the shader as a smaller array.
 
-- Additionally, I struggled to find a good way to incorporate the data into the animation.  Perhaps the song I chose was too loud / had too many simultaneous instruments, because whenever I attempted to add in song data to my shader, the animation became very jittery, which was no good.
+- Additionally, I struggled to find a good way to incorporate the data into the animation.  Perhaps the song I chose was too loud / had too many simultaneous instruments, because whenever I attempted to add in song data to my shader, the animation became very jittery, which was no good.  As of now, the circle jitters somewhat in tune with the beat and volume of the song.
 
 ## Objective
 

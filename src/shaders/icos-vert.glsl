@@ -2,8 +2,8 @@
 // Perlin's Improved Noise: http://mrl.nyu.edu/~perlin/noise/
 // explanations of Improved Noise: http://flafla2.github.io/2014/08/09/perlinnoise.html#the-hash-function
 
-varying float normNoise;
-varying float posNoise;
+varying float randTime;
+varying float randAudio;
 varying vec3 vNormal;
 
 uniform float speed;
@@ -13,7 +13,8 @@ uniform float pers;
 uniform float amp;
 uniform int octaves;
 uniform float p[256];
-uniform float audioData[256];
+uniform float smoothedAudioData[64];   // 1024 / 16 = 64 (frequency.binCount / smoothStep)
+uniform int isAudioPlaying;
 
 float lerp(float a, float b, float t) {
     return (a * (1.0 - t)) + (b * t);
@@ -120,13 +121,19 @@ float octaveNoise(vec3 v) {
     return total / maxNoise;
 }
 
-void main() {
-    normNoise = octaveNoise(normal + (time * speed / 2000.0));
-    posNoise = octaveNoise(position + (time * speed / 2000.0));
-    vNormal = normal;
+float audioNoise(vec3 v) {
+    vec3 vec = normalize(vec3(1.0, 1.0, 2.0));
+    int dotT = int((1.0 - ((dot(vec, normalize(v)) + 1.0) / 2.0)) * 64.0);
+    return smoothedAudioData[dotT];
+}
 
-    float displacement = posNoise;
-    vec3 noisePosition = position + (normal * displacement);
+void main() {
+    vNormal = normal;
+    randTime = octaveNoise(position + (time * speed / 2000.0));
+    randAudio = audioNoise(position);
+
+    float displacement = (isAudioPlaying == 1) ? randAudio : randTime;
+    vec3 noisePosition = position + (normal * displacement / 2.0);
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(noisePosition, 1.0);
 }

@@ -1,6 +1,7 @@
-varying float normNoise;
-varying float posNoise;
+varying float randTime;
+varying float randAudio;
 varying vec3 vNormal;
+
 uniform float time;
 uniform vec3 color;
 
@@ -19,5 +20,5 @@ vec3 cosinterp(vec3 a, vec3 b, float t) {
 }
 
 void main() {
-  gl_FragColor = vec4(cosinterp(vNormal.xyz, vec3(0.9, 0.9, 0.9), posNoise), 1.0);
+  gl_FragColor = vec4(cosinterp(vNormal, vec3(0.9, 0.9, 0.9), randTime), 1.0);
 }

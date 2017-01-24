@@ -14,9 +14,11 @@ var audioGUI = {
     if (isPlaying) {
       src.disconnect();
       isPlaying = false;
+      uniforms.isAudioPlaying.value = 0;
     } else {
       src.connect(analyser);
       isPlaying = true;
+      uniforms.isAudioPlaying.value = 1;
     }
   }
 }
@@ -45,7 +47,11 @@ req.send();
 
 // This array will hold the audio data used
 // to animate our blob
-var audioData = new Float32Array(256);
+var audioData = new Float32Array(analyser.frequencyBinCount);
+
+// Smoothed data generated from the frequency
+// array above.
+var smoothedAudioData = [];
 
 // Declare uniforms
 const perm = [
@@ -70,7 +76,8 @@ var uniforms = {
   amp: { value: 1.0 },            // amplitude
   octaves: { value: 6 },          // number of octaves
   p: { value: perm },             // perm array,
-  audioData: { value: audioData }
+  smoothedAudioData: { value: smoothedAudioData },
+  isAudioPlaying: { value: 1 }
 };
 
 // called after the scene loads
@@ -109,7 +116,19 @@ function onLoad(framework) {
 function onUpdate(framework) {
   analyser.getFloatTimeDomainData(audioData);
 
-  uniforms.audioData.value = audioData;
+  // Smooth audio data via a moving average
+  var smoothStep = 16;
+  for (var i = 0; i < audioData.length / smoothStep; i++) {
+    var total = 0;
+    var index = i * smoothStep;
+    for (var j = 0; j < smoothStep; j++) {
+      total += audioData[index + j];
+    }
+
+    smoothedAudioData[i] = total / smoothStep;
+  }
+
+  uniforms.smoothedAudioData.value = smoothedAudioData;
   uniforms.time.value = Date.now() - start;
 }
 
