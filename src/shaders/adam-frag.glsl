@@ -2,6 +2,8 @@ varying vec2 vUv;
 varying float noise;
 uniform sampler2D image;
 
+//have multiple sampler2D variables for those image variables
+//have flag, and have if statement for "if flag == some number", then do this image
 
 void main() {
 

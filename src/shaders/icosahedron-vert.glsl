@@ -3,6 +3,7 @@ uniform float time;
 varying vec3 perlin_color;
 
 uniform float num_octaves;
+uniform float perlin_persistence;
 
 
 float cosineInterp(float x, float y, float z)
@@ -26,30 +27,22 @@ float randomNoise3D(float x, float y, float z)
 float smoothedNoise(float x, float y, float z)
 {
     //edge connected (12) / 8
-    //(x - 1, y + 1, z), (x, y + 1, z + 1), (x + 1, y + 1, z), (x, y + 1, z - 1)
-    //(x - 1, y, z + 1), (x + 1, y, z + 1), (x + 1, y, z - 1), (x - 1, y, z - 1)
-    //(x - 1, y - 1, z), (x, y - 1, z + 1), (x + 1, y - 1, z), (x, y - 1, z - 1)
     float edges = (randomNoise3D(x - 1.0, y + 1.0, z) + randomNoise3D(x, y + 1.0, z + 1.0) + randomNoise3D(x + 1.0, y + 1.0, z) + randomNoise3D(x, y + 1.0, z - 1.0)
                   + randomNoise3D(x - 1.0, y, z + 1.0) + randomNoise3D(x + 1.0, y, z + 1.0) + randomNoise3D(x + 1.0, y, z - 1.0) + randomNoise3D(x - 1.0, y, z - 1.0)
                   + randomNoise3D(x - 1.0, y - 1.0, z) + randomNoise3D(x, y - 1.0, z + 1.0) + randomNoise3D(x + 1.0, y - 1.0, z) + randomNoise3D(x, y - 1.0, z - 1.0))
                   / 8.0;
 
-
     //point connected (8) / 16
-    //(x - 1, y + 1, z + 1), (x + 1, y + 1, z + 1), (x - 1, y - 1, z + 1), (x + 1, y - 1, z + 1)
-    //(x - 1, y + 1, z - 1), (x + 1, y + 1, z - 1), (x - 1, y - 1, z - 1), (x + 1, y - 1, z - 1)
     float points = randomNoise3D(x - 1.0, y + 1.0, z + 1.0) + randomNoise3D(x + 1.0, y + 1.0, z + 1.0) + randomNoise3D(x - 1.0, y - 1.0, z + 1.0) + randomNoise3D(x + 1.0, y - 1.0, z + 1.0)
                     + randomNoise3D(x - 1.0, y + 1.0, z - 1.0) + randomNoise3D(x + 1.0, y + 1.0, z - 1.0) + randomNoise3D(x - 1.0, y - 1.0, z - 1.0) + randomNoise3D(x + 1.0, y - 1.0, z - 1.0)
                     / 16.0;
 
     //face connected (6) / 4
-    //(x - 1, y , z), (x, y + 1, z), (x , y, z + 1), (x + 1, y, z), (x , y, z - 1), (x , y - 1, z)
     float faces = randomNoise3D(x - 1.0, y , z) + randomNoise3D(x, y + 1.0, z) + randomNoise3D(x , y, z + 1.0)
                     + randomNoise3D(x + 1.0, y, z) + randomNoise3D(x , y, z - 1.0) + randomNoise3D(x , y - 1.0, z)
                     / 4.0;
 
     //center (1) / 2
-    //(x, y , z)
     float center = randomNoise3D(x , y, z) / 2.0;
 
     return edges + points + faces + center;
@@ -79,19 +72,6 @@ float interpolatedNoise(float x, float y, float z)
     float v7 = smoothedNoise(floored_x, floored_y + 1.0, floored_z + 1.0);
     float v8 = smoothedNoise(floored_x + 1.0, floored_y + 1.0, floored_z + 1.0);
 
-    /*
-    float v1 = smoothedNoise(floored_x, floored_y, floored_z);
-
-    float v2 = smoothedNoise(floored_x + 1, floored_y, floored_z);
-    float v3 = smoothedNoise(floored_x, floored_y + 1, floored_z);
-    float v5 = smoothedNoise(floored_x, floored_y, floored_z + 1);
-
-    float v4 = smoothedNoise(floored_x + 1, floored_y + 1, floored_z);
-    float v7 = smoothedNoise(floored_x, floored_y + 1, floored_z + 1);
-    float v6 = smoothedNoise(floored_x + 1, floored_y, floored_z + 1);
-
-    float v8 = smoothedNoise(floored_x + 1, floored_y + 1, floored_z + 1);
-    */
 
     float interp_1 = cosineInterp(v1, v2, difference_x);
     float interp_2 = cosineInterp(v3, v4, difference_x);
@@ -108,7 +88,7 @@ float interpolatedNoise(float x, float y, float z)
 float perlinNoise(float x, float y, float z)
 {
     float noise_total = 0.0;
-    float persistence = 0.75;  //0.75 makes it spikier. 0.5 makes it more gaseous
+    float persistence = perlin_persistence;//0.75;  //0.75 makes it spikier. 0.5 makes it more gaseous
     float numOctaves = 2.0;
     float frequency = 0.0;
     float amplitude = 0.0;
@@ -135,15 +115,17 @@ float perlinNoise(float x, float y, float z)
 void main() {
     vNormal = normal;
     float noise_output = perlinNoise(position.x + sin(time), position.y + sin(time), position.z + sin(time));
+
+    //other calls to perlin that produce interesting results
     //0.5 * perlinNoise(position.x + sin(time), position.y + sin(time), position.z + sin(time)) + 0.5;  //this will make it more gaseous like
     //perlinNoise(position.x + sin(time), position.y + sin(time), position.z + sin(time))   //taking sin of time will make it look like rewinding back
     //perlinNoise(position.x * sin(time) * 4.0, position.y * time * 4.0, position.z + sin(time) * 4.0);
 
+    //to send to frag shader
     perlin_color = vec3(noise_output);
 
+    //change position of mesh based on perlin output
     vec3 new_pos = position;
-
     new_pos = new_pos + (vNormal * 0.5 * noise_output);
-
     gl_Position = projectionMatrix * modelViewMatrix * vec4( new_pos, 1.0 );
 }
