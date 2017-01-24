@@ -73,7 +73,7 @@ function startMain(time)
 
 function updateMain(time)
 {
-  if( Engine.cameraTime > 10.0)
+  if( Engine.cameraTime > 11.0)
   {
     Engine.cameraTime = 0;
 
@@ -370,13 +370,13 @@ function updateCamera()
     }
     else if(Engine.currentCameraShot == CameraShot.CEILING)
     {
-      Engine.camera.position.set(0, 10, 0);
+      Engine.camera.position.set(0, 10, .1);
       Engine.camera.lookAt(new THREE.Vector3(0,0,0));
     } 
     else if(Engine.currentCameraShot == CameraShot.OVERVIEW)
     {
-      var p = new THREE.Vector3( Math.cos(Engine.time), 0.0, Math.cos(Engine.time) );
-      Engine.camera.position.set(p.x, 4, p.y);
+      var p = new THREE.Vector3( Math.cos(Engine.time), 0.0, Math.sin(Engine.time) ) * 7.5;
+      Engine.camera.position.set(p.x, 2, p.z);
       Engine.camera.lookAt(new THREE.Vector3(0,0,0));
     }
 }
