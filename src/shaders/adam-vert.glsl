@@ -1,10 +1,12 @@
 varying float n;
 varying vec2 vUv;
 varying vec3 nor;
-//varying vec3 col;
+varying vec3 col;
 uniform float time;
 uniform float persistance_p;
 uniform int audData[1000];
+
+varying float s;
 
 float Noise3D(int x, int y, int z)
 {
@@ -92,8 +94,13 @@ float Generate_Noise3D(vec3 pos, float persistance, int octaves)
 void main() {
     vUv = uv;
     nor = normal;
+    
+    int index = 200;
+    float sound = float(audData[index]) / float(255);
+    s = sound;
     float noise = Generate_Noise3D(position, persistance_p, 8);
     n = noise;
+    
     
     //float red = vec3(1.0,0.0,0.0);
     //float white = vec3(0.5,0.5,0.5);
@@ -101,11 +108,11 @@ void main() {
 
     //manuplating the output colors
     //tcol = red * (1.0 - noise) + white * noise;
-    //col = mix(vec3(1.0,1.0,1.0), vec3(noise, noise, noise), noise);
+    //col = mix(normal, vec3(noise * (1.0 - sound) + normal.x, noise * (1.0 - sound) + normal.x, noise * (1.0 - sound) + normal.x), sound);
     
     //manuplating the position
     vec3 pos_new;
-    pos_new = position + noise * normal;
+    pos_new = position * 10.0 * sound + ((noise * normal));
     
     gl_Position = projectionMatrix * modelViewMatrix * vec4( pos_new, 1.0 );
 }
