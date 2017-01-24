@@ -13,19 +13,24 @@ import Framework from './framework'
     fragmentShader: require('./shaders/noise-frag.glsl')
   });
 
+  // add background music  
+  var audio = new Audio('ambient-sound.mp3');
+  audio.loop = true; 
+  var audioPlaying = true;
+
 // add to the GUI 
 var persistObj = function() {
-  this.message = 'persistance';
   this.persistance = 0.7; 
-  this.colors = 0.0;
+  this.color = 0.0;
+  this.vibes = false;
 };
 
 // Uniform time to be sent to shader
 var totalTime = 0.0; 
 
-
 // called after the scene loads
 function onLoad(framework) {
+
   var scene = framework.scene;
   var camera = framework.camera;
   var renderer = framework.renderer;
@@ -68,14 +73,24 @@ function onLoad(framework) {
     camera.updateProjectionMatrix();
   });
 
-  // Add functionality to change the persistance of noise function
+  // Add functionality to change the persistance and color of noise function
   var perturb = new persistObj(); 
   gui.add(perturb, 'persistance', 0.0, 1.0).onChange(function(newVal) {
       noiseMaterial.uniforms.u_persistance.value = newVal;
     });
-  gui.add(perturb, 'colors', 0.0, 1.0).onChange(function(newVal) {
+  gui.add(perturb, 'color', -1.0, 1.0).onChange(function(newVal) {
       noiseMaterial.uniforms.u_color.value = newVal;
   }); 
+  // background music for fun 
+  gui.add(perturb, 'vibes').onChange(function(newVal) {
+    if (!newVal) {
+      audio.pause();
+      audioPlaying = !audioPlaying;
+    } else {
+      audio.play();
+      audioPlaying = true; 
+    }
+  });
 }
 
 // called on frame updates

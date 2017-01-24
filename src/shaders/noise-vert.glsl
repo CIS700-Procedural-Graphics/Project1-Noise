@@ -1,7 +1,6 @@
 varying vec2 vUv;
 varying vec3 vNormal;
 varying float vNoiseValue; 
-
 uniform float time;
 uniform float u_persistance;
 
