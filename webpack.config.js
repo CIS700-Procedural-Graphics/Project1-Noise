@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
   entry: path.join(__dirname, "src/main"),
@@ -24,5 +25,8 @@ module.exports = {
   devtool: 'source-map',
   devServer: {
     port: 7000
-  }
+  },
+  plugins: [
+    new webpack.OldWatchingPlugin()
+  ]
 }

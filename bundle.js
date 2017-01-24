@@ -55,6 +55,57 @@
 	var THREE = __webpack_require__(6); // older modules are imported like this. You shouldn't have to worry about this much
 	
 	
+	var d_orig = new Date();
+	var d2 = d_orig.getSeconds();
+	var d3 = d_orig.getSeconds();
+	var count = 0.0;
+	var flag = false;
+	
+	var strength = {
+	  value: 1.0
+	};
+	var colors = {
+	  value: 1
+	};
+	
+	var settings = {
+	  strength: 1.0,
+	  colors: 1
+	};
+	
+	var color_Material = new THREE.ShaderMaterial({
+	  uniforms: {
+	    image: { // Check the Three.JS documentation for the different allowed types and values
+	      type: "t",
+	      value: THREE.ImageUtils.loadTexture('./red gradient.png')
+	      //value: THREE.ImageUtils.loadTexture('./blue gradient.png')
+	    },
+	
+	    image2: { // Check the Three.JS documentation for the different allowed types and values
+	      type: "t",
+	      value: THREE.ImageUtils.loadTexture('./blue gradient.png')
+	      //value: THREE.ImageUtils.loadTexture('./blue gradient.png')
+	    },
+	
+	    image3: { // Check the Three.JS documentation for the different allowed types and values
+	      type: "t",
+	      value: THREE.ImageUtils.loadTexture('./adam.jpg')
+	      //value: THREE.ImageUtils.loadTexture('./blue gradient.png')
+	    },
+	
+	    time: {
+	      type: "f",
+	      value: 0.0
+	    },
+	    strength: {
+	      type: "f",
+	      value: 1.0
+	    }
+	  },
+	  vertexShader: __webpack_require__(8),
+	  fragmentShader: __webpack_require__(9)
+	});
+	
 	// called after the scene loads
 	function onLoad(framework) {
 	  var scene = framework.scene;
@@ -64,39 +115,84 @@
 	  var stats = framework.stats;
 	
 	  // LOOK: the line below is synyatic sugar for the code above. Optional, but I sort of recommend it.
-	  // var {scene, camera, renderer, gui, stats} = framework; 
+	  // var {scene, camera, renderer, gui, stats} = framework;
 	
-	  // initialize a simple box and material
-	  var box = new THREE.BoxGeometry(1, 1, 1);
+	  // // initialize a simple box and material
+	  // var box = new THREE.BoxGeometry(1, 1, 1);
+	  // var adamMaterial = new THREE.ShaderMaterial({
+	  //   uniforms: {
+	  //     image: { // Check the Three.JS documentation for the different allowed types and values
+	  //       type: "t",
+	  //       value: THREE.ImageUtils.loadTexture('./adam.jpg')
+	  //     }
+	  //   },
+	  //   vertexShader: require('./shaders/adam-vert.glsl'),
+	  //   fragmentShader: require('./shaders/adam-frag.glsl')
+	  // });
+	  // var adamCube = new THREE.Mesh(box, adamMaterial);
 	
-	  var adamMaterial = new THREE.ShaderMaterial({
-	    uniforms: {
-	      image: { // Check the Three.JS documentation for the different allowed types and values
-	        type: "t",
-	        value: THREE.ImageUtils.loadTexture('./adam.jpg')
-	      }
-	    },
-	    vertexShader: __webpack_require__(8),
-	    fragmentShader: __webpack_require__(9)
-	  });
-	  var adamCube = new THREE.Mesh(box, adamMaterial);
+	  var sphereGeom = new THREE.IcosahedronGeometry(1, 5);
+	  var sphere = new THREE.Mesh(sphereGeom, color_Material);
 	
 	  // set camera position
 	  camera.position.set(1, 1, 2);
 	  camera.lookAt(new THREE.Vector3(0, 0, 0));
 	
-	  scene.add(adamCube);
+	  //scene.add(adamCube);
+	  scene.add(sphere);
 	
 	  // edit params and listen to changes like this
 	  // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
-	  gui.add(camera, 'fov', 0, 180).onChange(function (newVal) {
-	    camera.updateProjectionMatrix();
+	  // gui.add(camera, 'fov', 0, 180).onChange(function(newVal)
+	  // {
+	  //   camera.updateProjectionMatrix();
+	  // });
+	  // gui.add(camera, 'aspect', 1, 10).onChange(function(newVal)
+	  // {
+	  //   camera.updateProjectionMatrix();
+	  // });
+	  gui.add(settings, 'strength', 0, 1).onChange(function (newVal) {
+	    settings.strength = newVal;
+	  });
+	  //
+	  gui.add(settings, 'colors', 1, 4).onChange(function (newVal) {
+	    settings.colors = newVal;
 	  });
 	}
 	
 	// called on frame updates
 	function onUpdate(framework) {
-	  console.log('the time is ' + new Date());
+	  switch (settings.colors) {
+	    case 1:
+	      //red gradient
+	      color_Material.image = THREE.ImageUtils.loadTexture('./red gradient.jpg');
+	      break;
+	    case 2:
+	      //blue gradient
+	      color_Material.image = THREE.ImageUtils.loadTexture('./blue gradient.jpg');
+	      break;
+	    case 3:
+	    //normals
+	    //don't do anything here make a if in the shader
+	    case 4:
+	      //adam's face
+	      color_Material.image = THREE.ImageUtils.loadTexture('./adam.jpg');
+	      break;
+	  }
+	  if (count == 60.0) {
+	    flag = true;
+	  } else if (count == 30.0 && flag) {
+	    flag = false;
+	  } else if (count == 0.0) {
+	    flag = false;
+	  }
+	  if (flag) {
+	    count -= 1.0;
+	  } else {
+	    count += 1.0;
+	  }
+	  color_Material.uniforms.time.value = count;
+	  color_Material.uniforms.strength.value = settings.strength;
 	}
 	
 	// when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
@@ -47973,13 +48069,13 @@
 /* 8 */
 /***/ function(module, exports) {
 
-	module.exports = "\r\nvarying vec2 vUv;\r\nvoid main() {\r\n    vUv = uv;\r\n    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\r\n}"
+	module.exports = "varying vec2 vUv;\r\nvarying vec3 vnor;\r\nuniform float time;\r\n//float old_noise = 0.0;\r\nuniform float strength;\r\n\r\nfloat Noisehash(vec3 p)\r\n{\r\n  p  = fract( p*0.3183099+0.1 );\r\n  p *= 17.0;\r\n  return fract( p.x*p.y*p.z*(p.x+p.y+p.z) );\r\n}\r\n\r\nfloat smoothed_noise(vec3 p)\r\n{\r\n  vec3 p1 = vec3(p.x - 1.0, p.y + 1.0,p.z + 1.0);\r\n  vec3 p2 = vec3(p.x,       p.y + 1.0,p.z + 1.0);\r\n  vec3 p3 = vec3(p.x + 1.0, p.y + 1.0,p.z + 1.0);\r\n  vec3 p4 = vec3(p.x - 1.0, p.y,      p.z + 1.0);\r\n  vec3 p5 = vec3(p.x,       p.y,      p.z + 1.0);\r\n  vec3 p6 = vec3(p.x + 1.0, p.y,      p.z + 1.0);\r\n  vec3 p7 = vec3(p.x - 1.0, p.y - 1.0,p.z + 1.0);\r\n  vec3 p8 = vec3(p.x,       p.y - 1.0,p.z + 1.0);\r\n  vec3 p9 = vec3(p.x + 1.0, p.y - 1.0,p.z + 1.0);\r\n\r\n  vec3 p10 = vec3(p.x - 1.0,p.y + 1.0,p.z);\r\n  vec3 p11 = vec3(p.x,      p.y + 1.0,p.z);\r\n  vec3 p12 = vec3(p.x + 1.0,p.y + 1.0,p.z);\r\n  vec3 p13 = vec3(p.x - 1.0,p.y,      p.z);\r\n  vec3 p14 = vec3(p.x + 1.0,p.y,      p.z);\r\n  vec3 p15 = vec3(p.x - 1.0,p.y - 1.0,p.z);\r\n  vec3 p16 = vec3(p.x,      p.y - 1.0,p.z);\r\n  vec3 p17 = vec3(p.x + 1.0,p.y - 1.0,p.z);\r\n\r\n  vec3 p18 = vec3(p.x - 1.0,p.y + 1.0,p.z - 1.0);\r\n  vec3 p19 = vec3(p.x,p.y + 1.0,p.z - 1.0);\r\n  vec3 p20 = vec3(p.x + 1.0,p.y + 1.0,p.z - 1.0);\r\n  vec3 p21 = vec3(p.x - 1.0,p.y,      p.z - 1.0);\r\n  vec3 p22 = vec3(p.x,p.y,      p.z - 1.0);\r\n  vec3 p23 = vec3(p.x + 1.0,p.y,      p.z - 1.0);\r\n  vec3 p24 = vec3(p.x - 1.0,p.y - 1.0,p.z - 1.0);\r\n  vec3 p25 = vec3(p.x,p.y - 1.0,p.z - 1.0);\r\n  vec3 p26 = vec3(p.x + 1.0,p.y - 1.0,p.z - 1.0);\r\n\r\n  float influence1 = 4.0/100.0;\r\n  float influence2 = 1.8/100.0;\r\n  float influence3 = 40.0/100.0;\r\n  //make sure 6*influnce1 + 20*influence2=1\r\n\r\n  float n1 =  influence2 * Noisehash(p1);\r\n  float n2 =  influence2 * Noisehash(p2);\r\n  float n3 =  influence2 * Noisehash(p3);\r\n  float n4 =  influence2 * Noisehash(p4);\r\n  float n5 =  influence1 * Noisehash(p5);\r\n  float n6 =  influence2 * Noisehash(p6);\r\n  float n7 =  influence2 * Noisehash(p7);\r\n  float n8 =  influence2 * Noisehash(p8);\r\n  float n9 =  influence2 * Noisehash(p9);\r\n\r\n  float n10 = influence2 * Noisehash(p10);\r\n  float n11 = influence1 * Noisehash(p11);\r\n  float n12 = influence2 * Noisehash(p12);\r\n  float n13 = influence1 * Noisehash(p13);\r\n  float n14 = influence3 * Noisehash(p13);\r\n  float n15 = influence1 * Noisehash(p14);\r\n  float n16 = influence2 * Noisehash(p15);\r\n  float n17 = influence1 * Noisehash(p16);\r\n  float n18 = influence2 * Noisehash(p17);\r\n\r\n  float n19 = influence2 * Noisehash(p18);\r\n  float n20 = influence2 * Noisehash(p19);\r\n  float n21 = influence2 * Noisehash(p20);\r\n  float n22 = influence2 * Noisehash(p21);\r\n  float n23 = influence1 * Noisehash(p22);\r\n  float n24 = influence2 * Noisehash(p23);\r\n  float n25 = influence2 * Noisehash(p24);\r\n  float n26 = influence2 * Noisehash(p25);\r\n  float n27 = influence2 * Noisehash(p26);\r\n\r\n  float average = n1 + n2 +n3 + n4 + n5 + n6 +n7 + n8 + n9 + n10 +n11 + n12 + n13 +\r\n                  n14 + n15 + n16 + n17 + n18 +n19 + n20 + n21 + n22 +n23 + n24 + n25 + n26 +n27;\r\n\r\n  return average;\r\n}\r\n\r\nfloat noise3D_linear(vec3 x)\r\n{\r\n    //uses linear blending through the mix function\r\n    vec3 p = floor(x);\r\n    vec3 f = fract(x);\r\n    f = f*f*(3.0-2.0*f);\r\n\r\n    return mix(mix(mix( Noisehash(p+vec3(0,0,0)),\r\n                        Noisehash(p+vec3(1,0,0)),f.x),\r\n                   mix( Noisehash(p+vec3(0,1,0)),\r\n                        Noisehash(p+vec3(1,1,0)),f.x),f.y),\r\n               mix(mix( Noisehash(p+vec3(0,0,1)),\r\n                        Noisehash(p+vec3(1,0,1)),f.x),\r\n                   mix( Noisehash(p+vec3(0,1,1)),\r\n                        Noisehash(p+vec3(1,1,1)),f.x),f.y),f.z);\r\n}\r\n\r\nfloat Cosine_Interpolate(float a, float b, float t)\r\n{\r\n  // a --- the lower bound value of interpolation\r\n  // b --- the upper bound value of interpolation\r\n\r\n\tfloat ft = t * 3.1415927;\r\n\tfloat f = (1.0 - cos(ft)) * 0.5;\r\n\r\n\treturn  a*(1.0-f) + b*f;\r\n}\r\n\r\nfloat Noise3D_cosine(vec3 p)\r\n{\r\n  float integer_X;\r\n  float integer_Y;\r\n  float integer_Z;\r\n\r\n  if( (p.x-floor(p.x)) >= 0.5)\r\n  {\r\n    integer_X = ceil(p.x);\r\n  }\r\n  else\r\n  {\r\n    integer_X = floor(p.x);\r\n  }\r\n\r\n  if( (p.y-floor(p.y)) >= 0.5)\r\n  {\r\n    integer_Y = ceil(p.y);\r\n  }\r\n  else\r\n  {\r\n    integer_Y = floor(p.y);\r\n  }\r\n\r\n  if( (p.z-floor(p.z)) >= 0.5)\r\n  {\r\n    integer_Z = ceil(p.z);\r\n  }\r\n  else\r\n  {\r\n    integer_Z = floor(p.z);\r\n  }\r\n\r\n  float fractional_X = p.x - integer_X;\r\n  float fractional_Y = p.y - integer_Y;\r\n  float fractional_Z = p.z - integer_Z;\r\n\r\n  vec3 p1 = vec3(integer_X,       integer_Y,       integer_Z);\r\n  vec3 p2 = vec3(integer_X,       integer_Y,       integer_Z + 1.0);\r\n  vec3 p3 = vec3(integer_X,       integer_Y + 1.0, integer_Z);\r\n  vec3 p4 = vec3(integer_X,       integer_Y + 1.0, integer_Z + 1.0);\r\n  vec3 p5 = vec3(integer_X + 1.0, integer_Y,       integer_Z);\r\n  vec3 p6 = vec3(integer_X + 1.0, integer_Y,       integer_Z +  1.0);\r\n  vec3 p7 = vec3(integer_X + 1.0, integer_Y + 1.0, integer_Z);\r\n  vec3 p8 = vec3(integer_X + 1.0, integer_Y + 1.0, integer_Z +  1.0);\r\n  /*\r\n  float v1 = Noisehash (p1);\r\n  float v2 = Noisehash (p2);\r\n  float v3 = Noisehash (p3);\r\n  float v4 = Noisehash (p4);\r\n  float v5 = Noisehash (p5);\r\n  float v6 = Noisehash (p6);\r\n  float v7 = Noisehash (p7);\r\n  float v8 = Noisehash (p8);\r\n  */\r\n  float v1 = smoothed_noise(p1);\r\n  float v2 = smoothed_noise(p2);\r\n  float v3 = smoothed_noise(p3);\r\n  float v4 = smoothed_noise(p4);\r\n  float v5 = smoothed_noise(p5);\r\n  float v6 = smoothed_noise(p6);\r\n  float v7 = smoothed_noise(p7);\r\n  float v8 = smoothed_noise(p8);\r\n\r\n  float i1 = Cosine_Interpolate(v1 , v2 , fractional_Z);\r\n  float i2 = Cosine_Interpolate(v3 , v4 , fractional_Z);\r\n  float i3 = Cosine_Interpolate(v5 , v6 , fractional_Z);\r\n  float i4 = Cosine_Interpolate(v7 , v8 , fractional_Z);\r\n\r\n  float i5 = Cosine_Interpolate(i1 , i2 , fractional_Y);\r\n  float i6 = Cosine_Interpolate(i3 , i4 , fractional_Y);\r\n\r\n  float noise_interpolated = Cosine_Interpolate(i5 , i6 , fractional_X);\r\n\r\n  return noise_interpolated;\r\n}\r\n\r\nfloat Noise3D(vec3 p)\r\n{\r\n  float total = 0.0;\r\n  float persistence = 1.0;\r\n\r\n  //Loop over n =4 octaves\r\n  float i=0.0;\r\n  for(int j=0; j<4; j++)\r\n  {\r\n    float frequency = pow(2.0, i);\r\n    float amplitude = pow(persistence, i);\r\n    i=i+1.0;\r\n    //sum up all the octaves\r\n    total += Noise3D_cosine(p*frequency);\r\n  }\r\n  return total;\r\n}\r\n\r\nfloat Noise4D()\r\n{\r\n    vec3 t = vec3(uv.x,uv.y,time);\r\n    float noise = Noise3D(t);\r\n    return noise;\r\n}\r\n\r\nvoid main()\r\n{\r\n    vUv = uv;\r\n    vnor = normal;\r\n    vec3 p = vec3(uv[0],uv[1],time);\r\n    float t = 0.05 * ((sin(time) + 1.0)/2.0);\r\n    vec3 vposition = position + normal * strength * Noise3D(position) * time * 0.3;//*(sin(time)/10.0));\r\n    vUv = vec2(Noisehash(vec3(uv, time)), Noisehash(vec3(time, uv)));\r\n    gl_Position = projectionMatrix * modelViewMatrix * vec4( vposition, 1.0 );\r\n}\r\n"
 
 /***/ },
 /* 9 */
 /***/ function(module, exports) {
 
-	module.exports = "varying vec2 vUv;\r\nvarying float noise;\r\nuniform sampler2D image;\r\n\r\n\r\nvoid main() {\r\n\r\n  vec4 color = texture2D( image, vUv );\r\n\r\n  gl_FragColor = vec4( color.rgb, 1.0 );\r\n\r\n}"
+	module.exports = "varying vec2 vUv;\r\nvarying vec3 vnor;\r\nuniform sampler2D image;\r\n// uniform int flag_color;\r\n\r\nvoid main()\r\n{\r\n  // if(flag_color == 3)\r\n  // {\r\n  //   gl_FragColor = vec4(vnor, 1.0);\r\n  // }\r\n  // else\r\n  // {\r\n    vec4 texColor = texture2D( image, vUv );\r\n    gl_FragColor = vec4( texColor.rgb, 1.0 );\r\n  // }\r\n\r\n}\r\n"
 
 /***/ }
 /******/ ]);
