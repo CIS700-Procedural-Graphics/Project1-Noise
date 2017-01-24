@@ -3,6 +3,8 @@ varying vec3 vnor;
 uniform float time;
 uniform float strength;
 uniform vec2 uv_offset;
+uniform float persistence;
+uniform float num_octaves;
 
 float Noisehash(vec3 p)
 {
@@ -160,17 +162,20 @@ float Noise3D_cosine(vec3 p)
 float Noise3D(vec3 p)
 {
   float total = 0.0;
-  float persistence = 0.8;
+  //float persistence = 0.8;
 
   //Loop over n =4 octaves
   float i=0.0;
-  for(int j=0; j<5; j++)
+  for(int j=0; j< 20; j++)
   {
-    float frequency = pow(2.0, i);
-    float amplitude = pow(persistence, i);
-    i= i+1.0;
-    //sum up all the octaves
-    total += Noise3D_cosine(p * frequency) * (1.0/amplitude);
+    if(j < int(num_octaves))
+    {
+      float frequency = pow(2.0, i);
+      float amplitude = pow(persistence, i);
+      i= i+1.0;
+      //sum up all the octaves
+      total += Noise3D_cosine(p * frequency) * (1.0/amplitude);
+    }
   }
   return total;
 }
