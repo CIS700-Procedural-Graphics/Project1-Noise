@@ -1,11 +1,15 @@
 
 const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
+require('three-obj-loader')(THREE);
 import Framework from './framework'
 
 var time;
 var mat = {
   uniforms: {
     time: {value: new Date().getMilliseconds()},
+    amplitude: {value: 0.8},
+    frequency: {value: 2.0},
+    num_octaves: {value: 5},
     cell: {value: false},
     bcolor: {value: [16/255,17/255, 134/255]},
     rcolor: {value: [0,0,0.1]},
@@ -32,10 +36,20 @@ function onLoad(framework) {
 
   // initialize a simple box and material
 
-  //var loader = new THREE.OBJLoader();
-
+  var loader = new THREE.OBJLoader();
   loader.load('koffie.obj', function(object) {
-    console.log(object);
+    for (var i = 0; i < object.children.length; ++i) {
+      var geo = object.children[i].geometry;
+      var mat = new THREE.MeshLambertMaterial({color: 0xffffff});
+      var mesh = new THREE.Mesh(geo, mat);
+      //scene.add(mesh);
+
+      geo.computeBoundingSphere();
+      var center = geo.boundingSphere.center;
+      geo.translate(-center.x, -center.y, -center.z);
+      geo.scale(0.1, 0.1, 0.1);
+      geo.computeVertexNormals();
+    }
   });
 
   var ico = new THREE.IcosahedronBufferGeometry(4, 6);
@@ -45,7 +59,9 @@ function onLoad(framework) {
   ico.base_color = [1.0,0.0,0.0];
   ico.root_color = [0.0,1.0,0.0];
   ico.tip_color = [0.0,0.0,1.0];
-  ico.cellular = false;
+  ico.amplitude = 0.8;
+  ico.frequency = 2.0;
+  ico.num_octaves = 5;
 
   var ball = new THREE.Mesh(ico, material);
 
@@ -53,7 +69,10 @@ function onLoad(framework) {
   camera.position.set(1, 1, 20);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
-  scene.add(ball);
+   scene.add(ball);
+
+  var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+  scene.add(directionalLight);
 
   // edit params and listen to changes like this
   // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
@@ -69,8 +88,14 @@ function onLoad(framework) {
   gui.addColor(ico, 'tip_color').onChange(function(newVal) {
     mat.uniforms['tcolor'].value = [newVal[0]/255, newVal[1]/255, newVal[2]/255];
   });
-  gui.add(ico, 'cellular').onChange(function(newVal) {
-    mat.uniforms['cell'].value = newVal;
+  gui.add(ico, 'num_octaves',0,10).onChange(function(newVal) {
+    mat.uniforms['num_octaves'].value = newVal;
+  });
+  gui.add(ico, 'amplitude',0.0,1.0).onChange(function(newVal) {
+    mat.uniforms['amplitude'].value = newVal;
+  });
+  gui.add(ico, 'frequency',0,5.0).onChange(function(newVal) {
+    mat.uniforms['frequency'].value = newVal;
   });
 }
 
