@@ -21,9 +21,14 @@ function init(callback, update) {
     stats: stats
   };
 
+	//Stauffer test
+	window.addEventListener('click', function(event) {
+	  console.log("You clicked:", event.screenX, event.screenY);
+	});
+
   // run this function after the window loads
   window.addEventListener('load', function() {
-
+	console.log(" IN load callback func");
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
     var renderer = new THREE.WebGLRenderer( { antialias: true } );
@@ -43,6 +48,7 @@ function init(callback, update) {
 
     // resize the canvas when the window changes
     window.addEventListener('resize', function() {
+      console.log(" IN resize cback func");
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);

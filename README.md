@@ -1,5 +1,26 @@
 # [HW1: Noise](https://github.com/CIS700-Procedural-Graphics/Project1-Noise)
 
+## Stauffer Notes - Project One - Noise
+
+Sorry for the inelegant code. I didn't have time to make it prettier.
+I left my comments in so that I can know what was going on when I get back to the code one day.
+
+My code implements:
+
+1. Two independently controlled multi-octave noise (MON) generators.
+2. Each uses the same underlying noise generator, unfortunately, although this may give some good continuity effects.
+3. Each can have its parameters controlled from the GUI:
+	a. N1 is for generator one, N2 is for generator two
+	b. Time Scale - scales down the time value to control 'speed' of animation
+	c. fundamental - set the fundamental frequency of sampling
+	d. harmScale - set the scaling factor between harmonics of the MON. Harmonic N = fundamental * harmScale ^ (N-1).
+	e. components - the number of harmonics in the MON.
+	f. persistence - scales the amplitude of each component in the MON. Values > 1 are interesting!
+	g. symmetry[XYZ] - controls symmetry of noise across each axis. Only looks good if 0 or 1. Intermediate values look good in static renders but I had trouble making it smooth with how I was using time to vary vertex position.
+4. Time is used simply to offset vertex position, and vertex position is used to generate noise. This has awkward effect of making noise look to be moving in a direction in some cases. Better would be to create true 4D noise with time as 4th dim.
+5. The default settings combine symmetry in X for a slow movig, high spatial-frequency noise, with symmetry in Y for a faster-moving, low spatial-frequency noise. I think this makes it look alive, like a tiny plankton creature, undulating with water pressure and life processes.
+
+
 ## Getting Started
 
 1. [Install Node.js](https://nodejs.org/en/download/). Node.js is a JavaScript runtime. It basically allows you to run JavaScript when not in a browser. For our purposes, this is not necessary. The important part is that with it comes `npm`, the Node Package Manager. This allows us to easily declare and install external dependencies such as [three.js](https://threejs.org/), [dat.GUI](https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage), and [glMatrix](http://glmatrix.net/). Some other packages we'll be using make it significantly easier to develop your code and create modules for better code reuse and clarity. These tools make it _signficantly_ easier to write code in multiple `.js` files without globally defining everything.
