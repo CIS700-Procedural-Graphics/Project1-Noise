@@ -4,20 +4,22 @@ import Framework from './framework'
 import Noise from './noise'
 import {other} from './noise'
 
-var d = new Date();
 var myMaterial = new THREE.ShaderMaterial({
   uniforms: {
     time: { // Check the Three.JS documentation for the different allowed types and values
       type: "f", 
-      value: d.getMilliseconds()
+      value: Date.now()
     }
   },
   vertexShader: require('./shaders/my-vert.glsl'),
   fragmentShader: require('./shaders/my-frag.glsl')
 });
 
+var programStartTime;
+
 // called after the scene loads
 function onLoad(framework) {
+  programStartTime = Date.now();
   var scene = framework.scene;
   var camera = framework.camera;
   var renderer = framework.renderer;
@@ -57,8 +59,7 @@ function onLoad(framework) {
 
 // called on frame updates
 function onUpdate(framework) {
-  d = new Date();
-  myMaterial.uniforms.time.value = d.getMilliseconds();
+  myMaterial.uniforms.time.value = Date.now() - programStartTime;
   myMaterial.needsUpdate = true;
 }
 
