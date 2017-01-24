@@ -18,6 +18,7 @@ function onLoad(framework) {
   // initialize a simple box and material
   var box = new THREE.BoxGeometry(1, 1, 1);
 
+
   var adamMaterial = new THREE.ShaderMaterial({
     uniforms: {
       image: { // Check the Three.JS documentation for the different allowed types and values
@@ -32,13 +33,17 @@ function onLoad(framework) {
 
   var sphereMaterial = new THREE.ShaderMaterial({
     uniforms: {
+      image: {
+        type: "t", 
+        value: THREE.ImageUtils.loadTexture('./explosion.png')
+      },
       uTime: {value: 1.0}
     },
     vertexShader: require('./shaders/sphere-vert.glsl'),
     fragmentShader: require('./shaders/sphere-frag.glsl')
   });
 
-  var sphere = new THREE.IcosahedronBufferGeometry(1, 1);
+  var sphere = new THREE.IcosahedronBufferGeometry(1, 5);
   var mySphere =new THREE.Mesh(sphere, sphereMaterial);
 
   // set camera position
@@ -55,9 +60,12 @@ function onLoad(framework) {
   });
 }
 
+
 // called on frame updates
 function onUpdate(framework) {
   // console.log(`the time is ${new Date()}`);
+  //var time = new Date().getMilliseconds();
+  //console.log(time);
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
