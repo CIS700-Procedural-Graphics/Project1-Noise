@@ -12,7 +12,9 @@ var noiseBlob = {
   'Pattern': false,
   'Pattern Color': [0, 0, 0],
   'Stripe Color': [255, 255, 255],
-  'Pattern Density': 0.5
+  'Pattern Density': 0.5,
+  'Pixelate': false,
+  'Pixel Power': 2.0
 };
 
 // called after the scene loads
@@ -83,6 +85,14 @@ function onLoad(framework) {
       patternDensity: {
         type: 'f',
         value: noiseBlob['Pattern Density']
+      },
+      pixelate: {
+        type: 'uInt',
+        value: noiseBlob['Pixelate']
+      },
+      pixelPower: {
+        type: 'f',
+        value: noiseBlob['Pixel Power']
       }
     },
     vertexShader: require('./shaders/ico-vert.glsl'),
@@ -136,7 +146,16 @@ function onLoad(framework) {
 
   gui.add(noiseBlob, 'Pattern Density', 0, 1).onChange(function (value) {
     myIco.material.uniforms.patternDensity.value = value;
-  });  
+  }); 
+
+  gui.add(noiseBlob, 'Pixelate').onChange(function (value) {
+    myIco.material.uniforms.pixelate.value = value;
+  }); 
+
+  gui.add(noiseBlob, 'Pixel Power', 0, 5).onChange(function (value) {
+    myIco.material.uniforms.pixelPower.value = value;
+  }); 
+
 }
 
 var incr = 0.01279;

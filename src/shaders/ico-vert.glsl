@@ -3,6 +3,9 @@ varying vec3 color;
 uniform float time;
 varying float noise;
 varying float noise2;
+uniform bool pixelate;
+uniform float pixelPower;
+
 float M_PI = 3.14159265358979323;
 
 /*
@@ -86,7 +89,12 @@ float multi_octave_noise (float x, float y, float z) {
 void main() {
     vUv = uv;
 
-    float noise_offset = multi_octave_noise(position.x + time, position.y + time, position.z + time);
+    float noise_offset;
+    if (pixelate) {
+    	noise_offset = floor(multi_octave_noise(position.x + time, position.y + time, position.z + time) / pixelPower) * pixelPower;
+    } else {
+    	noise_offset = multi_octave_noise(position.x + time, position.y + time, position.z + time);
+    }
     vec4 noise_pos = vec4(position.xyz + normal * 2.0 * noise_offset, 1.0);
     noise = noise_offset;
 
