@@ -7,6 +7,7 @@
 The project goes about creating a sphere, and then applying a pseudo-4D noise (3D Noise utilizing time as an input) to deform its surface. Various GUI controls were added to give the project more life.
 
 GUI controls let you:
+
 1. Change the texture applied onto the sphere (from a fixed set of images)
 
 2. Change the strength of the Noise
