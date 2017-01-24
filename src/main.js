@@ -15,18 +15,28 @@ function onLoad(framework) {
 
   // initialize a simple box and material
   var box = new THREE.BoxGeometry(1, 1, 1);
+  var iso = new THREE.IcosahedronBufferGeometry(1, 5);
 
   var adamMaterial = new THREE.ShaderMaterial({
     uniforms: {
       image: { // Check the Three.JS documentation for the different allowed types and values
         type: "t", 
         value: THREE.ImageUtils.loadTexture('./adam.jpg')
+      },
+      inv_persistence: {
+      	type: "f",
+      	value: 2.0
+      },
+      time: {
+      	type: "f",
+      	value: 0.
       }
     },
     vertexShader: require('./shaders/adam-vert.glsl'),
     fragmentShader: require('./shaders/adam-frag.glsl')
   });
-  var adamCube = new THREE.Mesh(box, adamMaterial);
+  var adamCube = new THREE.Mesh(iso, adamMaterial);
+  adamCube.name = "adamCube";
 
   // set camera position
   camera.position.set(1, 1, 2);
@@ -43,7 +53,20 @@ function onLoad(framework) {
 
 // called on frame updates
 function onUpdate(framework) {
-  console.log(`the time is ${new Date()}`);
+  	
+
+	framework.scene.traverse(function (object)
+  	{
+	    if (object instanceof THREE.Mesh)
+	    {
+	        if (object.name === 'adamCube') {
+	        	// var d = new Date();
+	         	// console.log(`the time is ${(object.material.uniforms.time.value)}`);
+	         	object.material.uniforms.time.value += .01;
+	       		
+	        }
+	    }
+	});
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
