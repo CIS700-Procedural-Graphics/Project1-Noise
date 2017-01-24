@@ -300,7 +300,6 @@ function onLoad(framework)
     object.traverse( function ( child ) {
       if ( child instanceof THREE.Mesh ) {
         child.material = sphereParticleMaterial;
-        // child.position.set(0, 0, 0);
         child.scale.set(2.15, 2.15, 2.15);
         Engine.particles = child;
         child.visible = false;
@@ -350,8 +349,6 @@ function onLoad(framework)
   });
 
   planeMesh.visible = UserInput.debugNoise;
-
-  // Engine.initialized = true;
 }
 
 function updateCamera()
@@ -370,13 +367,13 @@ function updateCamera()
     }
     else if(Engine.currentCameraShot == CameraShot.CEILING)
     {
-      Engine.camera.position.set(0, 10, .1);
+      Engine.camera.position.set(.5, 5, .5);
       Engine.camera.lookAt(new THREE.Vector3(0,0,0));
     } 
     else if(Engine.currentCameraShot == CameraShot.OVERVIEW)
     {
-      var p = new THREE.Vector3( Math.cos(Engine.time), 0.0, Math.sin(Engine.time) ) * 7.5;
-      Engine.camera.position.set(p.x, 2, p.z);
+      var p = new THREE.Vector3( Math.cos(Engine.time), 0.0, Math.sin(Engine.time) );
+      Engine.camera.position.set(p.x * 5.0, 2, p.z * 5.0);
       Engine.camera.lookAt(new THREE.Vector3(0,0,0));
     }
 }
