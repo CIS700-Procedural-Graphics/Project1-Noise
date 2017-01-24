@@ -32,9 +32,11 @@ function onLoad(framework) {
 
   // initialize a simple box and material
 
-  var loader = new THREE.OBJLoader();
+  //var loader = new THREE.OBJLoader();
 
-  loader.load('koffie.obj', function(object) {scene.add(object);});
+  loader.load('koffie.obj', function(object) {
+    console.log(object);
+  });
 
   var ico = new THREE.IcosahedronBufferGeometry(4, 6);
 
