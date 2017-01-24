@@ -13,9 +13,9 @@ Textures and OBJs are included in the folder called 'res' that I created.
 Good values to use:
 If you want to view just the raw Perlin Noise values, set Inner Noise = 0 and then Outer Noise = 0.01.
 
-If you're using the audio, I suggest Inner Noise = 6, Outer Noise = 0.1, and use the texture for enhanced visual effect.
+If you're using the audio, I suggest Inner Noise = 8 or 9, Outer Noise = 1, and use the texture for enhanced visual effect (looks weird without the texture).
 
-If you're viewing an of the OBJs (regardless of audio), I suggest Inner Noise = 1 and Outer Noise = 0.25.
+If you're viewing an of the OBJs (regardless of audio), I suggest Inner Noise = 0 and Outer Noise = 0.1. The bunny looks best, I think.
 
 ## Extra Credit:
 The extra credit that I implemented was:
@@ -31,6 +31,13 @@ http://weber.itn.liu.se/~stegu/simplexnoise/simplexnoise.pdf (primary)
 http://flafla2.github.io/2014/08/09/perlinnoise.html (secondary)
 
 https://web.archive.org/web/20160510013854/http://freespace.virgin.net/hugo.elias/models/m_perlin.htm (mostly for high-level details, even though this article isn't *really* on Perlin Noise)
+
+OBJ Files:
+
+http://www.prinmath.com/csci5229/OBJ/index.html
+
+The Teapot was included in a CIS 277 Project from Spring '15.
+
 
 OBJ Loading Sources:
 

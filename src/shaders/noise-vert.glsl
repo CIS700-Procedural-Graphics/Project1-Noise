@@ -142,14 +142,14 @@ void main() {
     vec3 offset = normal;
     
     //Apply the amount of elapsed time as an offset for the animation
-    vec3 posTimeOffset = position + vec3(300.0) + vec3(mod(elapsedTime, 256.0));
+    vec3 posTimeOffset = position + vec3(600.0) + vec3(elapsedTime);
     
     /*
       Scale the noise to achieve different effects:
        > 1 means sharper, bumpier noise
        < 1 means more gradual, smoother noise
     */
-    float noiseLayer1Scale = 0.5;
+    float noiseLayer1Scale = 0.3;
     float noiseLayer2Scale = 2.0;
     
     /*
@@ -163,6 +163,7 @@ void main() {
     
     //Incorporate Audio contribution to the noise
     float audioScaledNoise = 2.0 * pow(audioLevel * float(useAudio) * finalNoise, 2.0);
+    //float audioScaledNoise = 2.0 * audioLevel * float(useAudio) * finalNoise;
     finalNoise = finalNoise * float(1 - useAudio);
     finalNoise += audioScaledNoise;
     
@@ -174,9 +175,11 @@ void main() {
     vUv.x = 0.0;
     
     //remap to (0, 1) for proper uv values
-    vUv.y = ((finalNoise / (noiseLayer1Intensity + noiseLayer2Intensity))) + 1.0 / 2.0;
+    //vUv.y = ((finalNoise / (noiseLayer1Intensity + noiseLayer2Intensity))) + 1.0 / 2.0;
+    vUv.y = (noiseLayer1 + noiseLayer2 + 1.0) / 2.0;
     
-    color = vec3(((finalNoise / (noiseLayer1Intensity + noiseLayer2Intensity))) + 1.0 / 2.0);
+    //color = vec3(((finalNoise / (noiseLayer1Intensity + noiseLayer2Intensity))) + 1.0 / 2.0);
+    color = vec3((noiseLayer1 + noiseLayer2 + 1.0) / 2.0);
     
     //Include the offset along the surface normal when computing gl_Position
     gl_Position = projectionMatrix * modelViewMatrix * vec4( position + offset, 1.0 );

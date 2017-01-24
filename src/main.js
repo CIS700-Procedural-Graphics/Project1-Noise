@@ -27,10 +27,10 @@ var noiseMaterial = new THREE.ShaderMaterial({
     uniforms: {
       elapsedTime: { value: 0 },
       audioLevel: { value: 0 },
-      noiseLayer1Intensity: { value: 0.5 },
-      noiseLayer2Intensity: { value: 0.1 },
-      useTexture: { value: 0 },
-      useAudio: { value: 0 },
+      noiseLayer1Intensity: { value: 9 },
+      noiseLayer2Intensity: { value: 1 },
+      useTexture: { value: 1 },
+      useAudio: { value: 1 },
       permArray: {
         type: "fv1",
         value: NoiseArrays.permArray
@@ -126,8 +126,9 @@ function onLoad(framework) {
   
   //Choose the OBJ file to load
   gui.add(objToLoad, 'name', { Cloud  : 'cloud',
-                               Bunny  : 'bunny',
-                               Dragon : 'dragon',
+                               Armadillo  : 'armadillo',
+                               TRex : 'tyra',
+                               Bunny: 'bunny',
                                Teapot : 'teapot' } ).name('Mesh').onChange(function(newVal)
   {
       if(objToLoad.name != 'cloud') {
