@@ -164,8 +164,8 @@ function onUpdate(framework) {
     analyser.analyser.getByteFrequencyData(dataArray);
 
     console.log(dataArray);
-    if (dataArray[15] > 100.0) {
-      var amount = dataArray[15] - 100.0;
+    if (dataArray[12] > 120.0) {
+      var amount = (dataArray[12] - 100.0) / 2.0;
       camera.lookAt(new THREE.Vector3(amount * Math.random(), amount * Math.random(), amount * Math.random()));
       console.log("shake");
     }
