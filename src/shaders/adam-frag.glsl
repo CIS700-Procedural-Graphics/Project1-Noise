@@ -3,6 +3,7 @@ varying float dprod;
 varying float noise;
 uniform sampler2D image;
 
+varying vec3 newNormal;
 varying vec3 test;
 
 vec3 lerpvec(in vec3 a, in vec3 b, in float t)
@@ -14,9 +15,7 @@ vec3 lerpvec(in vec3 a, in vec3 b, in float t)
 }
 
 void main() {
-	float brightness =  (noise + 1.0 / 2.0);
-    vec4 color = texture2D( image, vUv );
-    vec3 newcol = lerpvec(vec3(0.4, 0.5, 0.9), vec3(brightness, brightness, brightness), 0.99);
-    gl_FragColor = vec4( newcol, 1.0 );
+	float brightness =  noise * 0.5 + 0.5;
+    gl_FragColor = vec4( brightness, brightness, brightness, 1.0 );
 
 }

@@ -2,22 +2,7 @@
 const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
 import Framework from './framework'
 
-// called after the scene loads
-function onLoad(framework) {
-  var scene = framework.scene;
-  var camera = framework.camera;
-  var renderer = framework.renderer;
-  var gui = framework.gui;
-  var stats = framework.stats;
-
-  // LOOK: the line below is synyatic sugar for the code above. Optional, but I sort of recommend it.
-  // var {scene, camera, renderer, gui, stats} = framework; 
-
-  // initialize a simple box and material
-  var box = new THREE.IcosahedronBufferGeometry(1, 6);
-
-  var adamMaterial = new THREE.ShaderMaterial({
-    uniforms: {
+var sUniforms = {
       image: { // Check the Three.JS documentation for the different allowed types and values
         type: "t", 
         value: THREE.ImageUtils.loadTexture('./adam.jpg')
@@ -56,12 +41,41 @@ function onLoad(framework) {
       seed: {
         type: "i",
         value: 97
+      },
+
+
+      minOctave: {
+        type: "i",
+        value: 2
+      },
+
+      maxOctave: {
+        type: "i",
+        value: 7
       }
-    },
+    }
+var baseTime = Date.now();
+
+// called after the scene loads
+function onLoad(framework) {
+  var scene = framework.scene;
+  var camera = framework.camera;
+  var renderer = framework.renderer;
+  var gui = framework.gui;
+  var stats = framework.stats;
+
+  // LOOK: the line below is synyatic sugar for the code above. Optional, but I sort of recommend it.
+  // var {scene, camera, renderer, gui, stats} = framework; 
+
+  // initialize a simple box and material
+  var box = new THREE.IcosahedronBufferGeometry(1, 6);
+
+  var mat = new THREE.ShaderMaterial({
+    uniforms: sUniforms,
     vertexShader: require('./shaders/adam-vert.glsl'),
     fragmentShader: require('./shaders/adam-frag.glsl')
   });
-  var adamCube = new THREE.Mesh(box, adamMaterial);
+  var adamCube = new THREE.Mesh(box, mat);
 
   // set camera position
   camera.position.set(0, 0, 4);
@@ -79,6 +93,7 @@ function onLoad(framework) {
 // called on frame updates
 function onUpdate(framework) {
   console.log(`the time is ${new Date()}`);
+  sUniforms.time.value = Date.now() - baseTime;
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate

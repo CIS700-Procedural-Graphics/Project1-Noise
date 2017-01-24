@@ -7,6 +7,11 @@ uniform int time;
 uniform int table[512];
 uniform int seed;
 
+uniform int minOctave;
+uniform int maxOctave;
+
+varying vec3 newNormal;
+
 varying vec3 test;
 
 float lerp(in float a, in float b, in float t)
@@ -14,11 +19,6 @@ float lerp(in float a, in float b, in float t)
 	t = clamp(t, 0.0, 1.0);
 	float val = t * b + (1.0 - t) * a;
 	return val;
-}
-
-vec3 vmod(in vec3 v, float m)
-{
-	return v - floor(v * (1.0 / m)) * m;
 }
 
 // the ease curve by Ken Perlin, which gives smoother results for LERP
@@ -37,12 +37,12 @@ vec3 pickGradient(in int x, in int y, in int z)
 
 float getnoise3d(in float x, in float y, in float z, in int numSamples)
 {
-	//vec3 vm = vmod(float(numSamples) * (vec3(x, y, z) + vec3(2, 2, 2)), float(numSamples));
+	float tOffset = float(time) / 1000.0;
 
 	// position within gradient grid
-	float xs = mod(x * float(numSamples) + 289.0, 255.0);
-	float ys = mod(y * float(numSamples) + 289.0, 255.0);
-	float zs = mod(z * float(numSamples) + 289.0, 255.0);
+	float xs = mod(x * float(numSamples) + tOffset, 255.0);
+	float ys = mod(y * float(numSamples) + tOffset, 255.0);
+	float zs = mod(z * float(numSamples) + tOffset, 255.0);
 	// lower bound of grid cube
 	int xlb = int(floor(xs));
 	int ylb = int(floor(ys));
@@ -65,28 +65,24 @@ float getnoise3d(in float x, in float y, in float z, in int numSamples)
 	float brb = dot(pickGradient(xlb + 1, ylb, zlb), vec3(px - 1.0, py, pz));
 	// front left bottom
 	float flb = dot(pickGradient(xlb, ylb, zlb + 1), vec3(px, py, pz - 1.0));
-	// front right bottom
 	float frb = dot(pickGradient(xlb + 1, ylb, zlb + 1), vec3(px - 1.0, py, pz - 1.0));
 	// back left top
 	float blt = dot(pickGradient(xlb, ylb + 1, zlb), vec3(px, py - 1.0, pz));
-	// back right top
 	float brt = dot(pickGradient(xlb + 1, ylb + 1, zlb), vec3(px - 1.0, py - 1.0, pz));
-	// front left top
 	float flt = dot(pickGradient(xlb, ylb + 1, zlb + 1), vec3(px, py - 1.0, pz - 1.0));
-	// front right top
 	float frt = dot(pickGradient(xlb + 1, ylb + 1, zlb + 1), vec3(px - 1.0, py - 1.0, pz - 1.0));
 
 
 	// trilinear sample
-	// left to right
+	// back to front
 	float l1 = lerp(brb, frb, tz);
 	float l2 = lerp(blb, flb, tz);
 	float l3 = lerp(brt, frt, tz);
 	float l4 = lerp(blt, flt, tz);
-	// back to front
+	// bottom to top
 	float l13 = lerp(l1, l3, ty);
 	float l24 = lerp(l2, l4, ty);
-	// bottom to top
+	// left to right
 	return lerp (l24, l13, tx);
 }
 
@@ -137,25 +133,32 @@ float getnoise(in float u, in float v, in int numSamples)
 	return lerp(d12, d34, ty);
 }
 
+float multiOctave3d(in float x, in float y, in float z)
+{
+	int numSamples = int(pow(2.0, float(minOctave)));
+	float sample = 0.0;
+	int octaves = maxOctave - minOctave;
+    for (int i = 0; i <= 7; i++) {
+    	
+    	sample = sample + 2.0 * float(minOctave) / float(numSamples) * 
+    	getnoise3d(x * 0.5 + 0.5,
+    	 y * 0.5 + 0.5, 
+    	 z * 0.5 + 0.5, numSamples);
+    	numSamples = 2 * numSamples;
+    }
+
+	return sample;
+}
+
 
 void main() {
     vUv = uv;
-    //noise = getnoise(uv[0], uv[1], 16);
-    //float samp = 2.0;
-    //for (int i = 0; i < 6; i++) {
-    //	samp = 2.0 * samp;
-    //	noise = noise + 4.0 / samp * getnoise(uv[0], uv[1], int(samp));
-    //}
-    //noise = getnoise3d((normal.x + 1.0) / 2.0, (normal.y + 1.0) / 2.0, (normal.z + 1.0) / 2.0, 2);
-    float samp = 1.0;
-    for (int i = 0; i < 6; i++) {
-    	samp = 2.0 * samp;
-    	noise = noise + 2.0 / samp * getnoise3d((normal.x + 1.0) / 2.0,
-    	 (normal.y + 1.0) / 2.0, 
-    	 (normal.z + 1.0) / 2.0, int(samp));
-    }
-    dprod = dot(normalize(cameraPosition.xyz), normal.xyz);
-    clamp(dprod, 0.0, 1.0);
+	float samp = 1.0;
+    noise = multiOctave3d(position.x, position.y, position.z);
+    noise = sin(3.14159 * noise);
+    noise = noise * noise * 2.0 - 1.0;
+    float noise2 = multiOctave3d(sin(2.0 * 3.14159 * position.x), position.y, sin(2.0 * 3.14159 * position.z));
+
     test = vec3((position.x + 1.0) / 2.0, (position.y + 1.0) / 2.0, (position.z + 1.0) / 2.0);
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(noise * 0.2 * normal + position, 1.0 );
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(noise * 0.4 * normal + position, 1.0 );
 }
