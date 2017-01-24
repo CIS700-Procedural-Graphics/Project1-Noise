@@ -104,7 +104,7 @@ float generateNoise(float x, float y, float z) {
 
 void main() {
     vUv = uv;
-    float n = generateNoise(position.x, position.z, time);
+    float n = generateNoise(position.x + time, position.y + time, position.z + time);
     float s = magnitude*n;
 
     // use noise value to scale normal displacement
