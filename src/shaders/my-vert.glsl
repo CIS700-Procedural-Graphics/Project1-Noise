@@ -2,6 +2,7 @@ varying float noise;
 uniform float amplitude;
 uniform float time;
 uniform float persistence;
+uniform vec3 inclination;
 float M_PI = 3.14159265359;
 
 float noise_gen(vec3 pos)
@@ -69,6 +70,10 @@ float pnoise(vec3 pos)
 
 void main() {
 	noise = pnoise(position + vec3(time, time, time)) - 0.5;
-	vec3 p = position + noise * amplitude * normalize(normal);
+  float ampl = amplitude;
+  if (inclination != vec3(0, 0, 0)) {
+  ampl -= dot(normal, normalize(inclination)) * amplitude;
+  }
+	vec3 p = position + noise * ampl * normalize(normal);
 	gl_Position = projectionMatrix * modelViewMatrix * vec4( p, 1.0 );
 }

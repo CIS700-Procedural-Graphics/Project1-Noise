@@ -5,6 +5,11 @@ import Framework from './framework'
 var currTime = 0;
 var mouse;
 
+var input = {
+  amplitude: 40.0,
+  mouse_interactivity: false
+};
+
 var myMaterial = new THREE.ShaderMaterial({
     uniforms: {
       image: { // Check the Three.JS documentation for the different allowed types and values
@@ -22,22 +27,15 @@ var myMaterial = new THREE.ShaderMaterial({
       amplitude: {
         type: "float",
         value: 40.0
+      },
+      inclination: {
+        type: "v3",
+        value: new THREE.Vector3(0, 0, 0)
       }
     },
     vertexShader: require('./shaders/my-vert.glsl'),
     fragmentShader: require('./shaders/my-frag.glsl')
   });
-
-
-var audioLoader = new THREE.AudioLoader();
-var listener = new THREE.AudioListener();
-
-var sound = new THREE.Audio( listener );
-        audioLoader.load( 'song.mp3', function( buffer ) {
-          sound.setBuffer( buffer );
-          sound.setLoop(true);
-          sound.play();
-        });
 
 // called after the scene loads
 function onLoad(framework) {
@@ -77,36 +75,42 @@ function onLoad(framework) {
   });
 
   // add a slider to let user change *persistence* of noise 
-  gui.add(myMaterial.uniforms.amplitude, 'value', 0, 50).onChange(function(newVal) {
+  gui.add(input, 'amplitude', 0, 50).onChange(function(newVal) {
+    myMaterial.uniforms.amplitude.value = input.amplitude;
     renderer.render(scene, camera);
   });
 
-  window.addEventListener('click', function(event){
-   console.log(event);
-   console.log(myIcosa.geometry);
+  // add a checkbox to toggle mouse interactivity
+  gui.add(input, "mouse_interactivity").onChange(function(newVal) {
+    if (!newVal)
+    {
+      myMaterial.uniforms.inclination.value = new THREE.Vector3(0, 0, 0);
+    }
   });
 
-}
+  // change inclination based on mouse click position
+  window.addEventListener('mousemove', function(event) {
 
-function average(array)
-{
-  var sum = 0;
-  for (var i =0; i < array.length; i++)
-  {
-      sum += array[i];
-  }
-  return sum / array.length;
+    if (input.mouse_interactivity)
+    {
+      // from http://stackoverflow.com/questions/13055214/mouse-canvas-x-y-to-three-js-world-x-y-z
+      var vector = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, 
+        - (event.clientY / window.innerHeight) * 2 + 1, 0.5);
+      vector.unproject(camera);
+      var dir = vector.sub(camera.position).normalize();
+      var distance = - camera.position.z / dir.z;
+      var pos = camera.position.clone().add(dir.multiplyScalar(distance));
+
+      myMaterial.uniforms.inclination.value = pos;
+      renderer.render(scene, camera);
+    }
+  });
 }
 
 // called on frame updates
 function onUpdate(framework) {
   currTime += 0.2;
   myMaterial.uniforms.time.value = currTime;
-  
-  var analyser = sound.context.createAnalyser();
-  var array = new Uint8Array(analyser.frequencyBinCount);
-  analyser.getByteFrequencyData(array);
-  console.log(average(array));
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
