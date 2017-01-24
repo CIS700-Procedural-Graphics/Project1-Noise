@@ -1,6 +1,12 @@
 const THREE = require('three');
 import Framework from './framework'
 
+var CameraShot = {
+  INTRO : 0,
+  MAIN : 1,
+  CEILING : 2,
+  OVERVIEW : 3
+}
 
 var State = {
   NONE : 0,
@@ -34,6 +40,7 @@ var UserInput = {
 // so all demo stuff is going to be packed here
 var Engine = {
   camera : null,
+  cameraTime : 0,
   time : 0.0,
   clock : null,
   materials : [],
@@ -44,6 +51,7 @@ var Engine = {
   particleMaterial: null,
   currentState : State.NONE,
   currentSubState : SubState.NONE,
+  currentCameraShot : CameraShot.INTRO,
 
   mainSphere : null,
   perlinDisk : null,
@@ -58,15 +66,24 @@ function startMain(time)
   Engine.perlinDisk.visible = true;
   Engine.perlinDisk.position.set(0,-2,0);
   Engine.perlinDisk.scale.set(4, 4, 4);
-
-  Engine.camera.lookAt(new THREE.Vector3(0,0,0));
-  Engine.camera.rotateZ(-.4);
-  Engine.camera.position.set(0, 1, 6);
+  
+  Engine.currentCameraShot = CameraShot.MAIN;
+  Engine.cameraTime = 0;
 }
 
 function updateMain(time)
 {
+  if( Engine.cameraTime > 10.0)
+  {
+    Engine.cameraTime = 0;
 
+    if(Engine.currentCameraShot == CameraShot.MAIN)
+      Engine.currentCameraShot = CameraShot.CEILING;
+    else if(Engine.currentCameraShot == CameraShot.CEILING)
+      Engine.currentCameraShot = CameraShot.OVERVIEW;
+    else
+      Engine.currentCameraShot = CameraShot.MAIN;
+  }
 }
 
 function startDrop(time)
@@ -96,7 +113,7 @@ function updateDrop(time)
   else if(Engine.currentSubState == SubState.D1)
   {
     var v = Math.sin(time * 32.0) > 0 ? true : false;
-    var t = THREE.Math.clamp((time - d1) * .75, 0, 1.0);
+    var t = THREE.Math.clamp((time - d1) * .45, 0, 1.0);
     var sphereScale = Math.sqrt(1.0 - t * t) * 2.5 + .0001;
     
     Engine.mainSphere.scale.set(sphereScale, sphereScale, sphereScale);
@@ -337,12 +354,40 @@ function onLoad(framework)
   // Engine.initialized = true;
 }
 
+function updateCamera()
+{
+    if(Engine.currentCameraShot == CameraShot.INTRO)
+    {      
+      Engine.camera.position.set(0, 0, 6);
+      Engine.camera.lookAt(new THREE.Vector3(0,0,0));
+    }
+    else if(Engine.currentCameraShot == CameraShot.MAIN)
+    {
+      Engine.camera.position.set(0, 0, 6);
+      Engine.camera.lookAt(new THREE.Vector3(0,0,0));
+      Engine.camera.rotateZ(-.4);
+      Engine.camera.position.set(0, 1, 6);
+    }
+    else if(Engine.currentCameraShot == CameraShot.CEILING)
+    {
+      Engine.camera.position.set(0, 10, 0);
+      Engine.camera.lookAt(new THREE.Vector3(0,0,0));
+    } 
+    else if(Engine.currentCameraShot == CameraShot.OVERVIEW)
+    {
+      var p = new THREE.Vector3( Math.cos(Engine.time), 0.0, Math.cos(Engine.time) );
+      Engine.camera.position.set(p.x, 4, p.y);
+      Engine.camera.lookAt(new THREE.Vector3(0,0,0));
+    }
+}
+
 function onUpdate(framework) 
 {
   if(Engine.initialized)
   {
     var deltaTime = Engine.clock.getDelta();
     Engine.time += deltaTime;
+    Engine.cameraTime += deltaTime;
 
     // CHOREOGRAPHY
     // INTRO STARTS AT: 0:03
@@ -358,11 +403,10 @@ function onUpdate(framework)
       {
         Engine.currentState = State.INTRO;
         Engine.currentSubState = SubState.NONE;
-        console.log("INTRO");
         startIntro();
       }
     }
-    if(Engine.currentState == State.INTRO)
+    else if(Engine.currentState == State.INTRO)
     {
       var t = Engine.time - 3.0;
       updateIntro(t);
@@ -371,7 +415,6 @@ function onUpdate(framework)
       {
         Engine.currentState = State.DROP;
         Engine.currentSubState = SubState.NONE;
-        console.log("DROP");
         startDrop(t);
       }
     }
@@ -384,7 +427,6 @@ function onUpdate(framework)
       {
         Engine.currentState = State.MAIN;
         Engine.currentSubState = SubState.NONE;
-        console.log("MAIN");
         startMain(t);
       }
     }
@@ -394,6 +436,10 @@ function onUpdate(framework)
       updateMain(t);
     }
 
+    // After main logic
+    updateCamera();
+
+
     var screenSize = new THREE.Vector2( framework.renderer.getSize().width, framework.renderer.getSize().height );
 
     var freq = Engine.audioAnalyser.getAverageFrequency();
@@ -402,7 +448,7 @@ function onUpdate(framework)
 
     var freqBands = [];
 
-    for(var i = 0; i < 32; i++)
+    for(var i = 0; i < 64; i++)
       freqBands[i] = dataArray[i];
 
     Engine.particleMaterial.uniforms.frequencyBands.value = freqBands;
