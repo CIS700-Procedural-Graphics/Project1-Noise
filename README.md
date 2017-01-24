@@ -1,6 +1,6 @@
 # [Theraputty Visualization](https://anvidalal.github.io/Project1-Noise/)
 
-![](demo.gif =307x)
+<img src="demo.gif" width="48">
 
 ## Objective
 
