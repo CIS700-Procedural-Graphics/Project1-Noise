@@ -50,69 +50,126 @@
 	
 	var _framework2 = _interopRequireDefault(_framework);
 	
-	var _noise = __webpack_require__(8);
-	
-	var _noise2 = _interopRequireDefault(_noise);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var THREE = __webpack_require__(6); // older modules are imported like this. You shouldn't have to worry about this much
 	
 	
+	var currTime = 0;
+	var mouse;
+	
+	var input = {
+	  amplitude: 40.0,
+	  mouse_interactivity: false
+	};
+	
+	var myMaterial = new THREE.ShaderMaterial({
+	  uniforms: {
+	    image: { // Check the Three.JS documentation for the different allowed types and values
+	      type: "t",
+	      value: THREE.ImageUtils.loadTexture('./colors.jpg')
+	    },
+	    time: {
+	      type: "float",
+	      value: currTime
+	    },
+	    persistence: {
+	      type: "float",
+	      value: 0.59
+	    },
+	    amplitude: {
+	      type: "float",
+	      value: 40.0
+	    },
+	    inclination: {
+	      type: "v3",
+	      value: new THREE.Vector3(0, 0, 0)
+	    }
+	  },
+	  vertexShader: __webpack_require__(8),
+	  fragmentShader: __webpack_require__(9)
+	});
+	
 	// called after the scene loads
 	function onLoad(framework) {
-	  var scene = framework.scene;
-	  var camera = framework.camera;
-	  var renderer = framework.renderer;
-	  var gui = framework.gui;
-	  var stats = framework.stats;
+	  var scene = framework.scene,
+	      camera = framework.camera,
+	      renderer = framework.renderer,
+	      gui = framework.gui,
+	      stats = framework.stats;
 	
-	  // LOOK: the line below is synyatic sugar for the code above. Optional, but I sort of recommend it.
-	  // var {scene, camera, renderer, gui, stats} = framework; 
+	  // create geometry and add it to the scene
 	
-	  // initialize a simple box and material
-	  var box = new THREE.BoxGeometry(1, 1, 1);
-	
-	  var adamMaterial = new THREE.ShaderMaterial({
-	    uniforms: {
-	      image: { // Check the Three.JS documentation for the different allowed types and values
-	        type: "t",
-	        value: THREE.ImageUtils.loadTexture('./adam.jpg')
-	      }
-	    },
-	    vertexShader: __webpack_require__(9),
-	    fragmentShader: __webpack_require__(10)
-	  });
-	  var adamCube = new THREE.Mesh(box, adamMaterial);
+	  var geom_icosa = new THREE.IcosahedronBufferGeometry(10, 5);
+	  var myIcosa = new THREE.Mesh(geom_icosa, myMaterial);
+	  scene.add(myIcosa);
 	
 	  // set camera position
-	  camera.position.set(1, 1, 2);
+	  camera.position.set(15, 15, 90);
 	  camera.lookAt(new THREE.Vector3(0, 0, 0));
-	
-	  scene.add(adamCube);
 	
 	  // edit params and listen to changes like this
 	  // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
 	  gui.add(camera, 'fov', 0, 180).onChange(function (newVal) {
 	    camera.updateProjectionMatrix();
 	  });
+	
+	  // add a slider to let user change *radius* of icosahedron
+	  gui.add(myIcosa.geometry.parameters, 'radius', 0, 100).onChange(function (newVal) {
+	    var detail = myIcosa.geometry.parameters.detail;
+	    scene.remove(myIcosa);
+	    myIcosa = new THREE.Mesh(new THREE.IcosahedronBufferGeometry(newVal, detail), myMaterial);
+	    scene.add(myIcosa);
+	    renderer.render(scene, camera);
+	  });
+	
+	  // add a slider to let user change *detail* of icosahedron 
+	  gui.add(myIcosa.geometry.parameters, 'detail', 0, 8).step(1).onChange(function (newVal) {
+	    var radius = myIcosa.geometry.parameters.radius;
+	    scene.remove(myIcosa);
+	    myIcosa = new THREE.Mesh(new THREE.IcosahedronBufferGeometry(radius, newVal), myMaterial);
+	    scene.add(myIcosa);
+	    renderer.render(scene, camera);
+	  });
+	
+	  // add a slider to let user change *persistence* of noise 
+	  gui.add(input, 'amplitude', 0, 50).onChange(function (newVal) {
+	    myMaterial.uniforms.amplitude.value = input.amplitude;
+	    renderer.render(scene, camera);
+	  });
+	
+	  // add a checkbox to toggle mouse interactivity
+	  gui.add(input, "mouse_interactivity").onChange(function (newVal) {
+	    if (!newVal) {
+	      myMaterial.uniforms.inclination.value = new THREE.Vector3(0, 0, 0);
+	    }
+	  });
+	
+	  // change inclination based on mouse click position
+	  window.addEventListener('mousemove', function (event) {
+	
+	    if (input.mouse_interactivity) {
+	      // from http://stackoverflow.com/questions/13055214/mouse-canvas-x-y-to-three-js-world-x-y-z
+	      var vector = new THREE.Vector3(event.clientX / window.innerWidth * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1, 0.5);
+	      vector.unproject(camera);
+	      var dir = vector.sub(camera.position).normalize();
+	      var distance = -camera.position.z / dir.z;
+	      var pos = camera.position.clone().add(dir.multiplyScalar(distance));
+	
+	      myMaterial.uniforms.inclination.value = pos;
+	      renderer.render(scene, camera);
+	    }
+	  });
 	}
 	
 	// called on frame updates
-	function onUpdate(framework) {}
-	// console.log(`the time is ${new Date()}`);
-	
+	function onUpdate(framework) {
+	  currTime += 0.2;
+	  myMaterial.uniforms.time.value = currTime;
+	}
 	
 	// when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
 	_framework2.default.init(onLoad, onUpdate);
-	
-	// console.log('hello world');
-	
-	// console.log(Noise.generateNoise());
-	
-	// Noise.whatever()
-	
-	// console.log(other())
 
 /***/ },
 /* 1 */
@@ -47985,41 +48042,13 @@
 /* 8 */
 /***/ function(module, exports) {
 
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.other = other;
-	
-	
-	function generateNoise() {
-	  return Math.random();
-	}
-	
-	function whatever() {
-	  console.log('hi');
-	}
-	
-	exports.default = {
-	  generateNoise: generateNoise,
-	  whatever: whatever
-	};
-	function other() {
-	  return 2;
-	}
+	module.exports = "varying float noise;\nuniform float amplitude;\nuniform float time;\nuniform float persistence;\nuniform vec3 inclination;\nfloat M_PI = 3.14159265359;\n\nfloat noise_gen(vec3 pos)\n{\n  return fract(sin(dot(pos, vec3(12.9898, 78.233, 39.73))) * 43758.545);\n}\n\nfloat lerp(float a, float b, float t)\n{\n  return a * (1.0 - t) + b * t;\n}\n\nfloat cerp(float a, float b, float t) {\n  float cos_t = (1.0 - cos(t * M_PI)) * 0.5;\n  return a * (1.0 - cos_t) + b * cos_t;\n}\n\nfloat smooth(vec3 pos, float fq)\n{\n\tfloat r = 1.0 / fq;\n\treturn (noise_gen(pos + vec3(r, r, r)) + noise_gen(pos + vec3(- r, r, r))\n\t\t+ noise_gen(pos + vec3(r,- r, r)) + noise_gen(pos + vec3(- r,- r, r))\n\t\t+ noise_gen(pos + vec3(r, r,- r)) + noise_gen(pos + vec3(- r, r,- r))\n\t\t+ noise_gen(pos + vec3(r, - r,- r)) + noise_gen(pos + vec3(- r,- r,- r))) / 8.0;\n}\n\nfloat noise_interpolate(vec3 pos, float fq)\n{\n  pos *= 0.2;\n\n  vec3 a = vec3(floor(pos.x), ceil(pos.y), ceil(pos.z));\n  vec3 b = vec3(ceil(pos.x), ceil(pos.y), ceil(pos.z));\n  vec3 c = vec3(floor(pos.x), floor(pos.y), ceil(pos.z));\n  vec3 d = vec3(ceil(pos.x), floor(pos.y), ceil(pos.z));\n\n  vec3 e = vec3(floor(pos.x), ceil(pos.y), floor(pos.z));\n  vec3 f = vec3(ceil(pos.x), ceil(pos.y), floor(pos.z));\n  vec3 g = vec3(floor(pos.x), floor(pos.y), floor(pos.z));\n  vec3 h = vec3(ceil(pos.x), floor(pos.y), floor(pos.z));\n\n  float ab = cerp(smooth(a, fq), smooth(b, fq), fract(pos.x));\n  float cd = cerp(smooth(c, fq), smooth(d, fq), fract(pos.x));\n  float abcd = cerp(cd, ab, fract(pos.y));\n\n  float ef = cerp(smooth(e, fq), smooth(f, fq), fract(pos.x));\n  float gh = cerp(smooth(g, fq), smooth(h, fq), fract(pos.x));\n  float efgh = cerp(gh, ef, fract(pos.y));\n\n  return cerp(efgh, abcd, fract(pos.z));\n}\n\nfloat pnoise(vec3 pos)\n{\n\tfloat total = 0.0;\n\n\tfor (int i = 0; i < 16; ++i)\n\t{\n\t\tfloat fq = pow(2.0, float(i));\n\t\tfloat amplitude = pow(persistence, float(i));\n\n\t\ttotal += noise_interpolate(pos, fq) * amplitude;\n\t}\n\treturn total;\n}\n\nvoid main() {\n\tnoise = pnoise(position + vec3(time, time, time)) - 0.5;\n  float ampl = amplitude;\n  if (inclination != vec3(0, 0, 0)) {\n  ampl -= dot(normal, normalize(inclination)) * amplitude;\n  }\n\tvec3 p = position + noise * ampl * normalize(normal);\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4( p, 1.0 );\n}"
 
 /***/ },
 /* 9 */
 /***/ function(module, exports) {
 
-	module.exports = "\nvarying vec2 vUv;\nvoid main() {\n    vUv = uv;\n    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n}"
-
-/***/ },
-/* 10 */
-/***/ function(module, exports) {
-
-	module.exports = "varying vec2 vUv;\nvarying float noise;\nuniform sampler2D image;\n\n\nvoid main() {\n\n  vec2 uv = vec2(1,1) - vUv;\n  vec4 color = texture2D( image, uv );\n\n  gl_FragColor = vec4( color.rgb, 1.0 );\n\n}"
+	module.exports = "varying float noise;\nuniform sampler2D image;\n\nvoid main() {\n\tvec4 color = texture2D( image, vec2(1, noise));\n\tgl_FragColor = vec4( color.rgb, 1.0 );\n}"
 
 /***/ }
 /******/ ]);
