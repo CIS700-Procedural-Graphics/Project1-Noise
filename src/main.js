@@ -63,6 +63,7 @@ const perm = [
 ];
 var start = Date.now();
 var uniforms = {
+  speed: { value: 2.0 },
   time: { value: 0.0 },
   freq: { value: 0.6 },           // frequency
   pers: { value: 0.20 },           // persistence
@@ -96,6 +97,7 @@ function onLoad(framework) {
     camera.updateProjectionMatrix();
   });
 
+  gui.add(uniforms.speed, 'value', 1, 10).name('speed');
   gui.add(uniforms.freq, 'value', 0, 4).name('frequency');
   gui.add(uniforms.pers, 'value', 0, 2).name('persistence');
   gui.add(uniforms.amp, 'value', 0, 2).name('amplitude');
@@ -108,7 +110,7 @@ function onUpdate(framework) {
   analyser.getFloatTimeDomainData(audioData);
 
   uniforms.audioData.value = audioData;
-  uniforms.time.value = 0.00025 * (Date.now() - start)
+  uniforms.time.value = Date.now() - start;
 }
 
 Framework.init(onLoad, onUpdate);

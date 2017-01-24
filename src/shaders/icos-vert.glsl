@@ -6,6 +6,7 @@ varying float normNoise;
 varying float posNoise;
 varying vec3 vNormal;
 
+uniform float speed;
 uniform float time;
 uniform float freq;
 uniform float pers;
@@ -120,8 +121,8 @@ float octaveNoise(vec3 v) {
 }
 
 void main() {
-    normNoise = octaveNoise(normal + time);
-    posNoise = octaveNoise(position + time);
+    normNoise = octaveNoise(normal + (time * speed / 2000.0));
+    posNoise = octaveNoise(position + (time * speed / 2000.0));
     vNormal = normal;
 
     float displacement = posNoise;
