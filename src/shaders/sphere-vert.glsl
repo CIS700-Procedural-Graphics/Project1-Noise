@@ -80,7 +80,7 @@ float PerlinNoise3D(){
 	float total = 0.0;
 	float persistance = 1.0 / 2.0;
 
-	for (int i = 0 ; i < N_OCTAVES; i++){
+	for (int i = 0 ; i < 1; i++){
 
 		float frequency = pow(2.0, float(i));
 		float amplitude = pow(persistance, float(i));
@@ -88,14 +88,14 @@ float PerlinNoise3D(){
 
 	}
 
-	vNoise = total/float(N_OCTAVES);
+	vNoise = total;
 
 	return total;
 
 }
 
 float animatedNoise(){
-	return (1.0 + sin(uTime)*PerlinNoise3D());
+	return (sin(uTime) + 1.0)/2.0*(PerlinNoise3D());
 }
 
 void main() {
