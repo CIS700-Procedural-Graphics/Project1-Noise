@@ -2,15 +2,18 @@
 varying vec2 vUv;
 varying vec3 nor;
 varying float noise;
+varying float mus;
 
 uniform float inv_persistence;
 uniform float time;
+uniform float music;
+uniform float music2;
 
-#define M_PI 3.14159265358979323
+#define M_PI 3.14159265
 const int N_OCTAVES = 5;
 
 float sampleNoise(vec3 pos) {
-	float x = fract(sin(dot(pos, vec3(134.9235, 63.5879, 918.9542))) * 27495.2467);
+	float x = fract(sin(dot(pos, vec3(134.9235, 63.5879, 218.9542))) * 27495.2467);
 	return x;
 }
 
@@ -21,11 +24,12 @@ float interpolate(float a, float b, float t) {
 
 float interpNoise(vec3 pos, float f) {
 
+	// Calculate the min/max positions of cube
 	vec3 p0 = floor(pos * f) / f;
-	vec3 p1 = (p0 * f + 1.) / f;
+	vec3 p1 = p0 + 1. / f;
 	vec3 t  = (pos - p0) * f;
 
-	
+	// Find noise values at corners of cube
 	float A = sampleNoise(vec3(p0.x, p0.y, p0.z));
 	float E = sampleNoise(vec3(p1.x, p0.y, p0.z));
 
@@ -38,18 +42,21 @@ float interpNoise(vec3 pos, float f) {
 	float D = sampleNoise(vec3(p0.x, p1.y, p1.z));
 	float H = sampleNoise(vec3(p1.x, p1.y, p1.z));
 
+	// First pass of interpolation
 	float interpLi_AE = interpolate(A, E, t.x);
 	float interpLi_BF = interpolate(B, F, t.x);
 	float interpLi_CG = interpolate(C, G, t.x);
 	float interpLi_DH = interpolate(D, H, t.x);
 
+	// Second pass of interpolation
 	float interpBi_12 = interpolate(interpLi_AE, interpLi_BF, t.y);
 	float interpBi_34 = interpolate(interpLi_CG, interpLi_DH, t.y);
 
+	// Third pass
 	return interpolate(interpBi_12, interpBi_34, t.z);
 }
 
-float multiOctaveNoise() {
+float multiOctaveNoise(float offset) {
 
 	float total = 0.;
 	float persistence = 1. / inv_persistence;
@@ -58,7 +65,7 @@ float multiOctaveNoise() {
 
 		float frequency = pow(2., float(i));
 		float amplitude = pow(persistence, float(i));
-		total += interpNoise(position + time, frequency) * amplitude;
+		total += interpNoise(position + offset, frequency) * amplitude;
 	}
 
 	return total;
@@ -66,10 +73,10 @@ float multiOctaveNoise() {
 
 void main() {
     vUv = uv;
-    nor = normal;
+    mus = music;
 
-    float h = multiOctaveNoise();
-    noise = multiOctaveNoise();
-    gl_Position = projectionMatrix * modelViewMatrix * vec4( position + h * normal, 1.0 );
+    noise = multiOctaveNoise(time);
+    nor = vec3(projectionMatrix * modelViewMatrix * vec4(normal, 0.));	
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position + noise * nor * music, 1.);
 }
 
