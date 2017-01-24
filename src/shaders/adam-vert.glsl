@@ -11,8 +11,8 @@ uniform int minOctave;
 uniform int maxOctave;
 
 varying vec3 newNormal;
-
-varying vec3 test;
+varying float shininess;
+varying float lighting;
 
 float lerp(in float a, in float b, in float t)
 {
@@ -37,7 +37,7 @@ vec3 pickGradient(in int x, in int y, in int z)
 
 float getnoise3d(in float x, in float y, in float z, in int numSamples)
 {
-	float tOffset = float(time) / 1000.0;
+	float tOffset = 4.0 * float(time) / 1000.0 / float(numSamples);
 
 	// position within gradient grid
 	float xs = mod(x * float(numSamples) + tOffset, 255.0);
@@ -154,11 +154,32 @@ float multiOctave3d(in float x, in float y, in float z)
 void main() {
     vUv = uv;
 	float samp = 1.0;
-    noise = multiOctave3d(position.x, position.y, position.z);
-    noise = sin(3.14159 * noise);
-    noise = noise * noise * 2.0 - 1.0;
-    float noise2 = multiOctave3d(sin(2.0 * 3.14159 * position.x), position.y, sin(2.0 * 3.14159 * position.z));
+    noise = 1.2 * multiOctave3d(position.x, position.y, position.z);
+    //noise = sin(3.14159 * noise);
+    //noise = noise * noise * 2.0 - 1.0;
+    dprod =  dot(normalize(cameraPosition.xyz), normal.xyz);
+    dprod = 1.0 - max(0.0, dprod);
+    dprod = dprod * dprod;
+    float noise2 = getnoise3d(position.x, position.y, position.z, 8);
+    float seaNoise = max(noise, 0.0);
 
-    test = vec3((position.x + 1.0) / 2.0, (position.y + 1.0) / 2.0, (position.z + 1.0) / 2.0);
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(noise * 0.4 * normal + position, 1.0 );
+    // texture is read through noise
+    vUv.y = noise * 0.5 + 0.5;
+    vUv.x = noise2 * 0.5 + 0.5;
+
+    // apply shininess to water
+    vec3 lightDir = normalize(vec3(1, 1, 1));
+
+
+   
+    vec3 halfVec = normalize(cameraPosition.xyz - position.xyz);
+    halfVec = normalize(halfVec + lightDir);
+    float blinn = max(0.0, dot(normal.xyz, halfVec));
+    shininess = pow(blinn, 128.0);
+
+    // diffuse lighting
+    lighting = max(dot(lightDir, normal.xyz), 0.0);
+    lighting = pow(lighting, 1.0 / 2.2);
+
+    gl_Position = projectionMatrix * modelViewMatrix * vec4((seaNoise * 0.4)* normal + position, 1.0 );
 }

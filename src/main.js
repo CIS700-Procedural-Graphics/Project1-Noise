@@ -5,8 +5,13 @@ import Framework from './framework'
 var sUniforms = {
       image: { // Check the Three.JS documentation for the different allowed types and values
         type: "t", 
-        value: THREE.ImageUtils.loadTexture('./adam.jpg')
+        value: THREE.ImageUtils.loadTexture('./gradient2.jpg')
       },
+      blinnimage: { // Check the Three.JS documentation for the different allowed types and values
+        type: "t", 
+        value: THREE.ImageUtils.loadTexture('./gradspec.jpg')
+      },
+
       gradients: {type: "v2v", value: [new THREE.Vector2(1.0, 0), new THREE.Vector2(-1.0, 0),
       new THREE.Vector2(0, 1.0), new THREE.Vector2(0, -1.0),
       new THREE.Vector2(0.7071, 0.7071), new THREE.Vector2(-0.7071, 0.7071),
