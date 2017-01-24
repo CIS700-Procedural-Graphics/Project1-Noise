@@ -11,7 +11,7 @@ var UserInput = {
   frequencyRatio: 1.25,
   bias : .82,
 
-  enableSound : false,
+  enableSound : true,
   fullscreen : false,
   debugNoise : false
 };
@@ -57,7 +57,7 @@ function onLoad(framework)
     // TODO: Start demo here
   });
 
-  Engine.audioAnalyser = new THREE.AudioAnalyser( sound, 256 );
+  Engine.audioAnalyser = new THREE.AudioAnalyser( sound, 64 );
 
   var rendererSize = new THREE.Vector2( renderer.getSize().width, renderer.getSize().height );
 
@@ -109,6 +109,7 @@ function onLoad(framework)
 
   Engine.materials.push(cloudMaterial);
   Engine.materials.push(debugMaterial);
+  Engine.materials.push(particleMaterial);
 
   var sphereGeo = new THREE.IcosahedronBufferGeometry(1, 6);
   var particle = new THREE.TetrahedronBufferGeometry(.01, 1);
