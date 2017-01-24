@@ -5,15 +5,50 @@ varying vec3 vNormal;
 varying float noise;
 uniform sampler2D image;
 
+float persistence = 4.0;
+int octaves = 3;
 
 void main() {
   gl_FragColor = vec4(vNormal, 1.0);
 }
 
-
-
 float rand(float seed) {
 	return 0.0;
+}
+
+
+float noise_gen2(int x, int y, int z) {
+	return fract(sin(dot(vec3(x, y, z), vec3(12.9898, 78.233, 43.29179))) * 43758.5453);
+}
+
+// Smooth Noise
+// Takes into account the surrounding noise
+float smoothNoise(int x, int y, int z) {
+	float center = noise_gen2(x, y, z) / 8.0;
+	float adj = (noise_gen2(x + 1, y, z) + noise_gen2(x - 1, y, z) 
+			   + noise_gen2(x, y + 1, z) + noise_gen2(x, y - 1, z) 
+			   + noise_gen2(x, y, z + 1) + noise_gen2(x, y, z - 1)) / 16.0;
+	float diag = (noise_gen2(x + 1, y + 1, z)
+				+ noise_gen2(x + 1, y - 1, z)
+				+ noise_gen2(x - 1, y + 1, z)
+				+ noise_gen2(x - 1, y - 1, z)
+				+ noise_gen2(x + 1, y, z + 1)
+				+ noise_gen2(x + 1, y, z - 1)
+				+ noise_gen2(x - 1, y, z + 1)
+				+ noise_gen2(x - 1, y, z - 1)
+				+ noise_gen2(x, y + 1, z + 1)
+				+ noise_gen2(x, y + 1, z - 1)
+				+ noise_gen2(x, y - 1, z + 1)
+				+ noise_gen2(x, y - 1, z - 1)) / 32.0;
+	float corners = (noise_gen2(x + 1, y + 1, z + 1)
+				+ noise_gen2(x + 1, y + 1, z - 1) 
+				+ noise_gen2(x + 1, y - 1, z + 1) 
+				+ noise_gen2(x + 1, y - 1, z - 1) 
+				+ noise_gen2(x - 1, y + 1, z + 1) 
+				+ noise_gen2(x - 1, y + 1, z - 1) 
+				+ noise_gen2(x - 1, y - 1, z + 1) 
+				+ noise_gen2(x - 1, y - 1, z - 1)) / 64.0;
+	return center + adj + diag + corners;
 }
 
 // Cosine Interpolation
@@ -26,46 +61,54 @@ float cerp(float a, float b, float x) {
 	return a * (1.0 - y) + b * y; // map y between and b
 }
 
+float cerpNoise(float x, float y, float z) {
+	int x_whole = int(x);
+	float x_fract = fract(x);
+
+	int y_whole = int(y);
+	float y_fract = fract(y);
+
+	int z_whole = int(z);
+	float z_fract = fract(z);
+
+	float v1 = smoothNoise(x_whole, y_whole, z_whole);
+	float v2 = smoothNoise(x_whole + 1, y_whole, z_whole);
+	float v3 = smoothNoise(x_whole, y_whole + 1, z_whole);
+	float v4 = smoothNoise(x_whole, y_whole, z_whole + 1);
+	float v5 = smoothNoise(x_whole + 1, y_whole + 1, z_whole);
+	float v6 = smoothNoise(x_whole + 1, y_whole, z_whole + 1);
+	float v7 = smoothNoise(x_whole, y_whole + 1, z_whole + 1);
+	float v8 = smoothNoise(x_whole + 1, y_whole + 1, z_whole + 1);
+
+	// Cerp over the x axis
+	float x00 = cerp(v1, v2, x_fract);
+	float x01 = cerp(v3, v5, x_fract);
+	float x10 = cerp(v4, v6, x_fract);
+	float x11 = cerp(v7, v8, x_fract);
+
+	float y0 = cerp(x00, x01, y_fract);
+	float y1 = cerp(x10, x11, y_fract);
+
+	return cerp(y0, y1, z_fract);
+}
+
 // Noise
 // Perlin Noise
 // Fractional Brownian Motion
 float fnoise(float x, float y, float z) {
-	return 0.0;
+ 	float total = 0.0;
+ 	float p = persistence;
+ 	int n = octaves - 1;
+
+ 	for (int i = 0; i < n; i++) {
+ 		float frequency = pow(2.0, float(i));
+ 	 	float amplitude = pow(p, float(i));
+
+ 	 	total = total + cerpNoise(x * frequency, y * frequency, z * frequency) * amplitude;
+ 	}
+
+	return total;
 }
 
-float smoothNoise(float x, float y, float z) {
-	float center = fnoise(x, y, z) / 8.0;
-	float adj = (fnoise(x + 1.0, y, z) + fnoise(x - 1.0, y, z) 
-			   + fnoise(x, y + 1.0, z) + fnoise(x, y - 1.0, z) 
-			   + fnoise(x, y, z + 1.0) + fnoise(x, y, z - 1.0)) / 16.0;
-	float diag = (fnoise(x + 1.0, y + 1.0, z)
-				+ fnoise(x + 1.0, y - 1.0, z)
-				+ fnoise(x - 1.0, y + 1.0, z)
-				+ fnoise(x - 1.0, y - 1.0, z)
-				+ fnoise(x + 1.0, y, z + 1.0)
-				+ fnoise(x + 1.0, y, z - 1.0)
-				+ fnoise(x - 1.0, y, z + 1.0)
-				+ fnoise(x - 1.0, y, z - 1.0)
-				+ fnoise(x, y + 1.0, z + 1.0)
-				+ fnoise(x, y + 1.0, z - 1.0)
-				+ fnoise(x, y - 1.0, z + 1.0)
-				+ fnoise(x, y - 1.0, z - 1.0)) / 32.0;
-	float corners = (fnoise(x + 1.0, y + 1.0, z + 1.0)
-				+ fnoise(x + 1.0, y + 1.0, z - 1.0) 
-				+ fnoise(x + 1.0, y - 1.0, z + 1.0) 
-				+ fnoise(x + 1.0, y - 1.0, z - 1.0) 
-				+ fnoise(x - 1.0, y + 1.0, z + 1.0) 
-				+ fnoise(x - 1.0, y + 1.0, z - 1.0) 
-				+ fnoise(x - 1.0, y - 1.0, z + 1.0) 
-				+ fnoise(x - 1.0, y - 1.0, z - 1.0)) / 64.0;
-	return center + adj + diag + corners;
-}
 
-// float noise_gen1(int x) {
-// 	x = (x << 13) ^ x;
-// 	return (1.0f - (x * (x * x * 15731 + 789221) + 1376312589) & 7fffffff) / 10737741824.0;
-// }
 
-// float noise_gen2(int x, int y) {
-// 	return fractional_component(sin(dot(vec2(x, y), vec2(12.9898, 78.233))) * 43758.5453);
-// }
