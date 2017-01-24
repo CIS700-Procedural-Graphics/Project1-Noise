@@ -103,7 +103,6 @@ function onLoad(framework)
   {
     settings.strength = newVal;
   });
-  //
   gui.add(settings, 'colors', 1, 4).onChange(function(newVal)
   {
     settings.colors = newVal;
