@@ -41,6 +41,7 @@ var UserInput = {
 var Engine = {
   camera : null,
   cameraTime : 0,
+  overlay : null,
   time : 0.0,
   clock : null,
   materials : [],
@@ -55,6 +56,7 @@ var Engine = {
 
   mainSphere : null,
   perlinDisk : null,
+  radialLines : null,
 }
 
 function startMain(time)
@@ -73,7 +75,7 @@ function startMain(time)
 
 function updateMain(time)
 {
-  if( Engine.cameraTime > 11.0)
+  if( Engine.cameraTime > 10.65)
   {
     Engine.cameraTime = 0;
 
@@ -90,6 +92,7 @@ function startDrop(time)
 {
   Engine.mainSphere.visible = false;
   Engine.perlinDisk.visible = true;
+  Engine.radialLines.visible = false;
   Engine.perlinDisk.rotateX(3.1415 * -.5);
 }
 
@@ -144,7 +147,9 @@ function updateIntro(time)
     if(time > 44)
     {
       Engine.currentSubState = SubState.D2;
-      console.log("D2");
+
+
+      Engine.radialLines.visible = true;
     }
   }
 }
@@ -233,6 +238,15 @@ function onLoad(framework)
     fragmentShader: require("./shaders/perlin_ring.frag.glsl"),
   })
 
+  var radialLinesMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      time: { type: "f", value : 0.0 },
+      sphereLit: { type: "t", value: THREE.ImageUtils.loadTexture("./src/misc/CrystalMap.png")}
+    },
+    vertexShader: require("./shaders/radial_lines.vert.glsl"),
+    fragmentShader: require("./shaders/radial_lines.frag.glsl"),
+  })
+
   Engine.particleMaterial = particleMaterial;
 
   var debugMaterial = new THREE.ShaderMaterial({
@@ -252,21 +266,41 @@ function onLoad(framework)
     }
   })
 
+  var overlayMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      time: { type: "f", value : 0.0 },
+      SCREEN_SIZE: { type: "2fv", value : rendererSize },
+      gradientTexture: { type: "t", value: THREE.ImageUtils.loadTexture("./src/misc/gradient_1.png")}
+    },
+    vertexShader: require("./shaders/overlay.vert.glsl"),
+    fragmentShader: require("./shaders/overlay.frag.glsl")
+  })
+
+  overlayMaterial.blending = THREE.CustomBlending;
+  overlayMaterial.blendEquation = THREE.AddEquation;
+  overlayMaterial.blendSrc = THREE.OneFactor;
+  overlayMaterial.blendDst = THREE.OneFactor;
+  overlayMaterial.depthWrite = false;
+  overlayMaterial.depthTest = false;
+  overlayMaterial.transparent = true;
+
   Engine.materials.push(cloudMaterial);
   Engine.materials.push(debugMaterial);
   Engine.materials.push(particleMaterial);
   Engine.materials.push(sphereParticleMaterial);
-  Engine.materials.push(perlinRingMaterial);  
+  Engine.materials.push(perlinRingMaterial);
+  Engine.materials.push(radialLinesMaterial);
+  Engine.materials.push(overlayMaterial);
 
   var sphereGeo = new THREE.IcosahedronBufferGeometry(1, 6);
   var particle = new THREE.TetrahedronBufferGeometry(.01, 1);
 
   var cloudMesh = new THREE.Mesh(sphereGeo, cloudMaterial);
 
+  cloudMesh.scale.set(0,0,0);
   cloudMesh.visible = false;
   scene.add(cloudMesh);
   Engine.mainSphere = cloudMesh;
-
 
   var loader = new THREE.OBJLoader( );
   loader.load( './src/misc/particles.obj', function ( object ) {
@@ -296,6 +330,21 @@ function onLoad(framework)
     scene.add( object );
   } );
 
+  loader.load( './src/misc/radial_lines.obj', function ( object ) {
+    object.traverse( function ( child ) {
+      if ( child instanceof THREE.Mesh ) {
+        child.material = radialLinesMaterial;
+        child.scale.set(6,6,6);
+        child.lookAt(camera.position);
+        child.rotateX(3.1415*.5);
+        child.position.set(0,0,-.01);
+        Engine.radialLines = child;
+        child.visible = false;
+      }
+    } );    
+    scene.add( object );
+  } );
+
   loader.load( './src/misc/sphere_particles.obj', function ( object ) {
     object.traverse( function ( child ) {
       if ( child instanceof THREE.Mesh ) {
@@ -312,6 +361,13 @@ function onLoad(framework)
   var planeGeo = new THREE.PlaneGeometry( 1, 1, 1, 1);
   var planeMesh = new THREE.Mesh( planeGeo, debugMaterial);
   scene.add(planeMesh);
+
+  var overlayMesh = new THREE.Mesh( planeGeo, overlayMaterial);
+  overlayMesh.frustumCulled = false;
+  overlayMesh.renderOrder = 1;
+  scene.add(overlayMesh);
+  
+  Engine.overlay = overlayMesh;
 
   var noiseParameters = gui.addFolder('Noise');
 
