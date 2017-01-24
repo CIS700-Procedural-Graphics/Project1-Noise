@@ -96,7 +96,7 @@ float PerlinNoise3D(vec3 pos){
 
 float animatedNoise(){
 	//return (sin(uTime) + 1.0)/2.0*(PerlinNoise3D());
-	return PerlinNoise3D(position + uTime / 5.0);
+	return PerlinNoise3D(position + uTime / 2.0);
 }
 
 void main() {

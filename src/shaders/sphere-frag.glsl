@@ -10,12 +10,12 @@ vec3 lerp(vec3 a, vec3 b, float t){
 void main() {
   vec2 uv = vec2(1,1) - vUv;
   vec3 noise_col = vec3(vNoise,vNoise,vNoise);  
-  
+  vec3 blue = vec3(0.0,0.0,255.0);
   vec3 start_col = vec3(255.0,255.0,0.0);
   vec3 end_col = vec3(255.0,0.0,0.0);
 
   //noise_col = lerp(start_col, end_col, vNoise);
 
   
-  gl_FragColor = vec4( noise_col.rgb, 1.0 );
+  gl_FragColor = vec4( (noise_col.rgb/2.0) + blue*0.001, 1.0 );
 }
