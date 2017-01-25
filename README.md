@@ -2,7 +2,7 @@
 
 ## Updates 
 Name: Grace Xu 
-Implemented 3 octaves of noise and gui controls for level of detail for the icosahedron geometry ('detail') and the strength of the noise ('value'). Color is linear interpolated between rgb value of the normal and white (1.0,1.0,1.0).
+Implemented up to 5 octaves of noise and gui controls for level of detail for the icosahedron geometry and strength of the noise (via persistence and number of octaves). Color is linear interpolated between black and white using the same noise strength.
 
 ## Objective
 

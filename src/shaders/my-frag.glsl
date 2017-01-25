@@ -1,6 +1,5 @@
 varying vec2 vUv;
 varying float vNoise;
-uniform sampler2D image;
 varying vec3 vNormal;
 
 float linearInterpolate(float a, float b, float t) {
@@ -12,5 +11,6 @@ void main() {
   float g = linearInterpolate(0.0, 0.9, vNoise); 
   float b = linearInterpolate(0.0, 0.9, vNoise); 
 
-  gl_FragColor = vec4( r, g, b, 1.0 );
+  gl_FragColor = vec4(r, g, b, 1.0);
+  //gl_FragColor = vec4(vNormal.rgb, 1.0);
 }
