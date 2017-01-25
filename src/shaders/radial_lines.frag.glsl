@@ -2,6 +2,7 @@ varying vec2 vUv;
 varying float vColor;
 
 uniform float time;
+uniform float doubleSided;
 
 void main() 
 {	

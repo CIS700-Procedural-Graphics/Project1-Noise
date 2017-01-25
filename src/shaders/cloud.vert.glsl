@@ -4,6 +4,8 @@ varying vec3 vNormal;
 varying float noise;
 varying vec3 originalPos;
 
+uniform float excentricity;
+uniform float overallFrequency;
 uniform float displacement;
 uniform float time;
 uniform float bias;
@@ -271,35 +273,35 @@ float fractal4D(vec4 x)
 	accum += ampl;
 	ampl *= ratio;
 
-	// result += bias3(perlin4D(x * freq), bias) * ampl;
-	// freq *= frequencyRatio;
-	// accum += ampl;
-	// ampl *= ratio;
+	result += bias3(perlin4D(x * freq), bias) * ampl;
+	freq *= frequencyRatio;
+	accum += ampl;
+	ampl *= ratio;
 
-	// result += bias3(perlin4D(x * freq), bias) * ampl;
-	// freq *= frequencyRatio;
-	// accum += ampl;
-	// ampl *= ratio;
+	result += bias3(perlin4D(x * freq), bias) * ampl;
+	freq *= frequencyRatio;
+	accum += ampl;
+	ampl *= ratio;
 
-	// result += bias3(perlin4D(x * freq), bias) * ampl;
-	// freq *= frequencyRatio;
-	// accum += ampl;
-	// ampl *= ratio;
+	result += bias3(perlin4D(x * freq), bias) * ampl;
+	freq *= frequencyRatio;
+	accum += ampl;
+	ampl *= ratio;
 
-	// result += bias3(perlin4D(x * freq), bias) * ampl;
-	// freq *= frequencyRatio;
-	// accum += ampl;
-	// ampl *= ratio;
+	result += bias3(perlin4D(x * freq), bias) * ampl;
+	freq *= frequencyRatio;
+	accum += ampl;
+	ampl *= ratio;
 
-	// result += bias3(perlin4D(x * freq), bias) * ampl;
-	// freq *= frequencyRatio;
-	// accum += ampl;
-	// ampl *= ratio;
+	result += bias3(perlin4D(x * freq), bias) * ampl;
+	freq *= frequencyRatio;
+	accum += ampl;
+	ampl *= ratio;
 
-	// result += bias3(perlin4D(x * freq), bias) * ampl;
-	// freq *= frequencyRatio;
-	// accum += ampl;
-	// ampl *= ratio;
+	result += bias3(perlin4D(x * freq), bias) * ampl;
+	freq *= frequencyRatio;
+	accum += ampl;
+	ampl *= ratio;
 
 	// result += bias3(perlin4D(x * freq), bias) * ampl;
 	// accum += ampl;
@@ -311,20 +313,21 @@ float fractal4D(vec4 x)
 void main() {
     originalPos = position;
     vUv = uv;
+    vNormal = normal;
 
     vec3 pos = position;
-    vec4 tPos = vec4(pos + vec3(time), time * .25);
+    float t = time * 2.0;
+    vec4 tPos = vec4(pos + vec3(t), t * .25);
 
-    float displ = sqrt(fractal4D(tPos));
 
-    // Poor mans gradient
-    // float displX = sqrt(fractal4D(tPos + vec4(1.0, 0.0, 0.0, 0.0)));
-    // float displY = sqrt(fractal4D(tPos + vec4(0.0, 1.0, 0.0, 0.0)));
-    // float displZ = sqrt(fractal4D(tPos + vec4(0.0, 0.0, 1.0, 0.0)));
+    float d = fractal4D(tPos);
 
-    vec3 dF = perlin4D_Deriv(tPos).xyz;// vec3(displX, displY, displZ);
+    float displ = (1.0 - pow(d, 1.75)) * (1.0 + pow(overallFrequency, 8.0) * 100.0);
+    displ += pow(displ, 10.0) * overallFrequency * .5 * excentricity;
 
-    vNormal = normalMatrix * (normal + dF * .5);
+    // vec3 dF = perlin4D_Deriv(tPos).xyz;
+    // vNormal = normalMatrix * (normal + dF * .5);
+
     pos = pos + displ * displacement * normal;
 
     noise = displ;

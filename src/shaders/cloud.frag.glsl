@@ -37,18 +37,34 @@ vec3 palette( float t, vec3 a, vec3 b, vec3 c, vec3 d)
 
 void main() 
 {
-	// vec3 color = palette(1.0 - noise, vec3(0.748, 0.638, 0.108), vec3(0.748, 1.008, 0.958), vec3(0.368, 0.528, 0.428), vec3(1.548, -1.602, 0.428));
+	// Inverting and taking the absolute guarantees that we dont enter green color too fast
+	float n = abs(1.0 - noise);
+
+	// The unbounded noise is cool for the rainbow effect
+	vec3 color = palette(n, vec3(0.748, 0.638, 0.108) , vec3(0.748, 1.008, 0.958), vec3(0.368, 0.528, 0.428), vec3(1.548, -1.602, 0.428));
+
 	// float grid = grid2D(vUv * 32.0 + vec2(noise + time * 10.0));
   	// gl_FragColor = vec4(color * 1.5 + .15, 1.0);// * (1.0 + grid * 3.0);
 
   	// vec2 nUV = ((vec2(vNormal.x, vNormal.y)) + vec2(noise * 2.0 - 1.0) * .25) * .5 + .5;
 
-  	vec3 n = vNormal;// normalize(vNormal + vec3(cos(time)) + vec3(noise, sqrt(noise), noise * noise) * vNormal.z * vNormal.z *vNormal.z * 2.0 - 1.0);
+  	// vec3 fractalFake = vec3(noise, noise * noise, 0.0) * 2.0 - vec3(1.0);
+  	// vec3 n = normalize(vNormal + fractalFake * .1);// normalize(vNormal + vec3(cos(time)) + vec3(noise, sqrt(noise), noise * noise) * vNormal.z * vNormal.z *vNormal.z * 2.0 - 1.0);
 
   	// float diffuse = dot(n, normalize(vec3(1.0,1.0, 1.0))) * (.5 + noise);
 
+  	// float ao = (pow(saturate(noise), 6.0) * 2.0 - 1.0) * .15;
   	// gl_FragColor = vec4(nUV, 0.0, 1.0);
-  	gl_FragColor = texture2D(sphereLit, (n.xy * .5 + vec2(.5)));//' * (.5 + noise * noise * 2.0);// * vec4(color, 1.0) * 4.0;
+
+  	// vec4 color = texture2D(sphereLit, (n.xy * .5 + vec2(.5)));
+
+  	// color *= (vec4(1.0) + color * ao);
+
+  	// color *= (color * ao ;
+
+  	// color = mix(color * color, color, 1.0 + ao);
+
+  	gl_FragColor = vec4(color, 1.0);//' * (.5 + noise * noise * 2.0);// * vec4(color, 1.0) * 4.0;
 
   	// gl_FragColor = vec4(abs(vNormal), 1.0);
 }

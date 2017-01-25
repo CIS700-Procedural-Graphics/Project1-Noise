@@ -1,8 +1,41 @@
-# WIP
+# Playing with Noise
+
+A small and rushed noisy animation that plays along the song Light Cycles by Shock One.
 
 
+# How it works
+
+The animation can be broken down in various pieces:
+
+## The sphere
+
+A 4D perlin noise driven by time and 3D position displaces the sphere along its normal. Its color is defined by a function of its displacement.
+
+## The initial sound disk
+
+The disk's deformation is actually just another perlin noise. It's just a hack to trick the eye thinking it's the actual soundwave.
+
+## Particle ocean
+
+Using the frequency of the song, a set of particles is displaced. However, because I didn't have any time to batch these particles in threejs, I just merged them in Maya.
+
+## Miscellaneous
+
+There is an overlay and a background shader that add to the overall composition.
+
+
+# UI
+
+There are some controls to tweak the noise, but most of the choreography code overrides it. If you want to play with the noise, you can enable the debug mode and see the raw perlin noise (which is 3D projected into 2D)
+
+
+# Notes
+
+The particular Perlin implementation is not the most efficient by any chance. It's done in a way that's easy to read. If I have time I'll try to use the usual methods to optimize it.
 
 # References
+
+Stuff that helped do this!
 
 https://cmaher.github.io/posts/working-with-simplex-noise/
 

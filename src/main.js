@@ -24,12 +24,12 @@ var SubState = {
 // A container of stuff to play around for the user
 // TODO: build a material inspector
 var UserInput = {
-  timeScale : 3.5,
+  timeScale : 1.0,
   displacement : .25,
-  frequency : 1.5,
-  ratio : .607,
+  frequency : .65,
+  ratio : .675,
   frequencyRatio: 1.25,
-  bias : .62,
+  bias : .7,
 
   enableSound : true,
   fullscreen : false,
@@ -39,25 +39,32 @@ var UserInput = {
 // No time to design something more scalable, 
 // so all demo stuff is going to be packed here
 var Engine = {
+  initialized : false,
   camera : null,
   cameraTime : 0,
-  overlay : null,
-  overlayMaterial : null,
   time : 0.0,
   clock : null,
-  materials : [],
+  
   music : null,
   audioAnalyser : null,
-  initialized : false,
-  particles : null,
-  particleMaterial: null,
+  
   currentState : State.NONE,
   currentSubState : SubState.NONE,
   currentCameraShot : CameraShot.INTRO,
 
+  particles : null,
   mainSphere : null,
   perlinDisk : null,
   radialLines : null,
+  overlay : null,
+  background : null,
+
+  materials : [],
+  sphereMaterial : null,
+  particleMaterial: null,
+  radialLinesMaterial : null,
+  overlayMaterial : null,
+  backgroundMaterial : null,
 }
 
 function startMain(time)
@@ -65,6 +72,8 @@ function startMain(time)
   Engine.mainSphere.scale.set(1.25, 1.25, 1.25);
   Engine.mainSphere.visible = true;
   Engine.particles.visible = true;
+  
+  Engine.radialLines.visible = false; // Maybe enable it on some beats?
 
   Engine.perlinDisk.visible = true;
   Engine.perlinDisk.position.set(0,-2,0);
@@ -76,6 +85,14 @@ function startMain(time)
   Engine.overlayMaterial.uniforms.intensityMultiplier.value = .1;
   Engine.overlayMaterial.uniforms.size.value = .1;
   Engine.overlayMaterial.uniforms.fullscreenFlash.value = 0.0;
+
+  UserInput.frequency = 1.0;
+  UserInput.bias = .7;
+  UserInput.frequencyRatio = 1.95;
+  UserInput.ratio = .65;
+  UserInput.displacement = .25;
+
+  Engine.background.visible = true;
 }
 
 function updateMain(time)
@@ -91,6 +108,11 @@ function updateMain(time)
     else
       Engine.currentCameraShot = CameraShot.MAIN;
   }
+
+  if(Engine.particles != null)
+    Engine.particles.rotateY(.01);
+
+    Engine.sphereMaterial.uniforms.excentricity.value = 0.001;
 }
 
 function startDrop(time)
@@ -103,9 +125,9 @@ function startDrop(time)
 
 function updateDrop(time)
 {
-  var d1 = 2.5;
+  var d1 = 2.95;
 
-  Engine.overlayMaterial.uniforms.intensityMultiplier.value = THREE.Math.clamp(1.0 - time, 0, 1.0) * .8;
+  Engine.overlayMaterial.uniforms.intensityMultiplier.value = THREE.Math.clamp(1.0 - time * 3.0, 0, 1.0) * .8;
 
   if(Engine.currentSubState == SubState.NONE)
   {
@@ -120,17 +142,27 @@ function updateDrop(time)
       console.log("D1");
     }
   }
-  else if(Engine.currentSubState == SubState.D1)
+  else if(Engine.currentSubState == SubState.D1 && time - d1)
   {
-    var v = Math.sin(time * 32.0) > 0 ? true : false;
+    var v = Math.sin(time * 64.0) > 0 ? true : false;
     var t = THREE.Math.clamp((time - d1) * .4, 0, 1.0);
-    var sphereScale = Math.sqrt(1.0 - t * t) * 2.5 + .0001;
+    var sphereScale = Math.sqrt(1.0 - t * t * t) * 1.5 + .0001;
     
     Engine.mainSphere.scale.set(sphereScale, sphereScale, sphereScale);
     Engine.mainSphere.visible = v;
+    Engine.radialLines.visible = v;
+    Engine.radialLinesMaterial.uniforms.doubleSided.value = 0.0;
 
-    var flash = Math.sin(time * 64.0 + .05) > .75 ? t * t * t : 0.0;
+    Engine.sphereMaterial.uniforms.excentricity.value = 1.0;
+
+    var flash = Math.cos(time * 64.0 + .05) > .75 ? t * t * t * t : 0.0;
     Engine.overlayMaterial.uniforms.fullscreenFlash.value = flash;
+
+    UserInput.frequency = 1.1;
+    UserInput.bias = .7;
+    UserInput.frequencyRatio = 1.95;
+    UserInput.ratio = .65;
+    UserInput.displacement = .5;
   }
 }
 
@@ -146,7 +178,7 @@ function updateIntro(time)
 
   if(Engine.currentSubState == SubState.NONE)
   {
-    if(time > 23)
+    if(time > 21.8)
     {
       Engine.currentSubState = SubState.D1;
       console.log("D1");
@@ -159,6 +191,13 @@ function updateIntro(time)
       Engine.currentSubState = SubState.D2;
       Engine.radialLines.visible = true;
     }
+  }
+  else
+  {
+    var t = time - 43.5;
+    var v = Math.sin(t * .56) > 0 ? 0.0 : 1.0;
+    Engine.radialLinesMaterial.uniforms.doubleSided.value = v;
+    Engine.sphereMaterial.uniforms.excentricity.value = .25;
   }
 }
 
@@ -202,7 +241,9 @@ function onLoad(framework)
   var cloudMaterial = new THREE.ShaderMaterial({
     uniforms: {
       time: { type: "f", value : 0.0 },
+      overallFrequency: { type: "f", value : 0.0 },
       displacement: { type: "f", value : 1.0 },
+      excentricity: { type: "f", value : 1.0 },
       bias: { type: "f", value : 0.0 },
       amplitude: { type: "f", value : 1.0 },
       frequency: { type: "f", value : 1.0 },
@@ -249,13 +290,16 @@ function onLoad(framework)
   var radialLinesMaterial = new THREE.ShaderMaterial({
     uniforms: {
       time: { type: "f", value : 0.0 },
+      doubleSided: { type: "f", value : 0.0 },
       sphereLit: { type: "t", value: THREE.ImageUtils.loadTexture("./src/misc/CrystalMap.png")}
     },
     vertexShader: require("./shaders/radial_lines.vert.glsl"),
     fragmentShader: require("./shaders/radial_lines.frag.glsl"),
   })
 
+  Engine.sphereMaterial = cloudMaterial;
   Engine.particleMaterial = particleMaterial;
+  Engine.radialLinesMaterial = radialLinesMaterial;
 
   var debugMaterial = new THREE.ShaderMaterial({
     uniforms: {
@@ -274,11 +318,30 @@ function onLoad(framework)
     }
   })
 
+  var backgroundMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      time: { type: "f", value : 0.0 },
+      SCREEN_SIZE: { type: "2fv", value : rendererSize },
+      overallFrequency: { type: "f", value : 0.0 },
+      fullscreenFlash: { type: "f", value : 0.0 },
+      size: { type: "f", value : 1.0 },
+      gradientTexture: { type: "t", value: THREE.ImageUtils.loadTexture("./src/misc/gradient_1.png")}
+    },
+    vertexShader: require("./shaders/background.vert.glsl"),
+    fragmentShader: require("./shaders/background.frag.glsl")
+  })
+
+  backgroundMaterial.depthWrite = false;
+  backgroundMaterial.depthTest = false;
+
+  Engine.backgroundMaterial = backgroundMaterial;
+
   var overlayMaterial = new THREE.ShaderMaterial({
     uniforms: {
       time: { type: "f", value : 0.0 },
       SCREEN_SIZE: { type: "2fv", value : rendererSize },
       intensityMultiplier: { type: "f", value : .8 },
+      overallFrequency: { type: "f", value : 0.0 },
       fullscreenFlash: { type: "f", value : 0.0 },
       size: { type: "f", value : 1.0 },
       gradientTexture: { type: "t", value: THREE.ImageUtils.loadTexture("./src/misc/gradient_1.png")}
@@ -302,14 +365,14 @@ function onLoad(framework)
   Engine.materials.push(perlinRingMaterial);
   Engine.materials.push(radialLinesMaterial);
   Engine.materials.push(overlayMaterial);
+  Engine.materials.push(backgroundMaterial);
 
-  var sphereGeo = new THREE.IcosahedronBufferGeometry(1, 6);
+  var sphereGeo = new THREE.IcosahedronBufferGeometry(1, 7);
   var particle = new THREE.TetrahedronBufferGeometry(.01, 1);
 
   var cloudMesh = new THREE.Mesh(sphereGeo, cloudMaterial);
 
   cloudMesh.scale.set(0,0,0);
-  cloudMesh.visible = false;
   scene.add(cloudMesh);
   Engine.mainSphere = cloudMesh;
 
@@ -381,10 +444,18 @@ function onLoad(framework)
   Engine.overlay = overlayMesh;
   Engine.overlayMaterial = overlayMaterial;
 
+  var backgroundMesh = new THREE.Mesh( planeGeo, backgroundMaterial);
+  backgroundMesh.frustumCulled = false;
+  backgroundMesh.renderOrder = -1;
+  backgroundMesh.visible = false;
+  scene.add(backgroundMesh);
+
+  Engine.background = backgroundMesh;
+
   var noiseParameters = gui.addFolder('Noise');
 
-  noiseParameters.add(UserInput, "timeScale", 0.0, 20.0).onChange(function(newVal) {
-  });
+  // noiseParameters.add(UserInput, "timeScale", 0.0, 20.0).onChange(function(newVal) {
+  // });
   noiseParameters.add(UserInput, "displacement", 0.0, 4.0).onChange(function(newVal) {
   });
   noiseParameters.add(UserInput, "frequency", 0.0, 4.0).onChange(function(newVal) {
@@ -464,6 +535,8 @@ function onUpdate(framework)
     //  D1: 1:57
     if(Engine.currentState == State.NONE)
     {
+      Engine.mainSphere.visible = false;
+
       if(Engine.time > 3.0)
       {
         Engine.currentState = State.INTRO;
@@ -504,13 +577,9 @@ function onUpdate(framework)
     // After main logic
     updateCamera();
 
-
     var screenSize = new THREE.Vector2( framework.renderer.getSize().width, framework.renderer.getSize().height );
-
-    var freq = Engine.audioAnalyser.getAverageFrequency();
-
+    var avgFrequency = Engine.audioAnalyser.getAverageFrequency() / 256.0;
     var dataArray = Engine.audioAnalyser.getFrequencyData();
-
     var freqBands = [];
 
     for(var i = 0; i < 64; i++)
@@ -518,16 +587,11 @@ function onUpdate(framework)
 
     Engine.particleMaterial.uniforms.frequencyBands.value = freqBands;
 
-    if(Engine.particles != null)
-    {
-      Engine.particles.rotateY(.01);
-    }
-
     for (var i = 0; i < Engine.materials.length; i++)
     {
       var material = Engine.materials[i];
 
-      material.uniforms.time.value += .01 * UserInput.timeScale;
+      material.uniforms.time.value = Engine.time;
 
       for ( var property in material.uniforms ) 
       {
@@ -535,9 +599,8 @@ function onUpdate(framework)
           material.uniforms[property].value = UserInput[property];
       }
 
-      // 10: Mid freq
-      // 12: details of intro
-      // 13: No freq found
+      if(material.uniforms["overallFrequency"] != null)
+        material.uniforms.overallFrequency.value = avgFrequency;
 
       if(material.uniforms["soundFrequency"] != null)
         material.uniforms.soundFrequency.value = dataArray[64] / 256;
