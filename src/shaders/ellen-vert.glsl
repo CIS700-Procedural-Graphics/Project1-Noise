@@ -4,11 +4,12 @@ varying vec2 vUv;
 varying vec3 vNormal;
 varying vec3 vPosition;
 varying float noise;
-uniform float time;
 varying float vTime;
 
-float persistence = 4.0;
-const int octaves = 3;
+uniform float time;
+uniform float persistence;
+uniform float octaves;
+const int max_octaves = 30;
 
 float noise_gen2(int x, int y, int z) {
 	return fract(sin(dot(vec3(x, y, z), vec3(12.9898, 78.233, 43.29179))) * 43758.5453);
@@ -17,9 +18,10 @@ float noise_gen2(int x, int y, int z) {
 // Smooth Noise
 // Takes into account the surrounding noise
 float smoothNoise(int x, int y, int z) {
-	return noise_gen2(x, y, z);
+	// Non-smooth noise
+	// return noise_gen2(x, y, z);
 
-	
+	// Smooth Noise
 	float center = noise_gen2(x, y, z) / 8.0;	
 	float adj = (noise_gen2(x + 1, y, z) + noise_gen2(x - 1, y, z) 
 	   + noise_gen2(x, y + 1, z) + noise_gen2(x, y - 1, z) 
@@ -81,7 +83,6 @@ float cerpNoise(float x, float y, float z) {
 
 		
 	// Cerp over the x axis
-		
 	float x00 = cerp(v1, v2, x_fract);
 	float x01 = cerp(v3, v4, x_fract);
 	float x10 = cerp(v5, v6, x_fract);
@@ -100,11 +101,16 @@ float cerpNoise(float x, float y, float z) {
 float fnoise(float x, float y, float z) {
 	float total = 0.0;
 	float p = persistence;
-	 	
-	for (int i = 0; i < octaves - 1; i++) {
+	int n = int(octaves);
+
+	for (int i = 0; i < max_octaves; i++) {
 		float frequency = pow(2.0, float(i)); 	
 		float amplitude = pow(p, float(i)); 	
 		total = total + cerpNoise(x * frequency, y * frequency, z * frequency) * amplitude;
+
+		if (i >= n) {
+			break;
+		}
 	}
 
 	return total;
@@ -115,9 +121,8 @@ void main() {
     vNormal = normal;
     vTime = time;
 
-    vec3 time_vector = vec3(time);
-    noise = fnoise(position[0], position[1], position[2]);
-    vec3 displacement = (noise + time) * normal; 
+    noise = fnoise(position[0] + vTime, position[1] + vTime, position[2] + vTime);
+    vec3 displacement = noise * normal; 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position + displacement, 1.0 );
     vPosition = vec3(gl_Position);
 }

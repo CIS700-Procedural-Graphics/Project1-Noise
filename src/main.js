@@ -2,15 +2,31 @@
 const THREE = require('three'); // older modules are imported like this. You shouldn't have to worry about this much
 import Framework from './framework'
 
-var ellenMaterial = new THREE.ShaderMaterial({
+
+
+
+var parameters = {
+    octaves: 2.0,
+    persistence: 4.0
+}
+
+var noiseMaterial = new THREE.ShaderMaterial({
      uniforms: {
-      image: { // Check the Three.JS documentation for the different allows types and values
-        type: "t",
-        value: THREE.ImageUtils.loadTexture('./explosion.png')
-      },
+      // image: { // Check the Three.JS documentation for the different allows types and values
+      //   type: "t",
+      //   value: THREE.ImageUtils.loadTexture('./explosion.png')
+      // },
       time: {
         type: "f",
         value: 1.0
+      },
+      octaves: {
+        type: "f",
+        value: 3.0
+      },
+      persistence: {
+        type: "f",
+        value: 4.0
       }
      },
     vertexShader: require('./shaders/ellen-vert.glsl'),
@@ -28,38 +44,29 @@ function onLoad(framework) {
   var gui = framework.gui;
   var stats = framework.stats;
 
-  // LOOK: the line below is synyatic sugar for the code above. Optional, but I sort of recommend it.
-  // var {scene, camera, renderer, gui, stats} = framework; 
-
-  // initialize a simple box and material
-  // var box = new THREE.BoxGeometry(1, 1, 1);
-
-  // var adamMaterial = new THREE.ShaderMaterial({
-  //   uniforms: {
-  //     image: { // Check the Three.JS documentation for the different allowed types and values
-  //       type: "t", 
-  //       value: THREE.ImageUtils.loadTexture('./adam.jpg')
-  //     }
-  //   },
-  //   vertexShader: require('./shaders/adam-vert.glsl'),
-  //   fragmentShader: require('./shaders/adam-frag.glsl')
-  // });
-  // var adamCube = new THREE.Mesh(box, adamMaterial);
-
   var icosahedron = new THREE.IcosahedronGeometry(1, 6);
-  var ellenIcosahedron = new THREE.Mesh(icosahedron, ellenMaterial);
+  var noiseIcosahedron = new THREE.Mesh(icosahedron, noiseMaterial);
 
   // set camera position
-  camera.position.set(1, 1, 30);
+  camera.position.set(1, 1, 200);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
   // scene.add(adamCube);
-  scene.add(ellenIcosahedron);
+  scene.add(noiseIcosahedron);
+
 
   // edit params and listen to changes like this
   // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
     camera.updateProjectionMatrix();
+  });
+
+  gui.add(parameters, 'octaves', 0, 10).onChange(function(newVal) {
+    noiseMaterial.uniforms['octaves'].value = newVal;
+  });
+
+  gui.add(parameters, 'persistence', 0, 10).onChange(function(newVal) {
+    noiseMaterial.uniforms['persistence'].value = newVal;
   });
 }
 
@@ -68,9 +75,12 @@ function onUpdate(framework) {
   // console.log(`the time is ${new Date()}`);
   currentTime = new Date();
   currentTime = currentTime - startTime;
-  ellenMaterial.uniforms['time'].value = (Math.sin(currentTime) + 1.0) / 2.0;
 
-  console.log(`the time is ${ellenMaterial.uniforms["time"].value}`);
+  if (currentTime > 100000) {
+    startTime = new Date();
+  }
+
+  noiseMaterial.uniforms['time'].value = currentTime / 2000;
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
