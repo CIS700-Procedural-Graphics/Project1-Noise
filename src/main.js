@@ -86,11 +86,11 @@ function startMain(time)
   Engine.overlayMaterial.uniforms.size.value = .1;
   Engine.overlayMaterial.uniforms.fullscreenFlash.value = 0.0;
 
-  UserInput.frequency = 1.0;
+  UserInput.frequency = .65;
   UserInput.bias = .7;
-  UserInput.frequencyRatio = 1.95;
-  UserInput.ratio = .65;
-  UserInput.displacement = .25;
+  UserInput.frequencyRatio = 1.75;
+  UserInput.ratio = .75;
+  UserInput.displacement = .2;
 
   Engine.background.visible = true;
 }
@@ -367,7 +367,7 @@ function onLoad(framework)
   Engine.materials.push(overlayMaterial);
   Engine.materials.push(backgroundMaterial);
 
-  var sphereGeo = new THREE.IcosahedronBufferGeometry(1, 7);
+  var sphereGeo = new THREE.IcosahedronBufferGeometry(1, 8);
   var particle = new THREE.TetrahedronBufferGeometry(.01, 1);
 
   var cloudMesh = new THREE.Mesh(sphereGeo, cloudMaterial);
