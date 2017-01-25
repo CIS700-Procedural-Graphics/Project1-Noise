@@ -4,6 +4,8 @@ varying vec2 vUv;
 varying vec3 vNormal;
 varying float vNoise;
 uniform float uTime;
+uniform float uSpeed;
+uniform float uFreq;
 
 
 float noise1(vec3 seed){
@@ -82,7 +84,7 @@ float PerlinNoise3D(vec3 pos){
 
 	for (int i = 0 ; i < N_OCTAVES; i++){
 
-		float frequency = pow(2.0, float(i));
+		float frequency = pow(2.0, float(i)) * uFreq;
 		float amplitude = pow(persistance, float(i));
 		total += trilinearInterpolation(pos, frequency, amplitude);
 
@@ -95,8 +97,7 @@ float PerlinNoise3D(vec3 pos){
 }
 
 float animatedNoise(){
-	//return (sin(uTime) + 1.0)/2.0*(PerlinNoise3D());
-	return PerlinNoise3D(position + uTime / 2.0);
+	return PerlinNoise3D(position + (uTime / 2.0)*uSpeed);
 }
 
 void main() {
