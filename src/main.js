@@ -69,13 +69,13 @@ function onLoad(framework) {
   });
 
   // changes persistence of noise
-  gui.add(guiFields, 'noiseStrength', 1.0, 8.0).onFinishChange(function(newVal) {
+  gui.add(guiFields, 'noiseStrength', 0.6, 8.0).onFinishChange(function(newVal) {
     myMaterial.uniforms.noiseStrength.value = newVal;
     myMaterial.needsUpdate = true;
   });
 
   // determines number of octaves of noise
-  gui.add(guiFields, 'numOctaves', 0, 5).step(1).onFinishChange(function(newVal) {
+  gui.add(guiFields, 'numOctaves', 1, 5).step(1).onFinishChange(function(newVal) {
     myMaterial.uniforms.numOctaves.value = newVal;
     myMaterial.needsUpdate = true;
   });
