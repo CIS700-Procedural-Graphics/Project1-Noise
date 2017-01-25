@@ -30,11 +30,15 @@ function onLoad(framework) {
   });
   var adamCube = new THREE.Mesh(box, adamMaterial);
 
+
+  var geom = new THREE.IcosahedronGeometry(1, 6);
+  var mesh = new THREE.Mesh(geom, adamMaterial);
+
   // set camera position
   camera.position.set(1, 1, 2);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
-  scene.add(adamCube);
+  scene.add(mesh);
 
   // edit params and listen to changes like this
   // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
