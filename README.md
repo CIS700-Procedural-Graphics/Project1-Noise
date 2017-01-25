@@ -1,5 +1,9 @@
 # [Project 1: Noise](https://github.com/CIS700-Procedural-Graphics/Project1-Noise)
 
+## Updates 
+Name: Grace Xu 
+Implemented up to 5 octaves of noise and gui controls for level of detail for the icosahedron geometry and strength of the noise (via persistence and number of octaves). Color is linear interpolated between black and white using the same noise strength.
+
 ## Objective
 
 Get comfortable with using three.js and its shader support and generate an interesting 3D, continuous surface using a multi-octave noise algorithm.
