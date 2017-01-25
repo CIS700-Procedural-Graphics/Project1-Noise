@@ -1,3 +1,4 @@
+![Alt text](/src/misc/header.png?raw=true "")
 # Playing with Noise
 
 A small and rushed noisy animation that plays along the song Light Cycles by Shock One.
@@ -12,8 +13,14 @@ The animation can be broken down in various pieces:
 A 4D perlin noise driven by time and 3D position displaces the sphere along its normal. Its color is defined by a function of its displacement.
 
 ## The initial sound disk
-
+![Alt text](/src/misc/disk.png?raw=true "")
 The disk's deformation is actually just another perlin noise. It's just a hack to trick the eye thinking it's the actual soundwave.
+
+## Radial lines
+
+![Alt text](/src/misc/stripes.png?raw=true "")
+Again, a premade mesh made in Maya is colored by its angle, and synchronized to the song.
+
 
 ## Particle ocean
 
