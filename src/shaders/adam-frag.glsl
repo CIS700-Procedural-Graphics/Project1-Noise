@@ -2,7 +2,6 @@ varying vec2 vUv;
 varying float noise;
 uniform sampler2D image;
 
-
 void main() {
 
   vec2 uv = vec2(1,1) - vUv;
