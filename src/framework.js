@@ -4,6 +4,33 @@ const OrbitControls = require('three-orbit-controls')(THREE)
 import Stats from 'stats-js'
 import DAT from 'dat-gui'
 
+//Sound Global Variables
+var audio;
+var analyser;
+var frequencyData;
+
+window.onload = function() {
+  var ctx = new AudioContext();
+   audio = document.getElementById('myAudio');
+  var audioSrc = ctx.createMediaElementSource(audio);
+   analyser = ctx.createAnalyser();
+  // we have to connect the MediaElementSource with the analyser 
+  audioSrc.connect(analyser);
+  audioSrc.connect(ctx.destination);
+  // we could configure the analyser: e.g. analyser.fftSize (for further infos read the spec)
+ 
+  // frequencyBinCount tells you how many values you'll receive from the analyser
+   frequencyData = new Uint8Array(analyser.frequencyBinCount);
+ 
+  // we're ready to receive some data!
+  // loop
+  function renderFrame() {
+     requestAnimationFrame(renderFrame);
+     
+  }
+  //audio.play();
+};
+
 // when the scene is done initializing, the function passed as `callback` will be executed
 // then, every frame, the function passed as `update` will be executed
 function init(callback, update) {
@@ -52,10 +79,17 @@ function init(callback, update) {
     framework.scene = scene;
     framework.camera = camera;
     framework.renderer = renderer;
-
+      framework.audio = audio;
+      
     // begin the animation loop
     (function tick() {
       stats.begin();
+     // update data in frequencyData
+     analyser.getByteFrequencyData(frequencyData);
+     // render frame based on values in frequencyData
+     framework.frequencyData = frequencyData;
+     
+      
       update(framework); // perform any requested updates
       renderer.render(scene, camera); // render the scene
       stats.end();
@@ -73,3 +107,4 @@ export default {
 
 export const PI = 3.14159265
 export const e = 2.7181718
+
