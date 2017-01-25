@@ -13,6 +13,10 @@ var myMaterial = new THREE.ShaderMaterial({
     noiseStrength: {
       type: "f",
       value: 2.0
+    }, 
+    numOctaves: {
+      type: "f",
+      value: 3
     }
   },
   vertexShader: require('./shaders/my-vert.glsl'),
@@ -37,7 +41,7 @@ function onLoad(framework) {
   // initialize icosahedron object
   var icosahedron = {
     radius: 1,
-    detail: 2
+    detail: 3
   }
   var icosahedronGeometry = new THREE.IcosahedronGeometry(icosahedron.radius, icosahedron.detail);
 
@@ -63,6 +67,11 @@ function onLoad(framework) {
 
   gui.add(myMaterial.uniforms.noiseStrength, 'value', 1.0, 8.0).onFinishChange(function(newVal) {
     myMaterial.uniforms.noiseStrength.value = newVal;
+    myMaterial.needsUpdate = true;
+  });
+
+  gui.add(myMaterial.uniforms.numOctaves, 'value', 0, 5).step(1).onFinishChange(function(newVal) {
+    myMaterial.uniforms.numOctaves.value = newVal;
     myMaterial.needsUpdate = true;
   });
 }

@@ -2,9 +2,10 @@
 varying vec2 vUv;
 varying vec3 vNormal;
 varying float vNoise;
-const int numOctaves = 3;
+uniform int numOctaves;
 uniform float time;
 uniform float noiseStrength;
+const int aLargeNumber = 10;
 
 float generateNoise(int x, int y, int z, int numOctave) {
 	if (numOctave == 0) {
@@ -13,6 +14,10 @@ float generateNoise(int x, int y, int z, int numOctave) {
         return fract(sin(dot(vec3(z,x,y), vec3(16.363, 43.597, 199.73))) * 69484.7539);
     } else if (numOctave == 2) {
         return fract(sin(dot(vec3(y,x,z), vec3(13.0, 68.819, 90.989))) * 92041.9823);
+    } else if (numOctave == 3) {
+        return fract(sin(dot(vec3(x,y,z), vec3(98.1577, 47.45029, 154.85161))) *  84499.0);
+    } else if (numOctave == 4) {
+        return fract(sin(dot(vec3(z,x,y), vec3(9.75367, 83.3057, 390.353))) * 15485.653);
     }
 } 
 
@@ -64,7 +69,8 @@ float generateMultiOctaveNoise(float x, float y, float z) {
     float persistence = 1.0/noiseStrength;
 
     //loop for some number of octaves
-    for (int i = 0; i < numOctaves; i++) {
+    for (int i = 0; i < aLargeNumber; i++) {
+        if (i == numOctaves) break;
         float frequency = pow(2.0, float(i));
         float amplitude = pow(persistence, float(i));
 
