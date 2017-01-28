@@ -14,7 +14,7 @@ stats;
 var start = Date.now();
 
 var AmplitudeText = function() {
-  this.amplitude = 25.0;
+  this.amplitude = 10.0;
 };
 var amplitudeText = new AmplitudeText();
 
@@ -26,7 +26,7 @@ analyser.smoothingTimeConstant = 0.3;
 analyser.fftSize = 1024; //there are (fftSize/2) bins when getByteFrequencyData(array) is called
 var xhr = new XMLHttpRequest();
 xhr.responseType = 'arraybuffer';
-xhr.open('GET', 'https://echiu1997.github.io/musicvisualizer/testing2.mp3', true);
+xhr.open('GET', 'https://echiu1997.github.io/musicvisualizer/testing.mp3', true);
 xhr.onload = function() {
   context.decodeAudioData(this.response, function(buffer) {
     source.connect(analyser);
@@ -46,7 +46,7 @@ var material = new THREE.ShaderMaterial( {
             // float initialized to 0
             freq: { type: "f", value: 0.0 },
             //float initialized to 25
-            amp: { type: "f", value: 25.0 }
+            amp: { type: "f", value: 10.0 }
         }
     ]),
     vertexShader: require('./shaders/adam-vert.glsl'),

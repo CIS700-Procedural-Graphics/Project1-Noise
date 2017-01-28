@@ -1,6 +1,6 @@
 //varying vec2 vUv;
 varying float noise;
-//varying vec3 normColor;
+varying vec3 normColor;
 varying vec3 vecPos;
 varying vec3 vecNormal;
 
@@ -15,7 +15,7 @@ void main() {
     //gl_FragColor = vec4( color.rgb, 1.0 );
 
     //Color using normals, modulate with noise like ambient occlusion
-    //vec3 color = vec3( normColor * ( 1.0 - 1.5 * noise ));
+    vec3 color = vec3( normColor * ( 1.0 - 1.5 * noise ));
     //gl_FragColor = vec4( color, 1.0 );
 
     //Lambertian lighting
@@ -29,7 +29,7 @@ void main() {
     //this ensures faces that are not lit by point light are not compeltely black
     addedLights.rgb += 0.25 * vec3(1.0, 1.0, 1.0);
 
-    vec3 color = vec3( vec3(0.7, 0.025, 0.1) * ( 1.0 - 1.5 * noise ));
+    //vec3 color = vec3( vec3(0.7, 0.025, 0.1) * ( 1.0 - 2.0 * noise ));
     gl_FragColor = vec4(addedLights.x * color.x, addedLights.y * color.y, addedLights.z * color.z, 1.0);
 }
 
