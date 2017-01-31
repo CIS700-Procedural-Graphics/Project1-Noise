@@ -37,5 +37,7 @@ Demo: https://iambrian.github.io/Project1-Noise/
 
 ## Resources
 Gradient: http://www.colorzilla.com/gradient-editor/
+
 Skybox images: Spacescape (http://alexcpeterson.com/spacescape/)
+
 Music: OVERWERK Canon (http://www.overwerk.com)
