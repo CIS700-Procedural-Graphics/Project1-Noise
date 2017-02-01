@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "webpack-dev-server --hot --inline",
+    "start": "webpack-dev-server --hot --inline --watch",
     "build": "webpack",
     "deploy": "gh-pages-deploy"
   },

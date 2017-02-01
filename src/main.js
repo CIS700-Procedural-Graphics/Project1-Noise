@@ -6,55 +6,95 @@ import {other} from './noise'
 
 // called after the scene loads
 function onLoad(framework) {
-  var scene = framework.scene;
-  var camera = framework.camera;
-  var renderer = framework.renderer;
-  var gui = framework.gui;
-  var stats = framework.stats;
+  let {scene, camera, renderer, gui, stats} = framework;
 
-  // LOOK: the line below is synyatic sugar for the code above. Optional, but I sort of recommend it.
-  // var {scene, camera, renderer, gui, stats} = framework; 
-
-  // initialize a simple box and material
-  var box = new THREE.BoxGeometry(1, 1, 1);
-
-  var adamMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-      image: { // Check the Three.JS documentation for the different allowed types and values
-        type: "t", 
-        value: THREE.ImageUtils.loadTexture('./adam.jpg')
-      }
+  let uniforms = {
+    time: {
+      type: 'float',
+      value: framework.time
     },
-    vertexShader: require('./shaders/adam-vert.glsl'),
-    fragmentShader: require('./shaders/adam-frag.glsl')
+    octaves: {
+      type: 'int',
+      value: 1
+    },
+    magnitude: {
+      type: 'float',
+      value: 1.0
+    },
+    rate: {
+      type: 'float',
+      value: 1.0
+    },
+    persistence: {
+      type: 'float',
+      value: 0.5
+    },
+    image: {
+      type: 't',
+      value: THREE.ImageUtils.loadTexture('./marble.jpg')
+    }
+  };
+
+  let material = new THREE.ShaderMaterial({
+    uniforms: uniforms,
+    vertexShader: require('./shaders/vert.glsl'),
+    fragmentShader: require('./shaders/frag.glsl')
   });
-  var adamCube = new THREE.Mesh(box, adamMaterial);
+  let icosahedron = new THREE.IcosahedronBufferGeometry(1, 6);
+  let mesh = new THREE.Mesh(icosahedron, material);
 
   // set camera position
   camera.position.set(1, 1, 2);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
-  scene.add(adamCube);
+  scene.add(mesh);
 
-  // edit params and listen to changes like this
-  // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
   gui.add(camera, 'fov', 0, 180).onChange(function(newVal) {
     camera.updateProjectionMatrix();
   });
+
+  let guiVars = {
+    'octaves': 1,
+    'magnitude': 1.0,
+    'rate': 1.0,
+    'persistence': 0.5
+  };
+  gui.add(guiVars, 'octaves', 1, 5).step(1).onFinishChange((newVal) => {
+    scene.remove(icosahedron);
+    icosahedron = new THREE.IcosahedronGeometry(1, newVal);
+    mesh = new THREE.Mesh(icosahedron, material);
+    scene.add(mesh);
+    guiVars.octaves = newVal;
+
+  });
+
+  gui.add(guiVars, 'magnitude', 1.0, 10.0).onFinishChange((newVal) => {
+    guiVars.magnitude = newVal;
+  });
+
+  gui.add(guiVars, 'rate', 0.0, 10.0).onFinishChange((newVal) => {
+    guiVars.rate = newVal;
+  });
+
+  gui.add(guiVars, 'persistence', 0.0, 10.0).onFinishChange((newVal) => {
+    guiVars.persistence = newVal;
+  });
+
+  framework.guiVars = guiVars;
 }
 
 // called on frame updates
 function onUpdate(framework) {
-  // console.log(`the time is ${new Date()}`);
+  framework.time += 1;
+  framework.scene.children.forEach((child) => {
+    let uniforms = child.material.uniforms;
+    let vars = framework.guiVars;
+
+    uniforms.time.value++;
+    uniforms.magnitude.value = vars.magnitude;
+    uniforms.rate.value = vars.rate;
+    uniforms.persistence.value = vars.persistence
+  });
 }
 
-// when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
 Framework.init(onLoad, onUpdate);
-
-// console.log('hello world');
-
-// console.log(Noise.generateNoise());
-
-// Noise.whatever()
-
-// console.log(other())
