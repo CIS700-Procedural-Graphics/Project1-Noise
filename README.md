@@ -8,5 +8,5 @@ Features:
  - Magnitude and fluctuation rate controls
 
 Screenshots:
-![](./img/s2.png)
+![](./img/s2.gif)
 ![](./img/s1.png)
