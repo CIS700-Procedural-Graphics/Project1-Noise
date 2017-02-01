@@ -6,3 +6,6 @@ Features:
  - Lerp and Cerp
  - Multi-octave noise generation (and control)
  - Magnitude and fluctuation rate controls
+
+Screenshots:
+![](./img/s1.png)
