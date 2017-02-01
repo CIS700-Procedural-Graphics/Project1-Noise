@@ -8,7 +8,7 @@ var global_time = 1.0;
 var start_time = Date.now();
 
 var noise_scale = function() {
-    this.value = 50.0;
+    this.scale = 50.0;
 };
 var my_scale = new noise_scale();
 
@@ -16,10 +16,10 @@ var icosa = new THREE.IcosahedronBufferGeometry(1, 6);
 var icosaMaterial = new THREE.ShaderMaterial({
   uniforms: {
       time: { value: global_time },
-      noise_scale: { value: my_scale.value },
+      noise_scale: { value: my_scale.scale },
       image: {
           type: "t",
-          value: THREE.ImageUtils.loadTexture('./explosion.png')
+          value: THREE.ImageUtils.loadTexture('./.jpg')
       }
       //resolution: { value: new THREE.Vector2() }
   },
@@ -71,8 +71,8 @@ function onLoad(framework) {
     camera.updateProjectionMatrix();
   });
 
-  gui.add(my_scale, 'value', 0, 100).onChange(function(newVal) {
-    my_scale.value = newVal;
+  gui.add(my_scale, 'scale', 0, 100).onChange(function(newVal) {
+    my_scale.scale = newVal;
   });
 
 }
@@ -81,7 +81,7 @@ function onLoad(framework) {
 function onUpdate(framework) {
   global_time += 1;
   icosaMaterial.uniforms.time.value = 0.001 * (Date.now() - start_time);//global_time;
-  icosaMaterial.uniforms.noise_scale.value = my_scale.value;
+  icosaMaterial.uniforms.noise_scale.value = my_scale.scale;
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
