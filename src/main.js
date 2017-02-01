@@ -59,7 +59,7 @@ function onLoad(framework) {
     'rate': 1.0,
     'persistence': 0.5
   };
-  gui.add(guiVars, 'octaves', 1, 5).step(1).onFinishChange((newVal) => {
+  gui.add(guiVars, 'octaves', 1, 10).step(1).onFinishChange((newVal) => {
     scene.remove(icosahedron);
     icosahedron = new THREE.IcosahedronGeometry(1, newVal);
     mesh = new THREE.Mesh(icosahedron, material);
