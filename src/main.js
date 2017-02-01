@@ -31,7 +31,7 @@ function onLoad(framework) {
     },
     image: {
       type: 't',
-      value: THREE.ImageUtils.loadTexture('./marble.jpg')
+      value: THREE.ImageUtils.loadTexture('./img/marble.jpg')
     }
   };
 
