@@ -7,16 +7,16 @@ import DAT from 'dat-gui'
 // when the scene is done initializing, the function passed as `callback` will be executed
 // then, every frame, the function passed as `update` will be executed
 function init(callback, update) {
-  var stats = new Stats();
+  let stats = new Stats();
   stats.setMode(1);
   stats.domElement.style.position = 'absolute';
   stats.domElement.style.left = '0px';
   stats.domElement.style.top = '0px';
   document.body.appendChild(stats.domElement);
 
-  var gui = new DAT.GUI();
+  let gui = new DAT.GUI();
 
-  var framework = {
+  let framework = {
     gui: gui,
     stats: stats
   };
@@ -24,14 +24,14 @@ function init(callback, update) {
   // run this function after the window loads
   window.addEventListener('load', function() {
 
-    var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
-    var renderer = new THREE.WebGLRenderer( { antialias: true } );
+    let scene = new THREE.Scene();
+    let camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+    let renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setClearColor(0x020202, 0);
 
-    var controls = new OrbitControls(camera, renderer.domElement);
+    let controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.enableZoom = true;
     controls.target.set(0, 0, 0);
@@ -52,6 +52,7 @@ function init(callback, update) {
     framework.scene = scene;
     framework.camera = camera;
     framework.renderer = renderer;
+    framework.time = 0;
 
     // begin the animation loop
     (function tick() {
