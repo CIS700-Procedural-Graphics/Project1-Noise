@@ -3,8 +3,8 @@
 
 A small and rushed noisy animation that plays along the song Light Cycles by Shock One.
 
-# [SEE IT IN REALTIME](https://mmerchante.github.io/playing-with-noise/)
-# [DEMO VIDEO](https://www.youtube.com/watch?v=iShzHAF408I)
+## [REALTIME](https://mmerchante.github.io/playing-with-noise/)
+## [VIDEO](https://www.youtube.com/watch?v=iShzHAF408I)
 
 # How it works
 
