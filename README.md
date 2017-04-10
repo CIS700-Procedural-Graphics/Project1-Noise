@@ -1,6 +1,11 @@
 Hannah Bollar
-CIS 700: Procedural Graphics Hw1
+CIS 700: Procedural Graphics Hw0
 
+## View the Project
+
+# [Click Here](https://hanbollar.github.io/Project1-Noise)
+
+## Project Notes
 
 ![alt text](https://github.com/hanbollar/Project1-Noise/blob/a03262b73d3c30cfa6915e465cd7e778c1cfe086/still1.png "Image 1")
 
