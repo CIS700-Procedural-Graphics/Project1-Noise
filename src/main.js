@@ -5,10 +5,10 @@ import Framework from './framework'
 var r=0.1;
 var g=0.3;
 var b=0.4;
-var r1=1.0;
-var g1=1.0;
-var b1=1.0;
-var s=0.0;
+var r1=0.8;
+var g1=0.8;
+var b1=0.8;
+var s=1.0;
 var noisetype=0;
 var preset1=false;
 var terrain=true;
@@ -19,18 +19,18 @@ var GUIoptions = function()
 	this.Red=0.1;
 	this.Green=0.3;
 	this.Blue=0.4;
-	this.Red1=1.0;
-	this.Green1=1.0;
-	this.Blue1=1.0;
-	this.Speed=0.0;
+	this.Red1=0.8;
+	this.Green1=0.8;
+	this.Blue1=0.8;
+	this.Speed=1.0;
 	this.NoiseType=0;
 	this.Preset1=false;
 	this.Terrain=true;
 	// this.Value=true;
 	// this.RidgedValue=false;
 	// this.Music=false;
-	// this.MusicSource=function(){
-	// 	window.location = "http://freemusicarchive.org/music/The_Kyoto_Connection/Wake_Up_1957/09_Hachiko_The_Faithtful_Dog";};
+	 this.Source=function(){
+	 	window.location = "https://github.com/rms13/Project1-Noise";};
 }
 
 // for time calculations
@@ -125,7 +125,7 @@ function onLoad(framework) {
   gui.add(update,'Blue1', 0.0, 1.0, 0.05).onChange(function(newVal) {
 	b1=newVal;
   });
-  gui.add(update,'Speed', 0.0, 2.0, 0.05).onChange(function(newVal) {
+  gui.add(update,'Speed', 0.0, 4.0, 0.05).onChange(function(newVal) {
 	s=newVal;
 	//newt=0;
   });
@@ -154,7 +154,7 @@ function onLoad(framework) {
   // else
   // 	aud.play();
   // 	});
-//  gui.add(update,'MusicSource').onclick;
+  gui.add(update,'Source').onclick;
 }
 
 // called on frame updates
@@ -171,11 +171,11 @@ function onUpdate(framework) {
 
    oldt=newt;
    newt=performance.now(); // measures time since the beginning of execution
-   time+=(newt-oldt);
+   time+=s*(newt-oldt);
 
    //icoshMaterial.uniforms.data.value=Int32Array.from(framework.data); // typed arrays casting
 
-   icoshMaterial.uniforms.time.value=(100000.0+time*s)/25000; // control the speed of cloud movement
+   icoshMaterial.uniforms.time.value=(100000.0+time)/25000; // control the speed of cloud movement
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate

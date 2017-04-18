@@ -1,6 +1,6 @@
 // THIS IS THE SHADER WHICH WILL PROVIDE THE TEXTURE TO THE TERRAIN.
 // VALUE NOISE IS THE NOISE GENERATOR USED HERE (THE TERRAIN USES RIDGED VERSION). IT IS A MODIFICATION OF IQ'S VALUE NOISE GENERATOR.
-// DERIVATIVES OF THE NOISE ARE USED TO SIMULATE EROSION EFFECTS. IT IS NOT PERFECT YET, BUT IT WORKS.
+// DERIVATIVES OF THE NOISE ARE USED TO SIMULATE EROSION EFFECTS.
 // CHANGING THE SPEED IN THE GUI WILL ANIMATE THE NOISE AND EROSION [FOR VISUALIZATION].
 
 varying vec2 vUv;
@@ -83,9 +83,9 @@ vec4 fbm( in vec3 x)
     {
         vec4 n = noised(x);
         //  ADDING RIDGES
-        if(NoiseType==1) // ABS NOISE
+        if(NoiseType==1 && !Preset1) // ABS NOISE
             n = abs(n);
-        else if(NoiseType==2) // RIDGED NOISE
+        else if(NoiseType==2 && !Preset1) // RIDGED NOISE
             n = 1.0-abs(n);
 
         a += b*n.x;          // accumulate values
@@ -122,17 +122,6 @@ void main() {
         col = mix(colBase,colSnow,(length(pos)-3.0*n[0]-2.0*n[1]-n[2])/5.0);
 
         col = max(colBase,col); // CLAMPING LOWEST VALUES TO BASE COLOR
-
-    /*
-        col = 0.5 * vec3(n[0],n[0],n[0]) * vec3(0.5,0.3,0.05) + vec3(0.5,0.5,0.5); // BLENDING LAYERS: Gray base + Brown dirt + fine-tuning using noise
-
-        if(length(pos)-n[0] > 0.9) // Snow based on height + randomness, using noise
-            colSnow = vec3(1.,0.98,0.98);
-
-        col *= clamp((n[1] + n[2]*0.3 + n[3]*0.2),0.,1.0); // ADDING NOISE: more fine-tuning using derivatives.. NEEDS WORK..
-    //    col = clamp(col,vec3(0.),vec3(1.));
-    */
-
     }
     else // ADJUSTABLE COLORS FOR DEBUGGING
     {
