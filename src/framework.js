@@ -13,7 +13,7 @@ window.onload = function() {
   aud = document.getElementById('myAudio');
   var audsrc = audcon.createMediaElementSource(aud);
   analyser = audcon.createAnalyser();
-  
+
   audsrc.connect(analyser);
   audsrc.connect(audcon.destination);
   data = new Uint8Array(analyser.frequencyBinCount); // read audio data.. 1024B by default..
@@ -47,7 +47,7 @@ function init(callback, update) {
     var renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x020202, 0);
+    renderer.setClearColor(0xcce5ff, 1);
 
     var controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -76,11 +76,11 @@ function init(callback, update) {
     // begin the animation loop
     (function tick() {
       stats.begin();
-	  
+
 	  analyser.getByteFrequencyData(data); // read audio data.. 1024B by default..
 	  framework.data=data;
 	  //console.log(data);
-      
+
 	  update(framework); // perform any requested updates
       renderer.render(scene, camera); // render the scene
       stats.end();

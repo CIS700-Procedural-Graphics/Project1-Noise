@@ -3,7 +3,7 @@ uniform float Red;
 uniform float Green;
 uniform float Blue;
 varying vec3 col;
-uniform int data[1024]; // audio data.. all 0s when music is not playing
+//uniform int data[1024]; // audio data.. all 0s when music is not playing
 
 float Noise(in int x, in int y, in int z)
 {
@@ -11,9 +11,30 @@ float Noise(in int x, in int y, in int z)
 	a=fract(sin(dot(vec3(x,y,z),vec3(12.9898,78.233,138.531))) * 43758.5453);
     return a;
 }
+/*
+float hash( float n )
+{
+    return fract(sin(n)*43758.5453);
+}
 
+float Noise(in int x, in int y, in int z)
+{
+    vec3 p = floor(x);
+    vec3 f = fract(x);
+
+    f = f*f*(3.0-2.0*f);
+
+    float n = p.x + p.y*57.0 + 113.0*p.z;
+
+    float res = mix(mix(mix( hash(n+  0.0), hash(n+  1.0),f.x),
+                        mix( hash(n+ 57.0), hash(n+ 58.0),f.x),f.y),
+                    mix(mix( hash(n+113.0), hash(n+114.0),f.x),
+                        mix( hash(n+170.0), hash(n+171.0),f.x),f.y),f.z);
+    return res;
+}
+*/
 float smoothnoise(int x2, int y2, int z2)
-{	
+{
 	float noise;
 	float div;
 	for(float i=-1.0;i<2.0;i++)
@@ -30,7 +51,7 @@ float smoothnoise(int x2, int y2, int z2)
 					div=12.0;
 				else
 					div=4.0;
-					
+
 				noise += Noise(x2+int(i),y2+int(j),z2+int(k)) / div;
 			}
 		}
@@ -67,10 +88,10 @@ float intnoise(float x1, float y1, float z1)
     float i2 = interp(v3, v4, fy);
 	float i3 = interp(v5, v6, fy);
     float i4 = interp(v7, v8, fy);
-	
+
     float i5=interp(i1, i2, fz);
 	float i6=interp(i3, i4, fz);
-	
+
 	float i7=interp(i5, i6, fx);
 
     return i7;
@@ -88,57 +109,35 @@ float noise3D(float x, float y, float z)
     return total;
 }
 
+/*
+float noise2D(float x, float y, float z)
+{
+    float total = 0.0;
+    for(float i=0.0; i<8.0; i++) // octaves = 4
+    {
+        float freq = pow(2.0,i);
+        float amp = pow(0.5,i); // persistence = 0.25
+        total += intnoise(x * freq, y * freq, z * freq) * amp;
+    }
+    return total;
+}
+*/
 
 void main() {
 	float tx,ty,tz;
 	tx=time; ty=time; tz=time;
-	
+
 	float n = noise3D((tx+position.x),(ty+position.y),(tz+position.z));
-	
+
 	int ind = int(n*1024.0/75.0);
 	float d = float(data[ind])/255.0; //using the sound data.. this is 0 when music is not playing.
-	
+
 	vec3 pos = (n+n*float(data[30])/255.0)*normal;
-	
+
 	//col=abs(normalize(vec3(pos)));
 	//col=abs(vec3(n,1-n,1-n));
 	//pos += vec3(d,d,d);
-	
+
 	col=abs(mix(vec3(1,1,1),vec3(Red*(1.0-d),Green*(1.0-d),Blue*(1.0-d)),n));
     gl_Position= projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
