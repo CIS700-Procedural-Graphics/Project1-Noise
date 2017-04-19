@@ -59,8 +59,8 @@ var icoshMaterial = new THREE.ShaderMaterial({
 	// 	  type : 'iv1',
 	// 	  value : new Array}
     },
-    vertexShader: require('./shaders/adam-vert.glsl'),
-    fragmentShader: require('./shaders/adam-frag.glsl')
+    vertexShader: require('./shaders/mountain-vert.glsl'),
+    fragmentShader: require('./shaders/mountain-frag.glsl')
   });
 
 // called after the scene loads
