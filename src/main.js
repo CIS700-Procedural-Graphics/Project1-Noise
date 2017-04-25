@@ -11,7 +11,8 @@ var b1=0.8;
 var s=1.0;
 var noisetype=0;
 var preset1=false;
-var terrain=true;
+var preset2=true;
+var terrain=false;
 
 // function to manipulate stuff from gui
 var GUIoptions = function()
@@ -25,7 +26,8 @@ var GUIoptions = function()
 	this.Speed=1.0;
 	this.NoiseType=0;
 	this.Preset1=false;
-	this.Terrain=true;
+	this.Preset2=true;
+	this.Terrain=false;
 	// this.Value=true;
 	// this.RidgedValue=false;
 	// this.Music=false;
@@ -54,13 +56,14 @@ var icoshMaterial = new THREE.ShaderMaterial({
 	  Blue1: {value : b1},
 	  NoiseType: {value : 0},
 	  Preset1: {value : false},
-	  Terrain: {value : true}
+	  Preset2: {value : true},
+	  Terrain: {value : false}
 	//   data: {
 	// 	  type : 'iv1',
 	// 	  value : new Array}
     },
-    vertexShader: require('./shaders/mountain-vert.glsl'),
-    fragmentShader: require('./shaders/mountain-frag.glsl')
+    vertexShader: require('./shaders/sinenoise-vert.glsl'),
+    fragmentShader: require('./shaders/sinenoise-frag.glsl')
   });
 
 // called after the scene loads
@@ -136,9 +139,22 @@ function onLoad(framework) {
   gui.add(update,'Preset1').onChange(function(newVal)
   {
 	if(newVal==true)
+	{
 		preset1=true;
+	//	preset2=false;
+	}
 	else
 		preset1=false;
+  });
+  gui.add(update,'Preset2').onChange(function(newVal)
+  {
+	if(newVal==true)
+	{
+		preset2=true;
+	//	preset1=false;
+	}
+	else
+		preset2=false;
   });
   gui.add(update,'Terrain').onChange(function(newVal)
   {
@@ -167,6 +183,7 @@ function onUpdate(framework) {
    icoshMaterial.uniforms.Blue1.value=b1;
    icoshMaterial.uniforms.NoiseType.value=noisetype;
    icoshMaterial.uniforms.Preset1.value=preset1;
+   icoshMaterial.uniforms.Preset2.value=preset1;
    icoshMaterial.uniforms.Terrain.value=terrain;
 
    oldt=newt;
