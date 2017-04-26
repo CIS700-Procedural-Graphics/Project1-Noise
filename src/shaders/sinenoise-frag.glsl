@@ -128,8 +128,8 @@ void main() {
     else // ADJUSTABLE COLORS FOR DEBUGGING
     {
         float no = n[0];
-        col = vec3(1.0+(sin(n[0]*60.0)/2.0));
-
+        //col = vec3(1.0+(sin((pos.x*10.0+n[0])*60.0)/2.0));
+        col = vec3(1.0+(sin((n[0])*60.0)/2.0));
         //float r = mix(Red,Red1,no);
         //float g = mix(Green,Green1,no);
         //float b = mix(Blue,Blue1,no);
