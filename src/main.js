@@ -183,7 +183,7 @@ function onUpdate(framework) {
    icoshMaterial.uniforms.Blue1.value=b1;
    icoshMaterial.uniforms.NoiseType.value=noisetype;
    icoshMaterial.uniforms.Preset1.value=preset1;
-   icoshMaterial.uniforms.Preset2.value=preset1;
+   icoshMaterial.uniforms.Preset2.value=preset2;
    icoshMaterial.uniforms.Terrain.value=terrain;
 
    oldt=newt;

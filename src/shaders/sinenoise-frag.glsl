@@ -16,6 +16,7 @@ uniform float Blue1;
 uniform float time;
 uniform int NoiseType;
 uniform bool Preset1;
+uniform bool Preset2;
 //uniform sampler2D image;
 
 // NOISE FUNCTIONS FROM:
@@ -129,12 +130,15 @@ void main() {
     {
         float no = n[0];
         //col = vec3(1.0+(sin((pos.x*10.0+n[0])*60.0)/2.0));
-        col = vec3(1.0+(sin((n[0])*60.0)/2.0));
-        //float r = mix(Red,Red1,no);
-        //float g = mix(Green,Green1,no);
-        //float b = mix(Blue,Blue1,no);
-        //col = vec3(r,g,b);
-
+        if(Preset2)
+            col = vec3(1.0+(sin((n[0])*60.0)/2.0));
+        else
+        {
+            float r = mix(Red,Red1,no);
+            float g = mix(Green,Green1,no);
+            float b = mix(Blue,Blue1,no);
+            col = vec3(r,g,b);
+        }
         //col = vec3(n[0],n[0],n[0])*vec3(1.0,0.5,0.1)+vec3(0.2,0.2,0.2);
     }
 
