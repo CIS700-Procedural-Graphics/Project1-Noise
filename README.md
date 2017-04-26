@@ -17,7 +17,7 @@ Finally we have the server thanks to Austin!! We haven't merged our code, so it 
 
 ![](images/sinenoise.gif)
 
-- Demo (of marble texture): https://rms13.github.io/Project1-Noise
+- Demo (Preset2 is marble texture): https://rms13.github.io/Project1-Noise
 
 ### Milestone-1
 
@@ -35,6 +35,7 @@ Finally we have the server thanks to Austin!! We haven't merged our code, so it 
 - Increasing the Speed will animate the noise (and erosion effects with Preset1). Although increasing it too much will increase the frequency too much, which is not what the static texture looks like.
 - Preset1 will show the mountain texture that I think looks good. The erosion effect needs some fine-tuning. Uses Value Noise no matter what is selected
 - Terrain will toggle the geometry between Terrain and Sphere.
+- Preset2 is the new marble shader done with sine of ridged value noise.
 
 ### [Demo](https://rms13.github.io/Project1-Noise/)
 
