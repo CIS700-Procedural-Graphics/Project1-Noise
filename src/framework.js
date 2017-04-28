@@ -1,8 +1,26 @@
-
 const THREE = require('three');
 const OrbitControls = require('three-orbit-controls')(THREE)
 import Stats from 'stats-js'
 import DAT from 'dat-gui'
+
+//////////////
+// Sound:
+var analyser;
+var data;
+var aud;
+window.onload = function() {
+  var audcon = new AudioContext();
+  aud = document.getElementById('myAudio');
+  var audsrc = audcon.createMediaElementSource(aud);
+  analyser = audcon.createAnalyser();
+
+  audsrc.connect(analyser);
+  audsrc.connect(audcon.destination);
+  data = new Uint8Array(analyser.frequencyBinCount); // read audio data.. 1024B by default..
+
+  //aud.play();
+};
+//////////////
 
 // when the scene is done initializing, the function passed as `callback` will be executed
 // then, every frame, the function passed as `update` will be executed
@@ -29,7 +47,7 @@ function init(callback, update) {
     var renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x020202, 0);
+    renderer.setClearColor(0xcce5ff, 1);
 
     var controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -52,11 +70,18 @@ function init(callback, update) {
     framework.scene = scene;
     framework.camera = camera;
     framework.renderer = renderer;
+	framework.aud=aud;
+
 
     // begin the animation loop
     (function tick() {
       stats.begin();
-      update(framework); // perform any requested updates
+
+	  analyser.getByteFrequencyData(data); // read audio data.. 1024B by default..
+	  framework.data=data;
+	  //console.log(data);
+
+	  update(framework); // perform any requested updates
       renderer.render(scene, camera); // render the scene
       stats.end();
       requestAnimationFrame(tick); // register to call this again when the browser renders a new frame
