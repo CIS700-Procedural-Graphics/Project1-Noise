@@ -8,7 +8,7 @@ var b=0.4;
 var r1=0.8;
 var g1=0.8;
 var b1=0.8;
-var s=1.0;
+var s=0.0;
 var noisetype=0;
 var preset1=false;
 var preset2=true;
@@ -23,7 +23,7 @@ var GUIoptions = function()
 	this.Red1=0.8;
 	this.Green1=0.8;
 	this.Blue1=0.8;
-	this.Speed=1.0;
+	this.Speed=0.0;
 	this.NoiseType=0;
 	this.Preset1=false;
 	this.Preset2=true;
@@ -62,8 +62,8 @@ var icoshMaterial = new THREE.ShaderMaterial({
 	// 	  type : 'iv1',
 	// 	  value : new Array}
     },
-    vertexShader: require('./shaders/sinenoise-vert.glsl'),
-    fragmentShader: require('./shaders/sinenoise-frag.glsl')
+    vertexShader: require('./shaders/voronoi-vert.glsl'),
+    fragmentShader: require('./shaders/voronoi-frag.glsl')
   });
 
 // called after the scene loads
@@ -81,7 +81,8 @@ function onLoad(framework) {
   // initialize an icosahedron and material
   var icosh = new THREE.IcosahedronBufferGeometry(1, 5);
   //var icosh = new THREE.PlaneBufferGeometry( 20, 20, 100, 100 );
-  icosh.rotateX(90*3.14/180);
+  //icosh.rotateX(90*3.14/180);
+  //icosh.scale(1,0.0001);
   //var material = new THREE.MeshBasicMaterial( {color: 0xffffff, side: THREE.DoubleSide} );
   var icosh = new THREE.Mesh(icosh, icoshMaterial);
 

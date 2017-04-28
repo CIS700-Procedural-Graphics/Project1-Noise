@@ -16,6 +16,7 @@ uniform float Blue1;
 uniform float time;
 uniform int NoiseType;
 uniform bool Preset1;
+uniform bool Preset2;
 //uniform sampler2D image;
 
 // NOISE FUNCTIONS FROM:
@@ -79,7 +80,7 @@ vec4 fbm( in vec3 x)
                    0.00, 1.00, 0.00,
                    0.00, 0.00, 1.00);
     //int oct = octaves;
-    for( int i=0; i < 8; i++ ) // octaves = 8..
+    for( int i=0; i < 10; i++ ) // octaves = 8..
     {
         vec4 n = noised(x);
         //  ADDING RIDGES
@@ -97,10 +98,41 @@ vec4 fbm( in vec3 x)
 	return vec4( a, d );
 }
 
-void main() {
+vec3 voronoi( in vec3 x , in vec4 n )
+{
+    vec3 p = floor( x );
+    vec3 f = fract( x );
+
+	float id = 0.0;
+    vec2 res = vec2( 100.0 );
+    for( int k=-1; k<=1; k++ )
+        for( int j=-1; j<=1; j++ )
+            for( int i=-1; i<=1; i++ )
+            {
+                vec3 b = vec3( float(i), float(j), float(k) );
+                vec3 r = vec3( b ) - f + rand3D( p + b );
+                float d = dot( r, r );
+
+                if( d < res.x )
+                {
+        			id = dot( p+b , vec3(1.0,57.0,113.0 ) );
+                    res = vec2( d, res.x );
+                }
+                else if( d < res.y )
+                {
+                    res.y = d;
+                }
+            }
+    return vec3( sqrt( res ), abs(id) );
+}
+
+void main()
+{
     //gl_FragColor = vec4( noise3(pos), 1.0 );
 
     vec4 n = fbm(time*pos);
+    vec3 voro = voronoi(5.0*(pos),n); //90
+
     //float random = rand3D(pos);
     vec3 col;
     vec3 colBase;
@@ -110,10 +142,11 @@ void main() {
     {
         // EARTH TONES: http://www.varian.net/dreamview/dreamcolor/earth.html
         //    col = clamp(n[0]+1.0,0.5,1.0) * vec3(0.37,0.27,0.18);
-
         //colBase = mix(vec3(115.,69.,35.)/4.0,vec3(95.,71.,47.)/4.0,n[0]*length(pos)) / 255.; // BLENDING LAYERS: Grayish base + Brownish soil + fine-tuning using noise (height and n)..
 
-        colBase = mix(vec3(0.2,0.2,0.2),vec3(0.4,0.35,0.3),n[2]/5.0);
+        // voronoi base
+        float vn = voro[1]-smoothstep(0.0,0.9,voro[0]);
+        colBase = mix(vec3(0.2,0.2,0.2),vec3(0.4,0.35,0.3),vn);
         colBase = mix(colBase,vec3(0.15,0.15,0.15),n[0]*length(pos));
 
         colSnow = vec3(1.,0.98,0.98); // SNOW: 255,250,250
@@ -123,20 +156,28 @@ void main() {
         //          - High altitude and snow accumulation (colSnow) -> low alt (colBase)
         //          - equivalent to (I guess) Higher noise value to lower noise value
         //          - equivalent to (I guess) subtracting the derivatives. Seems to work.
-        col = mix(colBase,colSnow,(length(pos)-3.0*n[0]-2.0*n[1]-n[2])/10.0);
+        //col = mix(colBase,colSnow,(length(pos)-3.0*n[0]-2.0*n[1]-n[2])/10.0);
 
-        col = max(colBase,col); // CLAMPING LOWEST VALUES TO BASE COLOR
+        col = colBase;//max(colBase,col); // CLAMPING LOWEST VALUES TO BASE COLOR
+    }
+    else if(!Preset2)
+    {
+        col = vec3(1.0+(sin((1.0-n[0])*60.0)/2.0));
     }
     else // ADJUSTABLE COLORS FOR DEBUGGING
     {
-        float no = n[0];
+        //float no_1 = 1.0+(sin((n[1])*60.0));
+        float no = voro[1]-smoothstep(0.0,0.9,voro[0]);
+        //float no = voro[0];//(1.0+(sin((1.0-voro[0]))/2.0));
+        //no=no+n[2]/10.0;
+
         float r = mix(Red,Red1,no);
         float g = mix(Green,Green1,no);
         float b = mix(Blue,Blue1,no);
-
         col = vec3(r,g,b);
 
         //col = vec3(n[0],n[0],n[0])*vec3(1.0,0.5,0.1)+vec3(0.2,0.2,0.2);
+        //col = voronoi(time*pos);
     }
 
     col = sqrt(col); // gamma correction
