@@ -104,7 +104,7 @@ vec3 voronoi( in vec3 x , in vec4 n )
     vec3 f = fract( x );
 
 	float id = 0.0;
-    vec2 res = vec2( 100.0 );
+    vec2 res = vec2( 8.0 );
     for( int k=-1; k<=1; k++ )
         for( int j=-1; j<=1; j++ )
             for( int i=-1; i<=1; i++ )
@@ -123,53 +123,75 @@ vec3 voronoi( in vec3 x , in vec4 n )
                     res.y = d;
                 }
             }
+
+    //return pow( 1.0/res, 1.0/16.0 );
     return vec3( sqrt( res ), abs(id) );
+}
+
+// SMOOTH VORONOI
+float voronoi( in vec3 x )
+{
+    vec3 p = floor( x );
+    vec3 f = fract( x );
+
+    float res = 100.0;
+    for( int k=-1; k<=1; k++ )
+        for( int j=-1; j<=1; j++ )
+            for( int i=-1; i<=1; i++ )
+            {
+                vec3 b = vec3( float(i), float(j), float(k) );
+                vec3 r = vec3( b ) - f + rand3D( p + b );
+                float d = dot( r, r );
+
+                //res = min(d,res);
+                res += 1.0/pow( d, 16.0 );
+            }
+
+    return pow( 1.0/res, 1.0/32.0 );
+    //return sqrt( res );
 }
 
 void main()
 {
-    //gl_FragColor = vec4( noise3(pos), 1.0 );
-
     vec4 n = fbm(time*pos);
-    vec3 voro = voronoi(5.0*(pos),n); //90
+    vec3 voro = voronoi((150.0*pos),n); //90
 
-    //float random = rand3D(pos);
+    // SMOOTH VORONOI
+    //float voro = voronoi((5.0*pos));
+
     vec3 col;
     vec3 colBase;
     vec3 colSnow;
+    vec3 colForest;
 
-    if(Preset1) // MOUNTAINS SHADER
+    if(Preset1)
     {
-        // EARTH TONES: http://www.varian.net/dreamview/dreamcolor/earth.html
-        //    col = clamp(n[0]+1.0,0.5,1.0) * vec3(0.37,0.27,0.18);
-        //colBase = mix(vec3(115.,69.,35.)/4.0,vec3(95.,71.,47.)/4.0,n[0]*length(pos)) / 255.; // BLENDING LAYERS: Grayish base + Brownish soil + fine-tuning using noise (height and n)..
+        //float vn = voro;
+        float vn = voro[1]*voro[0];//smoothstep(0.0,0.9,voro[0]);
 
-        // voronoi base
-        float vn = voro[1]-smoothstep(0.0,0.9,voro[0]);
+        // BASE
         colBase = mix(vec3(0.2,0.2,0.2),vec3(0.4,0.35,0.3),vn);
         colBase = mix(colBase,vec3(0.15,0.15,0.15),n[0]*length(pos));
 
+        // FOREST
+        colForest = mix(vec3(0.1,0.15,0.05),vec3(0.15,0.24,0.13),vn);
+        colForest = mix(colForest,colBase,n[0]*length(pos));
+        colBase = mix(colForest,colBase,0.5+0.5*n[0]*length(pos));
+
+        // SNOW
         colSnow = vec3(1.,0.98,0.98); // SNOW: 255,250,250
+        col = mix(colBase,colSnow,(length(pos)-3.0*n[0]-2.0*n[1]-n[2])/10.0);
 
-        // COL : 1. Snow at higher altitudes (length(pos)) blended with some randomness (n[0]) to avoid hard edges at a fixed height.
-        //       2. Simulate erosion using derivatives (n[1],n[2]).
-        //          - High altitude and snow accumulation (colSnow) -> low alt (colBase)
-        //          - equivalent to (I guess) Higher noise value to lower noise value
-        //          - equivalent to (I guess) subtracting the derivatives. Seems to work.
-        //col = mix(colBase,colSnow,(length(pos)-3.0*n[0]-2.0*n[1]-n[2])/10.0);
-
-        col = colBase;//max(colBase,col); // CLAMPING LOWEST VALUES TO BASE COLOR
+        col = max(colBase,col); // CLAMPING LOWEST VALUES TO BASE COLOR
     }
     else if(!Preset2)
     {
-        col = vec3(1.0+(sin((1.0-n[0])*60.0)/2.0));
+        col = vec3(1.0+(sin((voro[1]-voro[0])*120.0)/2.0));
     }
     else // ADJUSTABLE COLORS FOR DEBUGGING
     {
-        //float no_1 = 1.0+(sin((n[1])*60.0));
-        float no = voro[1]-smoothstep(0.0,0.9,voro[0]);
-        //float no = voro[0];//(1.0+(sin((1.0-voro[0]))/2.0));
-        //no=no+n[2]/10.0;
+        float no = voro[1]*voro[0];
+        //float no = voro;//[1]-voro[0];//(1.0+(sin((1.0-voro[0]))/2.0));
 
         float r = mix(Red,Red1,no);
         float g = mix(Green,Green1,no);
