@@ -49,9 +49,8 @@ var material = new THREE.ShaderMaterial( {
             amp: { type: "f", value: 10.0 }
         }
     ]),
-    vertexShader: require('./shaders/adam-vert.glsl'),
-    fragmentShader: require('./shaders/adam-frag.glsl'),
-    lights: true
+    vertexShader: require('./shaders/iridescence.glsl'),
+    fragmentShader: require('./shaders/iridescence.glsl')
 } );
 
 // create a sphere and assign the material
