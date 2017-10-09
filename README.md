@@ -1,4 +1,4 @@
-# [Project 1: Noise](https://github.com/CIS700-Procedural-Graphics/Project1-Noise)
+# Noise
 
 #### [Check out the project here!](https://sknop8.github.io/Project1-Noise/)
 
