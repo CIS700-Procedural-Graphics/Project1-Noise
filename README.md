@@ -1,6 +1,6 @@
 # Noise
 
-#### [Check out the project here!](https://sknop8.github.io/Project1-Noise/)
+#### [Check out the project here!](https://sknop8.github.io/Noise/)
 
 <img src="https://github.com/sknop8/Project1-Noise/blob/00b21b004ebf203cceee8bcb04f9b57635195d22/imgs/noisebasic.gif" width="600px">
 
