@@ -1,3 +1,5 @@
+import { vec3 } from "gl-matrix";
+
 
 
 function generateNoise() {
@@ -7,6 +9,7 @@ function generateNoise() {
 function whatever() {
   console.log('hi');
 }
+
 
 export default {
   generateNoise: generateNoise,
