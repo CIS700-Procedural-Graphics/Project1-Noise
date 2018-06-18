@@ -15,20 +15,21 @@ function onLoad(framework) {
   // LOOK: the line below is synyatic sugar for the code above. Optional, but I sort of recommend it.
   // var {scene, camera, renderer, gui, stats} = framework; 
 
-  // initialize a simple box and material
-  var box = new THREE.BoxGeometry(1, 1, 1);
+  // setup sphere
+  var sphere = new THREE.IcosahedronGeometry( 20, 4 )
 
   var adamMaterial = new THREE.ShaderMaterial({
     uniforms: {
-      image: { // Check the Three.JS documentation for the different allowed types and values
-        type: "t", 
-        value: THREE.ImageUtils.loadTexture('./adam.jpg')
-      }
+      
     },
     vertexShader: require('./shaders/adam-vert.glsl'),
-    fragmentShader: require('./shaders/adam-frag.glsl')
+    fragmentShader: require('./shaders/adam-frag.glsl'),
+    wireframe: true
   });
-  var adamCube = new THREE.Mesh(box, adamMaterial);
+
+  
+
+  var adamCube = new THREE.Mesh(sphere, adamMaterial);
 
   // set camera position
   camera.position.set(1, 1, 2);
