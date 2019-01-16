@@ -20,7 +20,7 @@ var adamMaterial = new THREE.ShaderMaterial({
   },
   vertexShader: require('./shaders/adam-vert.glsl'),
   fragmentShader: require('./shaders/adam-frag.glsl'),
-  wireframe: true
+  wireframe: false
 });
 
 var adamCube = new THREE.Mesh(sphere, adamMaterial);

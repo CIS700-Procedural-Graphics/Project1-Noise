@@ -4,7 +4,8 @@ varying vec2 vUv;
 varying float noise;
 
 uniform float time;
-
+varying vec3 vNormal;
+varying float vDisplacement;
 // noise functions
 //
 // GLSL textureless classic 3D noise "cnoise",
@@ -208,6 +209,9 @@ void main() {
     float displacement = (- 10. * noise + b )/1.4;
 
     vec3 newPosition = position + normal * displacement;
+
+    vNormal = normal;
+    vDisplacement = displacement;
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
 }
