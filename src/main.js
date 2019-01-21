@@ -18,6 +18,18 @@ var flameMaterial = new THREE.ShaderMaterial({
     vTurbulence: {
       type: "f",
       value: 1.0
+    },
+    speed: {
+      type: "f",
+      value: 1.0
+    },
+    magnitude: {
+      type: "f",
+      value: 1.0
+    },
+    density: {
+      type: "f",
+      value: 10.0
     }
   },
   vertexShader: require('./shaders/flame-vert.glsl'),
@@ -28,10 +40,14 @@ var flameMaterial = new THREE.ShaderMaterial({
 var flameSphere = new THREE.Mesh(sphere, flameMaterial);
 // value params
 var graphicsParams = {
-  'turbulence': .5,
+  'turbulence': .666,
   'pulse': 0.0,
-  'resolution': 6
+  'resolution': 6,
+  'speed': 1.0,
+  'magnitude': 1.0,
+  'density': 0.5
 };
+var dialogPrompted = false;
 
 // called after the scene loads
 function onLoad(framework) {
@@ -60,15 +76,28 @@ function onLoad(framework) {
   gui.add(graphicsParams, 'turbulence' ,0.0,1.0).onFinishChange((newVal) => {
     graphicsParams.vTurbulence = newVal;
   });
-  gui.add(graphicsParams, 'pulse' ,0.0,1.0).onFinishChange((newVal) => {
-    scene.remove(flameSphere);
-  })
+  // gui.add(graphicsParams, 'pulse' ,0.0,1.0).onFinishChange((newVal) => {
+  //   scene.remove(flameSphere);
+  // })
   gui.add(graphicsParams, 'resolution' ,1,10).step(1).onFinishChange((newVal) => {
+    if (graphicsParams.resolution > 6 && !dialogPrompted) {
+      alert("High resolutions are resource intensive and could cause a browser crash!");
+      dialogPrompted = true;
+    }
     scene.remove(flameSphere);
     var newSphere = new THREE.IcosahedronGeometry( 80, graphicsParams.resolution )
     flameSphere = new THREE.Mesh(newSphere, flameMaterial);
     scene.add(flameSphere);
   });
+  gui.add(graphicsParams, 'speed' ,0.0,3.0).onFinishChange((newVal) => {
+    graphicsParams.speed = newVal;
+  });
+  gui.add(graphicsParams, 'magnitude' ,0.0,10).onFinishChange((newVal) => {
+    graphicsParams.magnitude = newVal;
+  });
+  gui.add(graphicsParams, 'density' ,0.0,2.0).onFinishChange((newVal) => {
+    graphicsParams.density = newVal;
+  })
 }
 
 // called on frame updates
@@ -76,6 +105,9 @@ function onUpdate(framework) {
   var now = ((Date.now() - start) / 1000.0);
   flameMaterial.uniforms[ 'time' ].value = 0.25 * now;
   flameMaterial.uniforms[ 'vTurbulence' ].value = graphicsParams.turbulence;
+  flameMaterial.uniforms[ 'magnitude' ].value = graphicsParams.magnitude;
+  flameMaterial.uniforms[ 'density' ].value = 10*(2.0*graphicsParams.density);
+  flameMaterial.uniforms[ 'speed' ].value = (Math.pow(10,graphicsParams.speed));
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
