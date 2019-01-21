@@ -1,11 +1,15 @@
-
-
+// in
 varying vec2 vUv;
-varying float noise;
 
+// uniforms
 uniform float time;
+uniform float vTurbulence;
+
+// out to frag
 varying vec3 vNormal;
+varying float noise;
 varying float vDisplacement;
+
 // noise functions
 //
 // GLSL textureless classic 3D noise "cnoise",
@@ -202,7 +206,7 @@ float turbulence( vec3 p ) {
 void main() {
     vUv = uv;
 
-    noise = 10.0 *  -.10 * turbulence( .5 * normal + time );
+    noise = 10.0 *  -.10 * (turbulence( .5 * normal + time )*vTurbulence);
 
     float b = 5.0 * pnoise( 0.05 * position + vec3( 2.0 * time ), vec3( 100.0 ) );
 
