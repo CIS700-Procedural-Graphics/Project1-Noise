@@ -89,7 +89,7 @@ function onLoad(framework) {
     flameSphere = new THREE.Mesh(newSphere, flameMaterial);
     scene.add(flameSphere);
   });
-  gui.add(graphicsParams, 'speed' ,0.0,3.0).onFinishChange((newVal) => {
+  gui.add(graphicsParams, 'speed' ,0.0,2.0).onFinishChange((newVal) => {
     graphicsParams.speed = newVal;
   });
   gui.add(graphicsParams, 'magnitude' ,0.0,10).onFinishChange((newVal) => {
