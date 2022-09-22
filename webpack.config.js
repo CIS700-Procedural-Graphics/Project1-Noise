@@ -1,28 +1,37 @@
 const path = require('path');
 
 module.exports = {
-  entry: path.join(__dirname, "src/main"),
+  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
+  entry: path.resolve(__dirname, "src/main"),
   output: {
-    filename: "./bundle.js"
+    path: path.resolve(__dirname, "dist"),
+    filename: "bundle.js",
+    publicPath: '/',
   },
   module: {
-    loaders: [
+    rules: [
       {
-        test: /\.js$/,
-        exclude: /(node_modules|bower_components)/,
-        loader: 'babel',
-        query: {
-          presets: ['es2015']
-        }
+        test: /\.ts$/,
+        use: 'ts-loader',
+        exclude: /node_modules/
       },
       {
         test: /\.glsl$/,
-        loader: "webpack-glsl"
+        loader: 'webpack-glsl-loader'
       },
     ]
   },
+  resolve: {
+    extensions: ['.ts', '.js' ],
+  },
   devtool: 'source-map',
   devServer: {
-    port: 7000
-  }
-}
+    port: 5660,
+    static: {
+      directory: path.join(__dirname, 'dist'),
+    },
+    client: {
+      overlay: true,
+    }
+  },
+};
