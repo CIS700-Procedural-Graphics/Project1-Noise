@@ -116,3 +116,12 @@ Using dat.GUI and the examples provided in the reference code, make some aspect 
 - Create a [pull request](https://help.github.com/articles/creating-a-pull-request/) to this repository, and in the comment, include a link to your published project.
 
 - Submit the link to your pull request on Canvas.
+
+## Submission Content
+
+- (may be updated further)
+
+- Implemented some FBM noise generation as described above with adjustable spacing of lattice points, octaves, and persistance. 
+- Cosine interpolation
+- applied the FBM results directly added to the normals of the sphere in the vertex deformation
+- Added multi-stop linear color interp to space out certain bands of color
